@@ -313,6 +313,11 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13
 
 <!-- sidebar -->
 <nav class="sidebar">
+  <div class="nav-group">ガイド</div>
+  <div class="nav-item" onclick="goto('readme',this)">
+    <svg class="nav-icon" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="7" cy="7" r="5.5"/><line x1="7" y1="5" x2="7" y2="5.1"/><line x1="7" y1="7" x2="7" y2="10"/></svg>
+    ReadMe First
+  </div>
   <div class="nav-group">作業台</div>
   <div class="nav-item act" onclick="goto('overview',this)">
     <svg class="nav-icon" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="1" width="5" height="5" rx="1"/><rect x="8" y="1" width="5" height="5" rx="1"/><rect x="1" y="8" width="5" height="5" rx="1"/><rect x="8" y="8" width="5" height="5" rx="1"/></svg>
@@ -371,6 +376,157 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13
 <!-- main -->
 <main class="main">
 <div class="content" id="contentArea">
+
+<!-- ═══ ReadMe First ═══ -->
+<div class="page" id="pg-readme">
+  <div class="banner banner-blue" style="margin-bottom:18px">
+    <strong>ReadMe First</strong> — このダッシュボードの機能・操作方法を確認できます。初めてご利用の方はここからお読みください。
+  </div>
+
+  <!-- 操作の基本 -->
+  <div class="card" style="margin-bottom:14px">
+    <div class="card-hd"><span class="card-title">基本操作</span></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;font-size:11px;line-height:1.8">
+      <div>
+        <div style="font-weight:500;color:var(--text);margin-bottom:4px">年月セレクター（上部）</div>
+        <div style="color:var(--muted)">画面上部の年月ドロップダウンで分析対象月を切り替えます。<span style="color:var(--accent);font-family:var(--mono)">⏱ 年月連動</span> バッジがついたグラフ・テーブルがリアルタイムに更新されます。</div>
+      </div>
+      <div>
+        <div style="font-weight:500;color:var(--text);margin-bottom:4px">テーマ切替</div>
+        <div style="color:var(--muted)">右上の <strong>Dark ⇌</strong> ボタンでダーク／ライトモードを切り替えられます。設定はブラウザに保存されます。</div>
+      </div>
+      <div>
+        <div style="font-weight:500;color:var(--text);margin-bottom:4px">チャートエンジン切替</div>
+        <div style="color:var(--muted)">右上の <strong>Chart.js ⇌</strong> ボタンで描画エンジンを切り替えられます。Plotly はインタラクティブ操作（ズーム・ホバー詳細）に対応します。</div>
+      </div>
+      <div>
+        <div style="font-weight:500;color:var(--text);margin-bottom:4px">CSV出力</div>
+        <div style="color:var(--muted)">右上の <strong>CSV出力</strong> ボタンでスクリーニング結果をCSVファイルとして保存できます。</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ページ機能一覧 -->
+  <div class="card" style="margin-bottom:14px">
+    <div class="card-hd"><span class="card-title">各ページの機能</span></div>
+    <div style="display:flex;flex-direction:column;gap:0">
+
+      <div style="display:flex;gap:14px;padding:10px 0;border-bottom:1px solid var(--border)">
+        <div style="width:140px;flex-shrink:0">
+          <div style="font-weight:500;font-size:12px;color:var(--text)">全体サマリー</div>
+          <div style="font-size:10px;color:var(--muted);margin-top:2px">作業台 › ホーム</div>
+        </div>
+        <div style="font-size:11px;color:var(--muted);line-height:1.7">
+          市場全体の加重PBR・PER・PBR1倍割れ業種数・時価総額合計・配当利回りをKPIカードで表示。業種別PBR棒グラフ（ランキング）、PBR/PER散布図、製造業・非製造業比較も確認できます。
+        </div>
+      </div>
+
+      <div style="display:flex;gap:14px;padding:10px 0;border-bottom:1px solid var(--border)">
+        <div style="width:140px;flex-shrink:0">
+          <div style="font-weight:500;font-size:12px;color:var(--text)">スクリーニング</div>
+          <div style="font-size:10px;color:var(--muted);margin-top:2px">作業台 › フィルタリング</div>
+        </div>
+        <div style="font-size:11px;color:var(--muted);line-height:1.7">
+          東証33業種を対象に、カテゴリ（グロース／バリュー／シクリカル／ディフェンシブ）・PBR水準・PBR変化率・業種名検索でフィルタリング。各業種のシグナル（強いBuy / Buy / Neutral / 注意）と詳細を確認できます。
+        </div>
+      </div>
+
+      <div style="display:flex;gap:14px;padding:10px 0;border-bottom:1px solid var(--border)">
+        <div style="width:140px;flex-shrink:0">
+          <div style="font-weight:500;font-size:12px;color:var(--text)">バリュエーション</div>
+          <div style="font-size:10px;color:var(--muted);margin-top:2px">分析① › PBR/PER時系列</div>
+        </div>
+        <div style="font-size:11px;color:var(--muted);line-height:1.7">
+          業種別PBR時系列グラフ（複数業種比較）と業種別PERランキングを表示。過去データとの比較で割高・割安を判断する基礎情報を提供します。
+        </div>
+      </div>
+
+      <div style="display:flex;gap:14px;padding:10px 0;border-bottom:1px solid var(--border)">
+        <div style="width:140px;flex-shrink:0">
+          <div style="font-weight:500;font-size:12px;color:var(--text)">PBR 1倍割れ</div>
+          <div style="font-size:10px;color:var(--muted);margin-top:2px">分析① › 東証改革モニタリング</div>
+        </div>
+        <div style="font-size:11px;color:var(--muted);line-height:1.7">
+          PBR &lt; 1.0x の業種を一覧表示。東証改革（2023年4月要請）に基づく改善状況をモニタリングし、業種別のヒートマップで推移を可視化します。
+        </div>
+      </div>
+
+      <div style="display:flex;gap:14px;padding:10px 0;border-bottom:1px solid var(--border)">
+        <div style="width:140px;flex-shrink:0">
+          <div style="font-weight:500;font-size:12px;color:var(--text)">イベント別反応</div>
+          <div style="font-size:10px;color:var(--muted);margin-top:2px">分析② › マクロイベント影響</div>
+        </div>
+        <div style="font-size:11px;color:var(--muted);line-height:1.7">
+          コロナショック・金融緩和転換・ウクライナ侵攻・日銀YCC修正・東証改革要請の5マクロイベントに対する業種別PBR変化・時価総額シェア変化を比較分析します。
+        </div>
+      </div>
+
+      <div style="display:flex;gap:14px;padding:10px 0;border-bottom:1px solid var(--border)">
+        <div style="width:140px;flex-shrink:0">
+          <div style="font-weight:500;font-size:12px;color:var(--text)">散布図（規模×PBR）</div>
+          <div style="font-size:10px;color:var(--muted);margin-top:2px">分析③ › ポジショニング</div>
+        </div>
+        <div style="font-size:11px;color:var(--muted);line-height:1.7">
+          時価総額（規模）× PBRのバブルチャート。各業種のポジショニングを把握し、規模に見合った評価がされているかを視覚的に確認できます。
+        </div>
+      </div>
+
+      <div style="display:flex;gap:14px;padding:10px 0;border-bottom:1px solid var(--border)">
+        <div style="width:140px;flex-shrink:0">
+          <div style="font-weight:500;font-size:12px;color:var(--text)">成長要因分解</div>
+          <div style="font-size:10px;color:var(--muted);margin-top:2px">分析③ › PBR変化の内訳</div>
+        </div>
+        <div style="font-size:11px;color:var(--muted);line-height:1.7">
+          PBRの変化をBPS（1株純資産）成長とPBR倍率膨張に分解し、業種ごとに「実力の改善」か「期待先行」かを判断する材料を提供します。
+        </div>
+      </div>
+
+      <div style="display:flex;gap:14px;padding:10px 0;border-bottom:1px solid var(--border)">
+        <div style="width:140px;flex-shrink:0">
+          <div style="font-weight:500;font-size:12px;color:var(--text)">景気循環分析</div>
+          <div style="font-size:10px;color:var(--muted);margin-top:2px">分析④ › サイクル判定</div>
+        </div>
+        <div style="font-size:11px;color:var(--muted);line-height:1.7">
+          景気循環フェーズ（回復・拡張・インフレ・後退）を判定し、フェーズに応じた業種推奨（BUY/HOLD/SELL）を表示。Zスコアヒートマップ・景気指標・Cyclical/Defensive強度も確認できます。
+        </div>
+      </div>
+
+      <div style="display:flex;gap:14px;padding:10px 0">
+        <div style="width:140px;flex-shrink:0">
+          <div style="font-weight:500;font-size:12px;color:var(--text)">チームメモ</div>
+          <div style="font-size:10px;color:var(--muted);margin-top:2px">チーム › 仮説・シグナル記録</div>
+        </div>
+        <div style="font-size:11px;color:var(--muted);line-height:1.7">
+          分析中の気づき・仮説・投資シグナルをメモとして記録できます。Markdown記法対応。ピン留め機能あり。なお保存はブラウザのlocalStorageを使用するため、セッションをまたいで保持されますがブラウザのデータ削除で消える点にご注意ください。
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- データについて -->
+  <div class="card">
+    <div class="card-hd"><span class="card-title">データについて</span></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;font-size:11px;line-height:1.8">
+      <div>
+        <div style="font-weight:500;color:var(--text);margin-bottom:4px">サンプルデータ</div>
+        <div style="color:var(--muted)">初期状態では東証33業種の<span class="chip chip-a">サンプルデータ</span>を使用しています。画面上部に「サンプルデータ」バッジが表示されます。実運用では <code style="font-family:var(--mono);background:var(--bg3);padding:1px 4px;border-radius:3px">jpx_dashboard_data_latest.js</code> を実データに差し替えてください。</div>
+      </div>
+      <div>
+        <div style="font-weight:500;color:var(--text);margin-bottom:4px">対象業種・指標</div>
+        <div style="color:var(--muted)">東証33業種の加重PBR・加重PER・時価総額・上場社数・配当利回りを月次で管理します。データの加重平均は時価総額ウェイトで計算します。</div>
+      </div>
+      <div>
+        <div style="font-weight:500;color:var(--text);margin-bottom:4px">景気指標（分析④）</div>
+        <div style="color:var(--muted)">景気循環分析では内閣府景気動向指数（CI）・日銀政策金利・CPI・PMIなどのマクロ指標を使用します。現バージョンはサンプル固定値です。</div>
+      </div>
+      <div>
+        <div style="font-weight:500;color:var(--text);margin-bottom:4px">注意事項</div>
+        <div style="color:var(--muted)">本ダッシュボードは投資の意思決定補助ツールです。表示データは参考情報であり、投資成果を保証するものではありません。実際の投資判断はご自身の責任でお願いします。</div>
+      </div>
+    </div>
+  </div>
+</div>
 
 <!-- ═══ スクリーニング ═══ -->
 <div class="page" id="pg-screen">
@@ -886,8 +1042,8 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13
 
 <script>
 // ────── data ──────
-const _useRealData=(()=>{try{return new URLSearchParams(window.location.search).get('mode')==='real';}catch(_){return false;}})();
-const DASHBOARD_DATA = (_useRealData && window.JPX_DASHBOARD_DATA) || null;
+const _forceSample=(()=>{try{return new URLSearchParams(window.location.search).get('mode')==='sample';}catch(_){return false;}})();
+const DASHBOARD_DATA = (!_forceSample && window.JPX_DASHBOARD_DATA) || null;
 
 const SAMPLE_SECTORS=[
   {n:'水産・農林', cat:'D',pbr:1.2,per:13.2,cap:0.6, cos:7,  chg:+0.0,dy:2.2},
@@ -1418,8 +1574,8 @@ function updateDataModePill(){
 function toggleDataMode(){
   if(!window.JPX_DASHBOARD_DATA) return;
   const url=new URL(location.href);
-  if(_useRealData) url.searchParams.delete('mode');
-  else url.searchParams.set('mode','real');
+  if(_forceSample) url.searchParams.delete('mode');
+  else url.searchParams.set('mode','sample');
   location.href=url.toString();
 }
 // A-2: 最新月へ
