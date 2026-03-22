@@ -303,8 +303,8 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13
   <button class="tb-btn" onclick="goLatestYm()" title="最新月を表示" style="padding:3px 8px;font-size:10px">↑最新</button>
   <span class="pill pill-amber" id="dataModePill" onclick="toggleDataMode()" style="cursor:default" title="">サンプルデータ</span>
   <span id="generatedAt" style="font-size:10px;color:var(--hint);font-family:var(--mono);white-space:nowrap"></span>
-  <span class="pill-toggle" id="themePill" onclick="toggleTheme()" title="テーマ切替（Dark / Light）">Dark</span>
-  <span class="pill-toggle" id="chartModePill" onclick="toggleChartModePill()" title="チャートモード切替（Chart.js / Plotly）">Chart.js</span>
+  <span class="pill-toggle" id="themePill" onclick="toggleTheme()" title="テーマ切替（Dark / Light）">Dark ⇌</span>
+  <span class="pill-toggle" id="chartModePill" onclick="toggleChartModePill()" title="チャートモード切替（Chart.js / Plotly）">Chart.js ⇌</span>
   <div class="tb-right">
     <button class="tb-btn" onclick="exportCSV()">CSV出力</button>
     <button class="tb-btn" onclick="goto('notes',null,true)">チームメモ</button>
@@ -1450,7 +1450,7 @@ function toggleTheme(){
 function updateThemePill(){
   const el=document.getElementById('themePill');
   if(!el) return;
-  el.textContent=themeMode==='dark'?'Dark':'Light';
+  el.textContent=themeMode==='dark'?'Dark ⇌':'Light ⇌';
   el.classList.toggle('pt-active',themeMode==='light');
 }
 // A-6: チャートモードピル
@@ -1463,7 +1463,7 @@ function toggleChartModePill(){
 function updateChartModePill(){
   const el=document.getElementById('chartModePill');
   if(!el) return;
-  el.textContent=chartMode==='plotly'?'Plotly':'Chart.js';
+  el.textContent=chartMode==='plotly'?'Plotly ⇌':'Chart.js ⇌';
   el.classList.toggle('pt-active',chartMode==='plotly');
 }
 // A-3: フィルター URL 同期
