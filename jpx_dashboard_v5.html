@@ -1,0 +1,2785 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JPX セクター分析 / 投資作業台</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=JetBrains+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script src="./assets/jpx/jpx_dashboard_data_latest.js"></script>
+<style>
+:root{
+  --bg:#0e1117; --bg2:#161b25; --bg3:#1e2436; --bg4:#252d3d;
+  --border:rgba(255,255,255,.06); --border2:rgba(255,255,255,.12);
+  --text:#dde2f0; --muted:#6b7491; --hint:#434965;
+  --accent:#5b8df6; --green:#29c99a; --amber:#f5a623; --red:#e05454; --purple:#9b7fe8;
+  --sans:'IBM Plex Sans','Noto Sans JP',sans-serif;
+  --mono:'JetBrains Mono',monospace;
+  --r:8px; --r2:14px;
+}
+[data-theme="light"]{
+  --bg:#f4f7fb; --bg2:#ffffff; --bg3:#eef3fa; --bg4:#e5edf8;
+  --border:rgba(16,24,40,.08); --border2:rgba(16,24,40,.16);
+  --text:#162031; --muted:#475467; --hint:#667085;
+  --accent:#2563eb; --green:#0f9f6e; --amber:#c98512; --red:#d14343; --purple:#7c5ce0;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13px;min-height:100vh}
+
+/* ── shell ── */
+.shell{display:grid;grid-template-columns:200px 1fr;grid-template-rows:48px 1fr;min-height:100vh}
+.topbar{grid-column:1/-1;display:flex;align-items:center;gap:10px;padding:0 16px;
+  background:var(--bg2);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:200}
+.sidebar{background:var(--bg2);border-right:1px solid var(--border);padding:12px 0;
+  display:flex;flex-direction:column;overflow-y:auto}
+.main{display:flex;flex-direction:column;overflow:hidden;background:var(--bg)}
+
+/* ── topbar ── */
+.logo{font-family:var(--mono);font-size:12px;font-weight:500;color:var(--accent);letter-spacing:.5px;white-space:nowrap}
+.tb-sep{width:1px;height:20px;background:var(--border2);margin:0 4px}
+.tb-ym{background:var(--bg3);border:1px solid var(--border2);color:var(--text);
+  font-family:var(--mono);font-size:11px;padding:3px 9px;border-radius:5px;cursor:pointer;outline:none}
+.tb-ym option{background:var(--bg2)}
+.pill{font-size:10px;padding:2px 8px;border-radius:99px;font-weight:500}
+.pill-green{background:rgba(41,201,154,.12);color:var(--green);border:1px solid rgba(41,201,154,.22)}
+.pill-amber{background:rgba(245,166,35,.12);color:var(--amber);border:1px solid rgba(245,166,35,.22)}
+.pill-toggle{display:inline-flex;align-items:center;padding:3px 10px;border-radius:99px;font-size:10px;font-weight:500;cursor:pointer;user-select:none;border:1px solid var(--border2);background:var(--bg4);color:var(--muted);transition:.15s;white-space:nowrap}
+.pill-toggle:hover{color:var(--text)}
+.pill-toggle.pt-active{background:var(--accent);color:#fff;border-color:var(--accent)}
+.kpi-badge{font-size:9px;font-family:var(--mono);margin-left:5px;font-weight:500;vertical-align:middle}
+.kpi-spark{margin-top:6px;opacity:.65;line-height:0}
+.tb-right{margin-left:auto;display:flex;align-items:center;gap:8px}
+/* export / share stub */
+.tb-btn{background:var(--bg4);border:1px solid var(--border2);color:var(--muted);
+  font-size:11px;padding:4px 10px;border-radius:5px;cursor:pointer;transition:.15s}
+.tb-btn:hover{color:var(--text);border-color:var(--border2)}
+
+/* ── sidebar ── */
+.nav-group{padding:4px 12px 2px;font-size:10px;color:var(--hint);letter-spacing:.08em;text-transform:uppercase;margin-top:8px}
+.nav-item{display:flex;align-items:center;gap:9px;padding:7px 14px;cursor:pointer;
+  color:var(--muted);font-size:12px;border-left:2px solid transparent;transition:.12s}
+.nav-item:hover{color:var(--text);background:rgba(255,255,255,.02)}
+.nav-item.act{color:var(--accent);border-left-color:var(--accent);background:rgba(91,141,246,.06)}
+.nav-icon{width:14px;height:14px;flex-shrink:0;opacity:.75}
+.nav-badge{margin-left:auto;font-family:var(--mono);font-size:9px;
+  background:rgba(229,84,84,.15);color:var(--red);padding:1px 5px;border-radius:99px}
+.nav-badge.g{background:rgba(41,201,154,.12);color:var(--green)}
+
+/* ── content area ── */
+.content{flex:1;overflow-y:auto;padding:18px 20px}
+.page{display:none}.page.act{display:block}
+
+/* ── filter toolbar ── */
+.filter-bar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+  background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);
+  padding:10px 14px;margin-bottom:16px}
+.filter-label{font-size:11px;color:var(--muted);white-space:nowrap}
+.filter-group{display:flex;gap:4px;flex-wrap:wrap}
+.ftag{padding:3px 10px;border-radius:99px;font-size:11px;font-weight:500;
+  border:1px solid var(--border2);color:var(--muted);cursor:pointer;transition:.12s;background:transparent}
+.ftag:hover{border-color:var(--accent);color:var(--accent)}
+.ftag.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+.ftag.on.g{background:var(--green);border-color:var(--green)}
+.ftag.on.a{background:var(--amber);border-color:var(--amber)}
+.ftag.on.p{background:var(--purple);border-color:var(--purple)}
+.sep-v{width:1px;height:16px;background:var(--border2)}
+.slider-wrap{display:flex;align-items:center;gap:6px;font-size:11px}
+.slider-wrap input{width:80px;accent-color:var(--accent)}
+
+/* ── kpi row ── */
+.kpi-row{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:16px}
+.kpi{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:12px 14px;position:relative;overflow:visible}
+.kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+.kpi.ka::before{background:var(--accent)}
+.kpi.kg::before{background:var(--green)}
+.kpi.kam::before{background:var(--amber)}
+.kpi.kr::before{background:var(--red)}
+.kpi.kp::before{background:var(--purple)}
+.kpi-label{font-size:10px;color:var(--muted);margin-bottom:5px}
+.kpi-val{font-family:var(--mono);font-size:20px;font-weight:500;line-height:1}
+.kpi-sub{font-size:10px;color:var(--muted);margin-top:4px}
+.up{color:var(--green)}.dn{color:var(--red)}.fl{color:var(--muted)}
+
+/* ── cards ── */
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r2);padding:16px 18px;margin-bottom:14px}
+.card-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.card-title{font-size:12px;font-weight:500;color:var(--text)}
+.card-meta{font-size:10px;color:var(--muted)}
+.ch{position:relative}.ch-220{height:220px}.ch-300{height:300px}.ch-360{height:360px}.ch-160{height:160px}
+.plotly-host{width:100%;height:100%;display:none}
+.plotly-host.act{display:block}
+.chart-host-hide{display:none!important}
+.heat-table-host.chart-host-hide{display:none!important}
+
+/* ── grid ── */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+.g13{display:grid;grid-template-columns:1fr 3fr;gap:14px}
+
+/* ── year/month linkage indicator ── */
+.ym-badge{display:inline-flex;align-items:center;gap:3px;font-size:9px;
+  color:var(--accent);font-family:var(--mono);
+  background:rgba(91,141,246,.10);border:1px solid rgba(91,141,246,.22);
+  border-radius:99px;padding:1px 7px;margin-left:7px;white-space:nowrap;
+  cursor:default;vertical-align:middle;flex-shrink:0}
+.ym-badge::before{content:'⏱ '}
+@keyframes ym-flash{
+  0%  {box-shadow:none;border-color:var(--border)}
+  20% {box-shadow:0 0 0 3px rgba(91,141,246,.30);border-color:rgba(91,141,246,.60)}
+  100%{box-shadow:none;border-color:var(--border)}
+}
+.ym-flash{animation:ym-flash 1s ease-out}
+
+/* ── signal table (screening) ── */
+.sig-table{width:100%;border-collapse:collapse;font-size:11px}
+.sig-table th{padding:6px 10px;text-align:left;font-weight:500;color:var(--muted);
+  border-bottom:1px solid var(--border);white-space:nowrap;position:sticky;top:0;background:var(--bg2);z-index:1}
+.sig-table th:has(.info-icon:hover){z-index:10000}
+.sig-table th[data-skey]:hover{color:var(--text)}
+.sig-table td{padding:6px 10px;border-bottom:1px solid rgba(255,255,255,.025);transition:.1s}
+.sig-table tr:hover td{background:rgba(255,255,255,.025);cursor:pointer}
+.sig-table td.bold{font-weight:500;color:var(--text)}
+.chip{display:inline-block;padding:1px 7px;border-radius:99px;font-size:10px;font-weight:500;font-family:var(--mono)}
+.chip-g{background:rgba(41,201,154,.15);color:var(--green)}
+.chip-a{background:rgba(245,166,35,.15);color:var(--amber)}
+.chip-r{background:rgba(224,84,84,.15);color:var(--red)}
+.chip-p{background:rgba(155,127,232,.15);color:var(--purple)}
+.chip-b{background:rgba(91,141,246,.15);color:var(--accent)}
+.signal-dot{width:7px;height:7px;border-radius:50%;display:inline-block;margin-right:5px}
+
+/* ── note / memo ── */
+.note-area{width:100%;background:var(--bg3);border:1px solid var(--border2);color:var(--text);
+  font-family:var(--sans);font-size:12px;border-radius:var(--r);padding:10px 12px;
+  resize:vertical;min-height:72px;outline:none;line-height:1.6}
+.note-area:focus{border-color:var(--accent)}
+.note-meta{font-size:10px;color:var(--hint);margin-top:4px}
+.saved-notes{margin-top:10px;display:flex;flex-direction:column;gap:6px}
+.snote{background:var(--bg3);border-left:2px solid var(--accent);
+  border-radius:0 var(--r) var(--r) 0;padding:8px 12px;font-size:11px;line-height:1.6;position:relative}
+.snote .snote-ts{font-size:10px;color:var(--hint);margin-top:3px}
+.snote .del-btn{position:absolute;right:8px;top:6px;background:none;border:none;
+  color:var(--hint);cursor:pointer;font-size:13px;padding:0;line-height:1}
+.snote .del-btn:hover{color:var(--red)}
+.snote .pin-btn{position:absolute;right:30px;top:6px;background:none;border:none;
+  cursor:pointer;font-size:12px;padding:0;line-height:1;opacity:.5}
+.snote .pin-btn:hover{opacity:1}
+.snote.pinned{border-left-color:var(--amber)}
+.snote-md p{margin:0 0 4px}.snote-md code{font-family:var(--mono);font-size:10px;
+  background:var(--bg4);border-radius:3px;padding:1px 4px}
+.pbr-heat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:10px}
+@media(min-width:900px){.pbr-heat-grid{grid-template-columns:repeat(6,1fr)}}
+.sector-dlg{border:1px solid var(--border2);border-radius:var(--r2);
+  background:var(--bg2);color:var(--text);padding:20px 22px;min-width:280px;max-width:420px}
+.sector-dlg::backdrop{background:rgba(0,0,0,.5)}
+.comp-bar{display:flex;align-items:center;gap:8px;padding:3px 0}
+.comp-bar-lbl{width:90px;font-size:10px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.comp-bar-track{flex:1;height:5px;background:rgba(255,255,255,.06);border-radius:3px;overflow:hidden;display:flex}
+.comp-bar-val{font-family:var(--mono);font-size:10px;width:36px;text-align:right}
+
+/* ── event pills ── */
+.ev-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.ev{padding:4px 12px;border-radius:99px;font-size:11px;font-weight:500;cursor:pointer;
+  border:1px solid var(--border2);color:var(--muted);transition:.12s}
+.ev:hover{color:var(--text)}
+.ev.act{color:#fff}
+.ev.ev1.act{background:#e05454;border-color:#e05454}
+.ev.ev2.act{background:#f5a623;border-color:#f5a623;color:#111}
+.ev.ev3.act{background:#5b8df6;border-color:#5b8df6}
+.ev.ev4.act{background:#9b7fe8;border-color:#9b7fe8}
+.ev.ev5.act{background:#29c99a;border-color:#29c99a;color:#111}
+
+/* ── info banner ── */
+.banner{border-radius:var(--r);padding:10px 14px;font-size:11px;line-height:1.7;margin-bottom:14px}
+.banner-blue{background:rgba(91,141,246,.08);border:1px solid rgba(91,141,246,.2);color:var(--text)}
+.banner strong{color:var(--accent)}
+.banner-green{background:rgba(41,201,154,.07);border:1px solid rgba(41,201,154,.18)}
+.banner-green strong{color:var(--green)}
+
+/* ── tabs ── */
+.tabs{display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:14px}
+.tab{padding:6px 14px;font-size:11px;cursor:pointer;color:var(--muted);
+  border-bottom:2px solid transparent;transition:.12s;white-space:nowrap;text-align:center}
+.tab:hover{color:var(--text)}
+.tab.act{color:var(--accent);border-bottom-color:var(--accent)}
+.tp{display:none}.tp.act{display:block}
+
+/* ── sector bars ── */
+.sbar-row{display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.025)}
+.sbar-name{width:110px;font-size:11px;flex-shrink:0}
+.sbar-track{flex:1;height:5px;background:rgba(255,255,255,.06);border-radius:3px;overflow:hidden}
+.sbar-fill{height:100%;border-radius:3px}
+.sbar-val{width:36px;text-align:right;font-family:var(--mono);font-size:11px}
+.sbar-chg{width:36px;text-align:right;font-size:10px;font-family:var(--mono)}
+
+/* ── streamlit roadmap ── */
+.phase-card{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r2);padding:16px 18px;margin-bottom:12px}
+.phase-hd{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.phase-num{font-family:var(--mono);font-size:11px;padding:2px 8px;border-radius:99px;font-weight:500}
+.phase-title{font-size:13px;font-weight:500}
+.feat-list{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.feat{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);
+  padding:8px 12px;font-size:11px;line-height:1.6}
+.feat-head{font-weight:500;margin-bottom:2px}
+.feat-sub{color:var(--muted);font-size:10px}
+
+/* ── scrollbar ── */
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:2px}
+
+/* ── 景気循環フェーズ ── */
+.phase-badge{display:inline-flex;align-items:center;gap:8px;padding:8px 16px;border-radius:99px;font-size:13px;font-weight:500}
+.phase-recovery  {background:rgba(41,201,154,.14);color:var(--green);  border:1px solid rgba(41,201,154,.3)}
+.phase-expansion {background:rgba(91,141,246,.14);color:var(--accent);  border:1px solid rgba(91,141,246,.3)}
+.phase-inflation {background:rgba(245,166,35,.14);color:var(--amber);  border:1px solid rgba(245,166,35,.3)}
+.phase-recession {background:rgba(224,84,84,.14); color:var(--red);    border:1px solid rgba(224,84,84,.3)}
+.phase-pending   {background:rgba(107,116,145,.14);color:var(--muted); border:1px solid rgba(107,116,145,.25)}
+.rec-row{display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.025)}
+.rec-name{width:120px;font-size:11px;flex-shrink:0}
+.rec-cat{width:78px;flex-shrink:0;white-space:nowrap}
+.rec-pbr{width:44px;text-align:right;font-family:var(--mono);font-size:11px}
+.rec-z{width:44px;text-align:right;font-family:var(--mono);font-size:11px}
+.rec-sig{width:90px;flex-shrink:0}
+.zscore-bar{flex:1;height:4px;background:rgba(255,255,255,.06);border-radius:2px;overflow:hidden;position:relative}
+.zscore-fill{height:100%;border-radius:2px;position:absolute}
+.signal-strong-buy  {background:rgba(41,201,154,.18);color:var(--green);  border:1px solid rgba(41,201,154,.35)}
+.signal-buy         {background:rgba(91,141,246,.14);color:var(--accent);  border:1px solid rgba(91,141,246,.3)}
+.signal-hold        {background:rgba(107,116,145,.1);color:var(--muted);  border:1px solid rgba(107,116,145,.2)}
+.signal-sell        {background:rgba(245,166,35,.12);color:var(--amber);   border:1px solid rgba(245,166,35,.25)}
+.signal-strong-sell {background:rgba(224,84,84,.14);color:var(--red);     border:1px solid rgba(224,84,84,.3)}
+.macro-row{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-bottom:16px}
+.macro-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:12px 14px}
+.macro-label{font-size:10px;color:var(--muted);margin-bottom:4px}
+.macro-val{font-family:var(--mono);font-size:18px;font-weight:500}
+.macro-sub{font-size:10px;color:var(--muted);margin-top:3px}
+.cd-gauge{display:flex;align-items:center;gap:8px;margin:8px 0}
+.cd-track{flex:1;height:8px;background:rgba(255,255,255,.06);border-radius:4px;overflow:hidden;position:relative}
+.cd-fill-c{height:100%;border-radius:4px;background:var(--amber);transition:width .5s}
+.cd-fill-d{height:100%;border-radius:4px;background:var(--green);position:absolute;right:0;top:0;transition:width .5s}
+
+/* ── info icon + tooltip ── */
+.info-icon{display:inline-flex;align-items:center;justify-content:center;width:13px;height:13px;
+  border-radius:50%;background:rgba(255,255,255,.06);color:var(--muted);font-size:8px;font-weight:700;
+  font-family:var(--mono);cursor:help;position:relative;margin-left:5px;vertical-align:middle;
+  flex-shrink:0;line-height:1;border:1px solid var(--border2);user-select:none}
+[data-tip]{position:relative}
+[data-tip]::after{content:attr(data-tip);position:absolute;bottom:calc(100% + 7px);left:50%;
+  transform:translateX(-50%);background:var(--bg4,#17171f);color:var(--text);font-size:10px;
+  font-weight:400;font-family:var(--sans,sans-serif);padding:7px 11px;border-radius:7px;
+  border:1px solid var(--border2);white-space:pre-line;width:max-content;max-width:260px;
+  pointer-events:none;opacity:0;transition:opacity .15s;z-index:9999;line-height:1.65;
+  box-shadow:0 4px 14px rgba(0,0,0,.5);text-align:left}
+[data-tip]::before{content:'';position:absolute;bottom:calc(100% + 2px);left:50%;
+  transform:translateX(-50%);border:5px solid transparent;border-top-color:var(--border2);
+  pointer-events:none;opacity:0;transition:opacity .15s;z-index:9999}
+[data-tip]:hover::after,[data-tip]:hover::before{opacity:1}
+[data-tip][data-tip-pos="bottom"]::after{top:calc(100% + 7px);bottom:auto;left:50%;transform:translateX(-50%)}
+[data-tip][data-tip-pos="bottom"]::before{top:calc(100% + 2px);bottom:auto;left:50%;transform:translateX(-50%) rotate(180deg)}
+[data-tip][data-tip-pos="right"]::after{left:calc(100% + 8px);bottom:auto;top:50%;transform:translateY(-50%)}
+[data-tip][data-tip-pos="right"]::before{left:calc(100% - 2px);bottom:auto;top:50%;transform:translateY(-50%) rotate(-90deg)}
+</style>
+</head>
+<body>
+<div class="shell">
+
+<!-- topbar -->
+<header class="topbar">
+  <span style="width:6px;height:6px;border-radius:50%;background:var(--green);animation:blink 2s infinite"></span>
+  <style>@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}</style>
+  <span class="logo">JPX / SECTOR WORKBENCH</span>
+  <span class="tb-sep"></span>
+  <select class="tb-ym" id="ymSel" onchange="onYm(this.value)">
+    <option value="202602">2026年02月</option>
+    <option value="202601">2026年01月</option>
+    <option value="202512">2025年12月</option>
+    <option value="202409">2024年09月</option>
+    <option value="202306">2023年06月</option>
+    <option value="202206">2022年06月</option>
+    <option value="202106">2021年06月</option>
+    <option value="202001" selected>2020年01月</option>
+  </select>
+  <button class="tb-btn" onclick="goLatestYm()" title="最新月を表示" style="padding:3px 8px;font-size:10px">↑最新</button>
+  <span class="pill pill-amber" id="dataModePill" onclick="toggleDataMode()" style="cursor:default" title="">サンプルデータ</span>
+  <span id="generatedAt" style="font-size:10px;color:var(--hint);font-family:var(--mono);white-space:nowrap"></span>
+  <span class="pill-toggle" id="themePill" onclick="toggleTheme()" title="テーマ切替（Dark / Light）">Dark</span>
+  <span class="pill-toggle" id="chartModePill" onclick="toggleChartModePill()" title="チャートモード切替（Chart.js / Plotly）">Chart.js</span>
+  <div class="tb-right">
+    <button class="tb-btn" onclick="exportCSV()">CSV出力</button>
+    <button class="tb-btn" onclick="goto('notes',null,true)">チームメモ</button>
+  </div>
+</header>
+
+<!-- sidebar -->
+<nav class="sidebar">
+  <div class="nav-group">作業台</div>
+  <div class="nav-item act" onclick="goto('overview',this)">
+    <svg class="nav-icon" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="1" width="5" height="5" rx="1"/><rect x="8" y="1" width="5" height="5" rx="1"/><rect x="1" y="8" width="5" height="5" rx="1"/><rect x="8" y="8" width="5" height="5" rx="1"/></svg>
+    全体サマリー
+  </div>
+  <div class="nav-item" onclick="goto('screen',this)">
+    <svg class="nav-icon" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 3h12M3 7h8M5 11h4"/></svg>
+    スクリーニング
+    <span class="nav-badge g" id="nb-screen">0</span>
+  </div>
+
+  <div class="nav-group">分析①</div>
+  <div class="nav-item" onclick="goto('val',this)">
+    <svg class="nav-icon" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="1,11 4,6 8,8 13,2"/></svg>
+    バリュエーション
+  </div>
+  <div class="nav-item" onclick="goto('pbr1',this)">
+    <svg class="nav-icon" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="3" width="12" height="8" rx="1"/><line x1="4" y1="3" x2="4" y2="11"/><line x1="8" y1="3" x2="8" y2="11"/></svg>
+    PBR 1倍割れ
+    <span class="nav-badge" id="nb-below">13</span>
+  </div>
+
+  <div class="nav-group">分析②③</div>
+  <div class="nav-item" onclick="goto('event',this)">
+    <svg class="nav-icon" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="1" width="12" height="12" rx="1"/><line x1="4" y1="1" x2="4" y2="13"/><line x1="1" y1="6" x2="13" y2="6"/></svg>
+    イベント別反応
+  </div>
+  <div class="nav-item" onclick="goto('scatter',this)">
+    <svg class="nav-icon" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="4" cy="10" r="1.5"/><circle cx="10" cy="4" r="1.5"/><circle cx="11" cy="10" r="1.2"/><circle cx="6" cy="6" r="1.2"/></svg>
+    散布図（規模×PBR）
+  </div>
+  <div class="nav-item" onclick="goto('decomp',this)">
+    <svg class="nav-icon" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="8" width="3" height="4" rx="1"/><rect x="5.5" y="5" width="3" height="7" rx="1"/><rect x="9" y="2" width="3" height="10" rx="1"/></svg>
+    成長要因分解
+  </div>
+
+  <div class="nav-group">分析④</div>
+  <div class="nav-item" onclick="goto('cycle',this)">
+    <svg class="nav-icon" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="7" cy="7" r="5"/><polyline points="7,4 7,7 9,9"/><line x1="7" y1="2" x2="7" y2="1"/></svg>
+    景気循環分析
+    <span class="nav-badge g" id="nb-cycle">④</span>
+  </div>
+
+  <div class="nav-group">チーム</div>
+  <div class="nav-item" onclick="goto('notes',this)">
+    <svg class="nav-icon" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="1" width="10" height="12" rx="1"/><line x1="4" y1="5" x2="10" y2="5"/><line x1="4" y1="8" x2="8" y2="8"/></svg>
+    チームメモ
+    <span class="nav-badge g" id="nb-notes">0</span>
+  </div>
+  <div class="nav-item" onclick="goto('roadmap',this)">
+    <svg class="nav-icon" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="1,7 5,3 9,7 13,3"/><polyline points="1,11 5,7 9,11 13,7"/></svg>
+    Streamlit移行計画
+  </div>
+</nav>
+
+<!-- main -->
+<main class="main">
+<div class="content" id="contentArea">
+
+<!-- ═══ スクリーニング ═══ -->
+<div class="page" id="pg-screen">
+  <div class="filter-bar">
+    <span class="filter-label">カテゴリ</span>
+    <div class="filter-group" id="fg-cat">
+      <div class="ftag on"   data-cat="all" onclick="fToggle(this,'cat')">すべて</div>
+      <div class="ftag"      data-cat="G"   onclick="fToggle(this,'cat')" style="--ac:var(--accent)">グロース</div>
+      <div class="ftag"      data-cat="V"   onclick="fToggle(this,'cat')" style="--ac:var(--purple)">バリュー</div>
+      <div class="ftag"      data-cat="C"   onclick="fToggle(this,'cat')" style="--ac:var(--amber)">シクリカル</div>
+      <div class="ftag"      data-cat="D"   onclick="fToggle(this,'cat')" style="--ac:var(--green)">ディフェンシブ</div>
+    </div>
+    <div class="sep-v"></div>
+    <span class="filter-label">PBR</span>
+    <div class="filter-group" id="fg-pbr">
+      <div class="ftag on" data-pbr="all" onclick="fToggle(this,'pbr')">すべて</div>
+      <div class="ftag" data-pbr="below1" onclick="fToggle(this,'pbr')">1倍割れ</div>
+      <div class="ftag" data-pbr="1to2"   onclick="fToggle(this,'pbr')">1〜2倍</div>
+      <div class="ftag" data-pbr="above2" onclick="fToggle(this,'pbr')">2倍超</div>
+    </div>
+    <div class="sep-v"></div>
+    <div class="slider-wrap">
+      <span class="filter-label">PBR変化 ≥</span>
+      <input type="range" min="-1" max="2" step="0.1" value="-1" id="sl-chg" oninput="updateSl()">
+      <span id="sl-val" style="font-family:var(--mono);font-size:11px;color:var(--accent);min-width:30px">−</span>
+    </div>
+    <div class="sep-v"></div>
+    <input type="search" id="screenSearch" placeholder="業種名検索…" oninput="setSearch(this.value)"
+      style="background:var(--bg3);border:1px solid var(--border2);color:var(--text);padding:3px 9px;border-radius:5px;font-size:11px;outline:none;width:120px" autocomplete="off">
+  </div>
+
+  <div class="card">
+    <div class="card-hd">
+      <span class="card-title">業種スクリーニング結果<span class="ym-badge" title="年月連動">年月連動</span></span>
+      <span style="display:flex;align-items:center;gap:8px">
+        <span class="card-meta" id="screen-ym" style="font-family:var(--mono)"></span>
+        <span class="card-meta" id="screen-count"></span>
+      </span>
+    </div>
+    <div style="overflow-x:auto">
+    <table class="sig-table" id="screenTable">
+      <thead><tr id="screenThead">
+        <th onclick="_sortScreen('code')" style="cursor:pointer" data-skey="code">業種</th>
+        <th onclick="_sortScreen('cat')" style="cursor:pointer" data-skey="cat">カテゴリ</th>
+        <th onclick="_sortScreen('pbr')" style="cursor:pointer" data-skey="pbr">加重PBR</th>
+        <th onclick="_sortScreen('chg')" style="cursor:pointer" data-skey="chg">前期比<span class="info-icon" data-tip="前月末比のPBR変化量（絶対値）。&#10;+0.1x = 先月より0.1倍上昇。&#10;▲は上昇、▼は下落を示す。" data-tip-pos="bottom">i</span></th>
+        <th onclick="_sortScreen('per')" style="cursor:pointer" data-skey="per">加重PER</th>
+        <th onclick="_sortScreen('cap')" style="cursor:pointer" data-skey="cap">時価総額</th>
+        <th onclick="_sortScreen('cos')" style="cursor:pointer" data-skey="cos">上場社数</th>
+        <th onclick="_sortScreen('dy')" style="cursor:pointer" data-skey="dy">配当利回り</th>
+        <th>シグナル<span class="info-icon" data-tip="強いBuy: PBR&lt;0.6x かつ 前期比&gt;+0.2x&#10;Buy: PBR&lt;1.0x かつ 前期比&gt;+0.3x&#10;Neutral: 上記以外&#10;注意: PBR&gt;2.5x かつ 前期比&lt;0 または 前期比&gt;+0.8x" data-tip-pos="bottom">i</span></th><th>アクション</th>
+      </tr></thead>
+      <tbody id="screenBody"></tbody>
+    </table>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ 全体サマリー ═══ -->
+<div class="page act" id="pg-overview">
+  <div style="display:flex;justify-content:flex-end;margin-bottom:6px">
+    <span class="ym-badge" title="年月リストで選択した月のデータに連動します">年月連動</span>
+  </div>
+  <div class="kpi-row" id="kpiRow">
+    <div class="kpi ka"><div class="kpi-label">市場全体 加重PBR<span class="info-icon" data-tip="東証上場33業種の時価総額加重平均PBR。&#10;市場全体のバリュエーション水準を示す。&#10;1.0x = 純資産と等価評価。&#10;東証改革の目標は全業種で1.0x超。" data-tip-pos="bottom">i</span></div>
+      <div class="kpi-val" style="color:var(--accent)">1.2<span style="font-size:12px;color:var(--muted)">x</span></div>
+      <div class="kpi-sub"><span class="fl">2020年01月</span></div>
+      <div class="kpi-spark"></div></div>
+    <div class="kpi kg"><div class="kpi-label">市場全体 加重PER<span class="info-icon" data-tip="時価総額加重平均PER（株価収益率）。&#10;PBRと合わせて割安・割高を判断する。&#10;一般に15〜25倍が適正水準とされる。" data-tip-pos="bottom">i</span></div>
+      <div class="kpi-val" style="color:var(--green)">15.5<span style="font-size:12px;color:var(--muted)">x</span></div>
+      <div class="kpi-sub"><span class="fl">連結ベース</span></div>
+      <div class="kpi-spark"></div></div>
+    <div class="kpi kam"><div class="kpi-label">PBR 1倍割れ業種<span class="info-icon" data-tip="PBR &lt; 1.0x の業種数（33業種中）。&#10;純資産以下で評価されている業種。&#10;東証改革要請（2023/04）以降に&#10;改善傾向にあるかを確認する。" data-tip-pos="bottom">i</span></div>
+      <div class="kpi-val" style="color:var(--amber)">13<span style="font-size:12px;color:var(--muted)">/33</span></div>
+      <div class="kpi-sub"><span class="dn">▼2 前月比</span></div></div>
+    <div class="kpi kr"><div class="kpi-label">時価総額合計<span class="info-icon" data-tip="33業種の時価総額合計（兆円）。&#10;前月比で市場全体の規模変化を示す。&#10;為替・金利・業績予想の変化に連動。" data-tip-pos="bottom">i</span></div>
+      <div class="kpi-val">657<span style="font-size:12px;color:var(--muted)">兆円</span></div>
+      <div class="kpi-sub"><span class="up">▲3.2% 前月比</span></div></div>
+    <div class="kpi kp"><div class="kpi-label">PBR最大業種<span class="info-icon" data-tip="現時点でPBRが最も高い業種。&#10;成長期待・ROE水準が高い業種が&#10;上位に来やすい。割高リスクも確認。" data-tip-pos="bottom">i</span></div>
+      <div class="kpi-val" style="color:var(--purple);font-size:15px">精密機器</div>
+      <div class="kpi-sub"><span style="font-family:var(--mono);color:var(--purple)">3.4x</span></div></div>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="card-hd"><span class="card-title">PBR上位・下位（加重）<span class="ym-badge" title="年月連動">年月連動</span></span><span class="card-meta">2020/01</span></div>
+      <div id="sectList"></div>
+    </div>
+    <div class="card" id="ov-trend-card">
+      <div class="card-hd"><span class="card-title">市場全体 加重PBR推移<span class="ym-badge" title="Plotlyモード時に選択月を縦線で表示">縦線マーカー</span></span><span class="card-meta">2020〜2025</span></div>
+      <div class="ch ch-220"><canvas id="trendC"></canvas></div>
+    </div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:12px" id="ovSigRow">
+    <div class="card">
+      <div class="card-hd"><span class="card-title"><span class="chip chip-g" style="margin-right:4px">強いBuy候補</span>業種<span class="info-icon" data-tip="判定条件（AND）&#10;・PBR &lt; 0.6x（割安圏）&#10;・前期比 &gt; +0.2x（上昇トレンド）&#10;&#10;割安かつ改善中の最有力候補。">i</span></span></div>
+      <div id="ovStrongBuy" style="font-size:11px;line-height:1.9;min-height:48px;padding-top:2px"></div>
+    </div>
+    <div class="card">
+      <div class="card-hd"><span class="card-title"><span class="chip chip-b" style="margin-right:4px">Buy候補</span>業種<span class="info-icon" data-tip="判定条件（AND）&#10;・PBR &lt; 1.0x（1倍割れ）&#10;・前期比 &gt; +0.3x（上昇トレンド）&#10;&#10;東証改革期待と上昇勢いを兼ねた候補。">i</span></span></div>
+      <div id="ovBuy" style="font-size:11px;line-height:1.9;min-height:48px;padding-top:2px"></div>
+    </div>
+    <div class="card">
+      <div class="card-hd"><span class="card-title"><span class="chip chip-r" style="margin-right:4px">注意</span>フラグ業種<span class="info-icon" data-tip="過熱注意: PBR &gt; 2.5x かつ 前期比 &lt; 0&#10;（割高で失速 → 利確・見送り検討）&#10;&#10;急騰注意: 前期比 &gt; +0.8x&#10;（短期急騰で過熱感 → 追いかけ禁物）">i</span></span></div>
+      <div id="ovCaution" style="font-size:11px;line-height:1.9;min-height:48px;padding-top:2px"></div>
+    </div>
+  </div>
+  <!-- B-9: PBR ミニヒートマップ -->
+  <div class="card" style="margin-top:14px">
+    <div class="card-hd">
+      <span class="card-title">業種別 PBR 水準マップ<span class="ym-badge" title="年月連動">年月連動</span></span>
+      <span class="card-meta">青=割安 / 赤=割高</span>
+    </div>
+    <div class="pbr-heat-grid" id="pbrHeatGrid"></div>
+  </div>
+</div>
+
+<!-- ═══ バリュエーション ═══ -->
+<div class="page" id="pg-val">
+  <div class="tabs">
+    <div class="tab act" onclick="swTab('val','mkt',this)" title="PBR・PER の時系列推移（市場全体）">市場トレンド<br><span style="font-size:9px;opacity:.65;font-weight:400">PBR・PER推移</span></div>
+    <div class="tab" onclick="swTab('val','ind',this)" title="業種別PBR変化率ランキング（年月連動）">業種ランキング<br><span style="font-size:9px;opacity:.65;font-weight:400">変化率順</span></div>
+    <div class="tab" onclick="swTab('val','sz',this)" title="大型・中型・小型株のPBR比較">規模別スプレッド<br><span style="font-size:9px;opacity:.65;font-weight:400">大・中・小型</span></div>
+    <div class="tab" onclick="swTab('val','mfg',this)" title="製造業 vs 非製造業のPBR推移">製造・非製造<br><span style="font-size:9px;opacity:.65;font-weight:400">業態比較</span></div>
+    <div class="tab" onclick="swTab('val','spr',this)" title="単純平均−加重平均スプレッド：正値=中小株が大型より割高">単純/加重スプレッド<br><span style="font-size:9px;opacity:.65;font-weight:400">中小 vs 大型乖離</span></div>
+  </div>
+  <div class="tp act" id="val-mkt">
+    <div class="card">
+      <div class="card-hd">
+        <span class="card-title">加重PBR・PER 時系列（市場全体）<span class="ym-badge" title="Plotlyモード時に選択月を縦線で表示">縦線マーカー</span></span>
+        <span style="display:flex;align-items:center;gap:8px">
+          <span class="pill-toggle" id="compModePill" onclick="toggleCompMode()" title="比較モード：2つの月の全業種PBRを横並び表示">比較モード</span>
+          <select class="tb-ym" id="compYmSel" onchange="renderCompChart()" title="比較月" style="display:none">
+            <option value="">─ 比較月 ─</option>
+          </select>
+        </span>
+      </div>
+      <div class="ch ch-300"><canvas id="valTrendC"></canvas></div>
+    </div>
+    <!-- 比較チャート（非表示時は height:0） -->
+    <div class="card" id="compCard" style="display:none;margin-top:0">
+      <div class="card-hd">
+        <span class="card-title">業種別 PBR 期間比較<span class="ym-badge" title="年月連動">年月連動</span></span>
+        <span class="card-meta" id="compMeta"></span>
+      </div>
+      <div class="ch" style="height:380px"><canvas id="compC"></canvas></div>
+    </div>
+  </div>
+  <div class="tp" id="val-ind">
+    <div class="card">
+      <div class="card-hd"><span class="card-title">業種別 PBR変化率ランキング<span class="ym-badge" title="年月連動">年月連動</span></span></div>
+      <div class="ch" style="height:420px"><canvas id="indRankC"></canvas></div>
+    </div>
+  </div>
+  <div class="tp" id="val-sz">
+    <div class="g3">
+      <div class="kpi ka"><div class="kpi-label">大型株 PBR</div><div class="kpi-val" style="color:var(--accent)">1.3x</div></div>
+      <div class="kpi kg"><div class="kpi-label">中型株 PBR</div><div class="kpi-val" style="color:var(--green)">1.2x</div></div>
+      <div class="kpi kam"><div class="kpi-label">小型株 PBR</div><div class="kpi-val" style="color:var(--amber)">1.1x</div></div>
+    </div>
+    <div class="card"><div class="card-hd"><span class="card-title">規模別PBR推移</span></div>
+      <div class="ch ch-300"><canvas id="sizeC"></canvas></div></div>
+  </div>
+  <div class="tp" id="val-mfg">
+    <div class="card">
+      <div class="card-hd"><span class="card-title">製造業 vs 非製造業 PBR ｜ 縦線=東証改革要請 2023/04</span></div>
+      <div class="ch ch-300"><canvas id="mfgC"></canvas></div>
+    </div>
+  </div>
+  <div class="tp" id="val-spr">
+    <div class="banner banner-blue">
+      <strong>単純平均−加重平均スプレッド</strong>：正値 = 中小株が大型株より割高。負値 = 大型株が指数を押し上げ。<br>
+      スプレッドが大きい業種ほど「業種平均PBR」の読み取りに注意が必要です。
+    </div>
+    <div class="card"><div class="card-hd"><span class="card-title">業種別 単純−加重 PBRスプレッド<span class="ym-badge" title="年月連動">年月連動</span></span></div>
+      <div class="ch" style="height:380px"><canvas id="sprC"></canvas></div></div>
+  </div>
+</div>
+
+<!-- ═══ PBR 1倍割れ ═══ -->
+<div class="page" id="pg-pbr1">
+  <div class="banner banner-blue">
+    <strong>PBR 1倍割れ追跡</strong>：緑=1倍超、黄=0.8〜1倍（改善途上）、赤=0.8倍未満。東証改革要請（2023/04）以降に改善した業種に注目。
+  </div>
+  <div class="card">
+    <div class="card-hd"><span class="card-title">業種別 PBR水準ヒートマップ（月次）</span></div>
+    <div style="overflow-x:auto" id="heatWrap"></div>
+  </div>
+</div>
+
+<!-- ═══ イベント別反応 ═══ -->
+<div class="page" id="pg-event">
+  <div class="ev-row">
+    <div class="ev ev1 act" onclick="selEv(0,this)">① コロナ底 2020/03</div>
+    <div class="ev ev2"     onclick="selEv(1,this)">② コロナ回復 2021/06</div>
+    <div class="ev ev3"     onclick="selEv(2,this)">③ 利上げ 2022/06</div>
+    <div class="ev ev4"     onclick="selEv(3,this)">④ 東証改革 2023/06</div>
+    <div class="ev ev5"     onclick="selEv(4,this)">⑤ 日銀利上げ 2026/02</div>
+  </div>
+  <div id="evBanner" class="banner banner-blue"></div>
+  <div class="g2">
+    <div class="card">
+      <div class="card-hd"><span class="card-title">PBR変化量</span><span class="card-meta" id="evPeriod"></span></div>
+      <div class="ch ch-220"><canvas id="evBarC"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-hd"><span class="card-title">時価総額シェア変化（pp）</span></div>
+      <div class="ch ch-220"><canvas id="evShareC"></canvas></div>
+    </div>
+  </div>
+  <!-- investment memo for this event -->
+  <div class="card">
+    <div class="card-hd"><span class="card-title">投資判断メモ（このイベント）</span><span class="card-meta">チーム共有</span></div>
+    <textarea class="note-area" id="evNote" placeholder="このイベントから得られた仮説・投資シグナルを記録..."></textarea>
+    <div style="display:flex;justify-content:flex-end;margin-top:6px">
+      <button style="background:var(--accent);color:#fff;border:none;padding:5px 14px;border-radius:6px;font-size:11px;cursor:pointer" onclick="saveEvNote()">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ 散布図 ═══ -->
+<div class="page" id="pg-scatter">
+  <div class="banner banner-blue">
+    <strong>散布図（時価総額 × PBR）</strong>：横軸=加重PBR、縦軸=時価総額（兆円）、バブルサイズ=上場会社数。<br>
+    <strong>左上（割安大型）</strong> = 政策変化・東証改革の最大受益候補。カテゴリ色：
+    <span style="color:var(--accent)">■グロース</span>　<span style="color:var(--purple)">■バリュー</span>　<span style="color:var(--amber)">■シクリカル</span>　<span style="color:var(--green)">■ディフェンシブ</span>
+  </div>
+  <div class="card">
+    <div class="card-hd"><span class="card-title">業種別 時価総額 × PBR バブルチャート<span class="ym-badge" title="年月連動">年月連動</span></span><span class="card-meta" id="scYm">2020/01</span></div>
+    <div class="ch ch-360"><canvas id="scatterC"></canvas></div>
+  </div>
+</div>
+
+<!-- ═══ 景気循環分析 ═══ -->
+<div class="page" id="pg-cycle">
+
+  <!-- フェーズバナー -->
+  <div style="display:flex;align-items:center;gap:14px;margin-bottom:16px;flex-wrap:wrap">
+    <div>
+      <div style="font-size:10px;color:var(--muted);margin-bottom:5px" id="phaseSrcLabel">現在の景気フェーズ</div>
+      <span class="phase-badge phase-recovery" id="currentPhaseBadge">● 新サイクル回復期</span>
+    </div>
+    <div style="flex:1;background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:10px 14px;font-size:11px;color:var(--muted);line-height:1.7" id="phaseDesc">
+      CI一致指数が上昇傾向へ転換、政策金利は正常化済みで低位安定。
+      <strong style="color:var(--green)">グロース・バリュー系が有利</strong>なフェーズ。シクリカルは引き続き様子見。
+    </div>
+  </div>
+
+  <!-- マクロ指標カード -->
+  <div class="macro-row">
+    <div class="macro-card" style="border-top:2px solid var(--green)">
+      <div class="macro-label">CI 一致指数（前月比）<span class="info-icon" data-tip="内閣府 景気動向指数（CI一致指数）の前月比変化。&#10;+値 = 景気拡張方向。&#10;連続上昇 → 回復期・拡張期の判定に使用。&#10;出所：内閣府 景気動向指数" data-tip-pos="bottom">i</span></div>
+      <div class="macro-val" style="color:var(--green)" id="mcCiCoin">–</div>
+      <div class="macro-sub" id="mcCiCoinSub">–</div>
+    </div>
+    <div class="macro-card" style="border-top:2px solid var(--accent)">
+      <div class="macro-label">CI 先行指数（前月比）<span class="info-icon" data-tip="CI一致指数に数ヶ月先行する指数。&#10;+値継続 → 近い将来の景気拡張を示唆。&#10;拡張期・後退前期の早期検知に有効。&#10;出所：内閣府 景気動向指数" data-tip-pos="bottom">i</span></div>
+      <div class="macro-val" style="color:var(--accent)" id="mcCiLead">–</div>
+      <div class="macro-sub" id="mcCiLeadSub">–</div>
+    </div>
+    <div class="macro-card" style="border-top:2px solid var(--amber)">
+      <div class="macro-label">政策金利（無担保翌日物）<span class="info-icon" data-tip="日銀の誘導目標金利（無担保翌日物コール）。&#10;利上げ → バリュー・ディフェンシブが相対優位。&#10;利下げ → グロース・シクリカルが恩恵。&#10;出所：日本銀行" data-tip-pos="bottom">i</span></div>
+      <div class="macro-val" style="color:var(--amber)" id="mcPolRate">–</div>
+      <div class="macro-sub" id="mcPolRateSub">–</div>
+    </div>
+    <div class="macro-card" style="border-top:2px solid var(--purple)">
+      <div class="macro-label">10年国債利回り<span class="info-icon" data-tip="日本国債10年物の市場利回り。&#10;上昇 → PER理論値が下がりグロース株に逆風。&#10;低下 → 高PER株・不動産に追い風。&#10;出所：財務省 入札結果" data-tip-pos="bottom">i</span></div>
+      <div class="macro-val" style="color:var(--purple)" id="mcJgb">–</div>
+      <div class="macro-sub" id="mcJgbSub">–</div>
+    </div>
+  </div>
+
+  <!-- タブ -->
+  <div class="tabs">
+    <div class="tab act" onclick="swTab('cycle','phase',this)" title="CI一致指数・政策金利からフェーズ（回復→拡張→後退前→後退）を判定">フェーズ判定チャート<br><span style="font-size:9px;opacity:.65;font-weight:400">CI・金利推移</span></div>
+    <div class="tab" onclick="swTab('cycle','rec',this)" title="現フェーズに基づくBUY/HOLD/SELL推奨マップ。G・V・C・Dカテゴリ別に整理">BUY / HOLD / SELL 推奨<br><span style="font-size:9px;opacity:.65;font-weight:400">フェーズ別推奨</span></div>
+    <div class="tab" onclick="swTab('cycle','zscore',this)" title="Zスコア: 現PBR vs 同フェーズ過去平均。Z&lt;-1=割安強化、Z&gt;+1=割高警戒">PBR乖離Zスコア<br><span style="font-size:9px;opacity:.65;font-weight:400">同フェーズ比較</span></div>
+    <div class="tab" onclick="swTab('cycle','cdrat',this)" title="シクリカル vs ディフェンシブの時価総額シェア比。比率&gt;1=拡張期シグナル">シクリカル/ディフェンシブ<br><span style="font-size:9px;opacity:.65;font-weight:400">C/D比率</span></div>
+    <div class="tab" onclick="swTab('cycle','final',this)" title="総合スコア = フェーズ推奨(±2) + PBR乖離Zスコア符号(±1) + C/D強度ボーナス(±1)">総合シグナル<br><span style="font-size:9px;opacity:.65;font-weight:400">スコアランキング</span></div>
+  </div>
+
+  <!-- タブ①: フェーズ判定チャート -->
+  <div class="tp act" id="cycle-phase">
+    <div class="card">
+      <div class="card-hd">
+        <span class="card-title">CI一致指数・政策金利 推移 ＋ フェーズ帯<span class="ym-badge" title="Plotlyモード時に選択月を縦線で表示">縦線マーカー</span></span>
+        <span class="card-meta">背景色帯 = 判定フェーズ ／ ※サンプルデータ</span>
+      </div>
+      <div class="ch ch-300"><canvas id="cyclePhaseC"></canvas></div>
+      <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:10px;font-size:10px">
+        <span style="display:flex;align-items:center;gap:4px"><span style="width:12px;height:12px;border-radius:2px;background:rgba(41,201,154,.18);display:inline-block"></span>回復期</span>
+        <span style="display:flex;align-items:center;gap:4px"><span style="width:12px;height:12px;border-radius:2px;background:rgba(91,141,246,.18);display:inline-block"></span>拡張期</span>
+        <span style="display:flex;align-items:center;gap:4px"><span style="width:12px;height:12px;border-radius:2px;background:rgba(245,166,35,.18);display:inline-block"></span>後退前期</span>
+        <span style="display:flex;align-items:center;gap:4px"><span style="width:12px;height:12px;border-radius:2px;background:rgba(224,84,84,.18);display:inline-block"></span>後退期</span>
+        <span style="color:var(--muted)">※ 実運用時は内閣府CIを自動取得</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- タブ②: BUY/HOLD/SELL推奨 -->
+  <div class="tp" id="cycle-rec">
+    <div class="banner banner-blue" style="margin-bottom:14px" id="recBanner">
+      フェーズ別推奨マップを適用した結果。
+      <strong id="recBannerPhase">現フェーズ</strong>に基づく BUY / HOLD / SELL 判定。
+    </div>
+    <div class="g2">
+      <div class="card">
+        <div class="card-hd"><span class="card-title">BUY 推奨業種<span class="ym-badge" title="年月連動">年月連動</span></span><span class="card-meta" style="color:var(--green)">G / V カテゴリ</span></div>
+        <div id="recBuyList"></div>
+      </div>
+      <div class="card">
+        <div class="card-hd"><span class="card-title">SELL 寄り業種</span><span class="card-meta" style="color:var(--red)">C カテゴリ中心</span></div>
+        <div id="recSellList"></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-hd"><span class="card-title">全業種 フェーズ推奨一覧<span class="ym-badge" title="年月連動">年月連動</span></span></div>
+      <div style="overflow-x:auto"><table class="sig-table" id="recTable">
+        <thead><tr>
+          <th>業種</th><th>カテゴリ</th><th>加重PBR</th><th>フェーズ推奨</th>
+        </tr></thead>
+        <tbody id="recBody"></tbody>
+      </table></div>
+    </div>
+  </div>
+
+  <!-- タブ③: PBR乖離Zスコア -->
+  <div class="tp" id="cycle-zscore">
+    <div class="banner banner-blue" style="margin-bottom:14px">
+      現在PBRを同フェーズの過去平均と比較したZスコア。
+      <strong>Z &lt; −1.0 = 同フェーズ比 割安（BUY強化）</strong>　Z &gt; +1.0 = 割高（SELL強化 / 利確検討）
+    </div>
+    <div class="card">
+      <div class="card-hd">
+        <span class="card-title">業種別 PBR乖離Zスコア（同フェーズ過去平均比）<span class="ym-badge" title="年月連動">年月連動</span></span>
+        <span class="card-meta">青=割安 / 赤=割高</span>
+      </div>
+      <div class="ch" style="height:400px"><canvas id="zscoreC"></canvas></div>
+    </div>
+  </div>
+
+  <!-- タブ④: シクリカル/ディフェンシブ相対強度 -->
+  <div class="tp" id="cycle-cdrat">
+    <div class="banner banner-blue" style="margin-bottom:14px">
+      シクリカル（C）とディフェンシブ（D）の時価総額シェア変化速度を比較。
+      <strong>比率 &gt; 1.0 → 拡張期シグナル</strong>　比率 &lt; 0 → 後退期シグナル
+    </div>
+    <div style="margin-bottom:14px" id="cdShareBar">
+      <div style="font-size:11px;color:var(--muted);margin-bottom:8px" id="cdShareLabel">現在のシクリカル/ディフェンシブ シェアバランス</div>
+      <div style="display:flex;gap:16px;align-items:center">
+        <span style="font-size:11px;color:var(--amber)" id="cdShareC">シクリカル –%</span>
+        <div style="flex:1;height:10px;background:rgba(255,255,255,.06);border-radius:5px;overflow:hidden;display:flex">
+          <div id="cdShareBarC" style="width:40%;background:rgba(245,166,35,.6);border-radius:5px 0 0 5px"></div>
+          <div id="cdShareBarD" style="width:20%;background:rgba(41,201,154,.6);border-radius:0 5px 5px 0;margin-left:auto"></div>
+        </div>
+        <span style="font-size:11px;color:var(--green)" id="cdShareD">ディフェンシブ –%</span>
+      </div>
+      <div id="cdTopSectors" style="font-size:10px;color:var(--muted);margin-top:6px;line-height:1.6"></div>
+    </div>
+    <div class="g2">
+      <div class="card">
+        <div class="card-hd"><span class="card-title">C/D 相対強度 時系列<span class="ym-badge" title="Plotlyモード時に選択月を縦線で表示">縦線マーカー</span></span><span class="card-meta">月次変化速度比</span></div>
+        <div class="ch ch-220"><canvas id="cdRatioC"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-hd"><span class="card-title">フェーズシグナル判定</span></div>
+        <div id="cdSignalList" style="padding:4px 0"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- タブ⑤: 総合シグナル -->
+  <div class="tp" id="cycle-final">
+    <div class="banner banner-green" style="margin-bottom:14px">
+      <strong>総合スコア</strong> = フェーズ推奨（±2）＋ PBR乖離Zスコア逆符号（±1）＋ C/D相対強度ボーナス（±1）<br>
+      ≥ +2 → Strong BUY　+1 → BUY　0 → HOLD　−1 → SELL　≤ −2 → Strong SELL
+    </div>
+    <div class="card">
+      <div class="card-hd">
+        <span class="card-title">業種別 総合スコアランキング<span class="ym-badge" title="年月連動">年月連動</span></span>
+        <span class="card-meta" id="finalPhaseMeta">現フェーズ: –</span>
+      </div>
+      <div id="finalSignalList"></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ═══ ロードマップ ═══ -->
+<div class="page" id="pg-decomp">
+  <div class="banner banner-green">
+    <strong>成長要因分解</strong>：時価総額成長 ≈ 純資産（BPS）成長寄与 ＋ PBR倍率変化寄与。<br>
+    緑バー = 実質的な企業価値向上（EPS・BPS改善）　青バー = 市場センチメント・期待変化
+  </div>
+  <div class="card">
+    <div class="card-hd"><span class="card-title">業種別 時価総額成長の要因分解<span class="ym-badge" title="年月連動">年月連動</span></span><span class="card-meta" id="decompPeriod">前年同月比</span></div>
+    <div class="ch" style="height:420px"><canvas id="decompC"></canvas></div>
+  </div>
+</div>
+
+<!-- ═══ チームメモ ═══ -->
+<div class="page" id="pg-notes">
+  <div class="banner banner-blue">
+    <strong>チームメモ</strong>：分析中の仮説・投資アイデア・レビューコメントを記録します。<br>
+    ブラウザの localStorage に自動保存されます（リロード後も保持）。JSON エクスポート/インポートでメンバー間の共有が可能です。
+  </div>
+  <div class="card">
+    <div class="card-hd"><span class="card-title">新規メモ</span></div>
+    <div style="display:flex;gap:8px;margin-bottom:8px;flex-wrap:wrap">
+      <select id="noteTeam" style="background:var(--bg3);border:1px solid var(--border2);color:var(--text);padding:4px 8px;border-radius:5px;font-size:11px;outline:none">
+        <option value="全員">👥 全員</option>
+        <option value="株式">📊 株式</option>
+        <option value="マクロ">🌐 マクロ</option>
+        <option value="リスク管理">🛡️ リスク管理</option>
+        <option value="その他">📝 その他</option>
+      </select>
+      <select id="noteTag" style="background:var(--bg3);border:1px solid var(--border2);color:var(--text);padding:4px 8px;border-radius:5px;font-size:11px;outline:none">
+        <option value="仮説">💡 仮説</option>
+        <option value="投資">📈 投資シグナル</option>
+        <option value="リスク">⚠️ リスク</option>
+        <option value="TODO">✅ TODO</option>
+      </select>
+      <input type="text" id="noteAuthor" placeholder="担当者名" style="background:var(--bg3);border:1px solid var(--border2);color:var(--text);padding:4px 10px;border-radius:5px;font-size:11px;outline:none;width:110px">
+    </div>
+    <textarea class="note-area" id="noteText" placeholder="分析から得られた仮説・シグナル・TODO を記録..."></textarea>
+    <div style="display:flex;justify-content:flex-end;margin-top:6px;gap:6px">
+      <button class="tb-btn" onclick="clearNote()">クリア</button>
+      <button style="background:var(--accent);color:#fff;border:none;padding:5px 16px;border-radius:6px;font-size:11px;cursor:pointer;font-weight:500" onclick="saveNote()">保存</button>
+    </div>
+    <!-- フィルター・共有バー -->
+    <div style="display:flex;align-items:center;gap:8px;margin-top:16px;padding-top:12px;border-top:1px solid var(--border);flex-wrap:wrap">
+      <span style="font-size:11px;color:var(--muted);white-space:nowrap">フィルター:</span>
+      <select id="noteFilterTeam" onchange="filterNotes('team',this.value)" style="background:var(--bg3);border:1px solid var(--border2);color:var(--text);padding:3px 7px;border-radius:5px;font-size:11px;outline:none">
+        <option value="all">全チーム</option>
+        <option value="全員">👥 全員</option>
+        <option value="株式">📊 株式</option>
+        <option value="マクロ">🌐 マクロ</option>
+        <option value="リスク管理">🛡️ リスク管理</option>
+        <option value="その他">📝 その他</option>
+      </select>
+      <select id="noteFilterTag" onchange="filterNotes('tag',this.value)" style="background:var(--bg3);border:1px solid var(--border2);color:var(--text);padding:3px 7px;border-radius:5px;font-size:11px;outline:none">
+        <option value="all">全カテゴリ</option>
+        <option value="仮説">💡 仮説</option>
+        <option value="投資">📈 投資シグナル</option>
+        <option value="リスク">⚠️ リスク</option>
+        <option value="TODO">✅ TODO</option>
+      </select>
+      <div style="margin-left:auto;display:flex;gap:6px">
+        <button class="tb-btn" onclick="exportNotes()">↓ エクスポート</button>
+        <label class="tb-btn" style="cursor:pointer;display:inline-flex;align-items:center">↑ インポート<input type="file" accept=".json" onchange="importNotes(this)" style="display:none"></label>
+      </div>
+    </div>
+    <div class="saved-notes" id="noteList"></div>
+  </div>
+</div>
+
+<!-- ═══ Streamlit移行計画 ═══ -->
+<div class="page" id="pg-roadmap">
+  <div class="banner banner-blue">
+    <strong>実装ロードマップ</strong>：フェーズ1（このHTMLファイル）→ フェーズ2（Streamlit）の機能追加・移行計画。
+  </div>
+
+  <div class="phase-card">
+    <div class="phase-hd">
+      <span class="phase-num" style="background:rgba(41,201,154,.15);color:var(--green)">Phase 1 ✓</span>
+      <span class="phase-title">HTML単体（現行）</span>
+      <span class="pill pill-green" style="margin-left:auto">完了</span>
+    </div>
+    <div class="feat-list">
+      <div class="feat"><div class="feat-head">スクリーニング</div><div class="feat-sub">カテゴリ・PBR・変化率フィルター／シグナル表示</div></div>
+      <div class="feat"><div class="feat-head">バリュエーション分析</div><div class="feat-sub">PBR/PER時系列・業種ランキング・規模別・製造非製造</div></div>
+      <div class="feat"><div class="feat-head">イベント別反応</div><div class="feat-sub">5マクロイベント × PBR変化・シェア変化</div></div>
+      <div class="feat"><div class="feat-head">散布図・要因分解</div><div class="feat-sub">時価総額×PBRバブル／BPS成長・PBR膨張分解</div></div>
+      <div class="feat"><div class="feat-head">チームメモ</div><div class="feat-sub">セッション内の仮説・シグナル記録（揮発性）</div></div>
+      <div class="feat"><div class="feat-head">CSV出力</div><div class="feat-sub">スクリーニング結果のCSVエクスポート</div></div>
+      <div class="feat"><div class="feat-head">景気循環分析（④）</div><div class="feat-sub">フェーズ判定・BUY/HOLD/SELL推奨・Zスコア・C/D強度・総合シグナル</div></div>
+    </div>
+  </div>
+
+  <div class="phase-card">
+    <div class="phase-hd">
+      <span class="phase-num" style="background:rgba(91,141,246,.15);color:var(--accent)">Phase 2</span>
+      <span class="phase-title">Python / Streamlit 移行</span>
+      <span class="pill pill-amber" style="margin-left:auto">計画中</span>
+    </div>
+    <div class="feat-list">
+      <div class="feat"><div class="feat-head">実データ自動読込</div><div class="feat-sub">perpbr*.xlsx / *.pdf を自動スキャン・パース。ファイル追加で即反映</div></div>
+      <div class="feat"><div class="feat-head">全74ヶ月 時系列アニメーション</div><div class="feat-sub">散布図の月次スライダー再生。HTML版は2時点比較のみ</div></div>
+      <div class="feat"><div class="feat-head">ラグ相関分析</div><div class="feat-sub">PBR先行 → シェア拡大のリードラグを業種別に検証</div></div>
+      <div class="feat"><div class="feat-head">暗示的純資産推計</div><div class="feat-sub">時価総額÷PBR → 超過評価額（成長期待・のれん）の積み上げ</div></div>
+      <div class="feat"><div class="feat-head">チームメモDB永続化</div><div class="feat-sub">SQLiteでメモを保存・タグ・担当者フィルタ対応</div></div>
+      <div class="feat"><div class="feat-head">アラート機能</div><div class="feat-sub">PBR閾値割れ・急変検知を毎月自動メール通知</div></div>
+      <div class="feat"><div class="feat-head">景気指標 自動取得</div><div class="feat-sub">内閣府CI・日銀政策金利をAPIで自動取得しフェーズ判定をリアルタイム更新</div></div>
+    </div>
+    <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border)">
+      <div style="font-size:11px;color:var(--muted);margin-bottom:8px">移行時のコード変更ポイント</div>
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:var(--r);padding:10px 14px;font-family:var(--mono);font-size:10px;color:var(--muted);line-height:1.8">
+        # HTML版（data.js）のサンプルデータを<br>
+        # Pythonの load_all_perpbr() / load_all_sector_cap() に置き換えるだけ<br>
+        <br>
+        # st.sidebar.selectbox("年月", months)  → ymSel相当<br>
+        # st.plotly_chart(fig)                  → Chart.js相当<br>
+        # st.session_state.notes                → localStorageメモ相当<br>
+        # → ロジックの80%はHTML版と同じ構造で流用可
+      </div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /content -->
+</main>
+</div>
+
+<script>
+// ────── data ──────
+const _forceSample=(()=>{try{return new URLSearchParams(window.location.search).get('mode')==='sample';}catch(_){return false;}})();
+const DASHBOARD_DATA = (!_forceSample && window.JPX_DASHBOARD_DATA) || null;
+
+const SAMPLE_SECTORS=[
+  {n:'水産・農林', cat:'D',pbr:1.2,per:13.2,cap:0.6, cos:7,  chg:+0.0,dy:2.2},
+  {n:'鉱業',       cat:'C',pbr:0.5,per:14.4,cap:1.8, cos:6,  chg:+0.1,dy:3.8},
+  {n:'建設業',     cat:'V',pbr:1.2,per:9.9, cap:16.6,cos:100,chg:+0.3,dy:2.9},
+  {n:'食料品',     cat:'D',pbr:1.7,per:18.7,cap:23.7,cos:83, chg:+0.0,dy:1.8},
+  {n:'繊維製品',   cat:'V',pbr:1.0,per:17.7,cap:3.5, cos:41, chg:-0.2,dy:2.3},
+  {n:'パルプ・紙', cat:'V',pbr:0.7,per:25.7,cap:1.6, cos:12, chg:+0.0,dy:2.6},
+  {n:'化学',       cat:'C',pbr:1.6,per:16.6,cap:43.7,cos:146,chg:-0.2,dy:2.0},
+  {n:'医薬品',     cat:'D',pbr:2.4,per:32.4,cap:40.0,cos:39, chg:+0.1,dy:1.2},
+  {n:'石油・石炭', cat:'C',pbr:0.6,per:5.7, cap:2.7, cos:9,  chg:+0.4,dy:5.2},
+  {n:'ゴム製品',   cat:'C',pbr:1.1,per:10.7,cap:4.2, cos:11, chg:-0.1,dy:2.7},
+  {n:'ガラス・土石',cat:'C',pbr:1.0,per:10.7,cap:4.9,cos:33, chg:-0.1,dy:2.4},
+  {n:'鉄鋼',       cat:'C',pbr:0.5,per:7.6, cap:4.7, cos:31, chg:+0.3,dy:4.1},
+  {n:'非鉄金属',   cat:'C',pbr:0.7,per:13.0,cap:4.0, cos:24, chg:+0.5,dy:3.3},
+  {n:'金属製品',   cat:'C',pbr:0.9,per:19.9,cap:3.6, cos:41, chg:+0.2,dy:2.5},
+  {n:'機械',       cat:'C',pbr:1.4,per:16.0,cap:29.3,cos:142,chg:+0.1,dy:2.1},
+  {n:'電気機器',   cat:'G',pbr:1.9,per:19.0,cap:83.0,cos:158,chg:+0.5,dy:1.5},
+  {n:'輸送用機器', cat:'C',pbr:0.9,per:12.1,cap:52.9,cos:62, chg:+0.4,dy:3.5},
+  {n:'精密機器',   cat:'G',pbr:3.4,per:31.6,cap:13.7,cos:33, chg:+0.2,dy:0.8},
+  {n:'その他製品', cat:'G',pbr:1.8,per:28.9,cap:12.9,cos:53, chg:+0.2,dy:1.3},
+  {n:'電気・ガス', cat:'D',pbr:0.7,per:10.9,cap:8.3, cos:22, chg:+0.3,dy:3.0},
+  {n:'陸運業',     cat:'D',pbr:1.4,per:15.4,cap:24.8,cos:43, chg:-0.1,dy:2.2},
+  {n:'海運業',     cat:'C',pbr:0.6,per:null,cap:0.9, cos:8,  chg:+1.6,dy:6.8},
+  {n:'空運業',     cat:'C',pbr:1.0,per:8.7, cap:2.3, cos:3,  chg:-0.5,dy:1.0},
+  {n:'倉庫・運輸', cat:'V',pbr:0.8,per:15.1,cap:1.3, cos:24, chg:+0.2,dy:2.8},
+  {n:'情報・通信', cat:'G',pbr:1.7,per:14.9,cap:72.9,cos:220,chg:+0.3,dy:1.6},
+  {n:'卸売業',     cat:'V',pbr:0.9,per:9.7, cap:29.6,cos:177,chg:+0.9,dy:3.8},
+  {n:'小売業',     cat:'D',pbr:1.9,per:25.7,cap:36.4,cos:201,chg:-0.1,dy:1.4},
+  {n:'銀行業',     cat:'V',pbr:0.4,per:10.0,cap:32.7,cos:82, chg:+0.4,dy:4.5},
+  {n:'証券・先物', cat:'V',pbr:0.8,per:74.0,cap:4.5, cos:23, chg:+0.3,dy:3.2},
+  {n:'保険業',     cat:'V',pbr:0.8,per:11.8,cap:13.0,cos:9,  chg:+0.5,dy:3.9},
+  {n:'その他金融', cat:'V',pbr:1.1,per:11.0,cap:8.5, cos:27, chg:+0.1,dy:3.1},
+  {n:'不動産業',   cat:'D',pbr:1.3,per:16.1,cap:15.0,cos:72, chg:+0.2,dy:2.6},
+  {n:'サービス業', cat:'G',pbr:1.5,per:23.0,cap:36.3,cos:216,chg:+0.4,dy:1.7},
+];
+const CAT_COL={G:'#5b8df6',D:'#29c99a',C:'#f5a623',V:'#9b7fe8'};
+const CAT_LBL={G:'グロース',D:'ディフェンシブ',C:'シクリカル',V:'バリュー'};
+const SECTOR_CODE={'水産・農林':50,'鉱業':1050,'建設業':1300,'食料品':2050,'繊維製品':3050,'パルプ・紙':3100,'化学':3200,'医薬品':3250,'石油・石炭':3300,'ゴム製品':3350,'ガラス・土石':3400,'鉄鋼':3450,'非鉄金属':3500,'金属製品':3550,'機械':3600,'電気機器':3650,'輸送用機器':3700,'精密機器':3750,'その他製品':3800,'電気・ガス':4050,'陸運業':5050,'海運業':5100,'空運業':5150,'倉庫・運輸':5200,'情報・通信':5250,'卸売業':6050,'小売業':6100,'銀行業':7050,'証券・先物':7100,'保険業':7150,'その他金融':7200,'不動産業':8050,'サービス業':9050};
+const SAMPLE_MONTHS=['2020/01','2020/07','2021/01','2021/07','2022/01','2022/07','2023/01','2023/07','2024/01','2024/07','2025/01','2025/07','2026/02'];
+const SAMPLE_PBR_TS=[1.20,1.25,1.35,1.48,1.42,1.38,1.30,1.45,1.52,1.60,1.65,1.68,1.72];
+const SAMPLE_PER_TS=[15.5,16.2,17.8,20.1,18.4,17.2,16.5,19.2,21.0,22.5,23.1,23.8,24.2];
+const SAMPLE_LG=[1.3,1.35,1.5,1.65,1.55,1.5,1.42,1.6,1.7,1.78,1.82,1.85,1.9];
+const SAMPLE_MED=[1.2,1.28,1.38,1.52,1.45,1.40,1.33,1.48,1.55,1.62,1.67,1.70,1.74];
+const SAMPLE_SM=[1.1,1.15,1.22,1.35,1.28,1.22,1.16,1.30,1.36,1.44,1.50,1.52,1.56];
+const SAMPLE_MFG=[1.4,1.42,1.55,1.72,1.62,1.55,1.48,1.65,1.74,1.82,1.88,1.90,1.95];
+const SAMPLE_NMFG=[1.4,1.45,1.60,1.78,1.68,1.60,1.52,1.68,1.78,1.88,1.94,1.97,2.02];
+const SAMPLE_EVENTS=[
+  {label:'コロナ底',period:'2020/01→2020/03',
+   desc:'全業種が無差別に売られる局面。空運・海運・鉄鋼が最大打撃。情報・通信・医薬品は比較的軽傷（テレワーク・ヘルスケア期待）。',
+   pbr:[['空運業',-0.5],['精密機器',-0.6],['電気機器',-0.4],['情報・通信',-0.2],['医薬品',-0.1],['食料品',-0.05]],
+   shr:[['情報・通信',0.3],['医薬品',0.2],['電気機器',-0.5],['輸送用機器',-0.4],['空運業',-0.3]]},
+  {label:'コロナ回復',period:'2020/03→2021/06',
+   desc:'コンテナ不足で海運バブル（+1.4倍）。電気機器・情報通信もDX需要で急伸。卸売（商社）も資源高で台頭。銀行は低金利継続で恩恵薄く出遅れ。',
+   pbr:[['海運業',1.4],['電気機器',1.7],['精密機器',1.4],['情報・通信',1.1],['卸売業',0.5],['繊維製品',-0.1]],
+   shr:[['情報・通信',1.8],['電気機器',1.5],['海運業',0.3],['銀行業',-0.4]]},
+  {label:'利上げ懸念',period:'2021/06→2022/06',
+   desc:'海運が2.2倍でピーク。石油・石炭・卸売がさらに上昇。グロース株はFRB利上げ・割引率上昇で逆風。バリュー優位のローテーション。',
+   pbr:[['石油・石炭',0.4],['卸売業',0.3],['銀行業',0.1],['精密機器',-1.2],['電気機器',-0.8],['情報・通信',-0.3]],
+   shr:[['卸売業',1.2],['石油・石炭',0.4],['電気機器',-1.0],['精密機器',-0.8]]},
+  {label:'東証PBR改革',period:'2023/03→2023/09',
+   desc:'東証が「PBR1倍割れ企業への改善計画開示」を要請。銀行・保険・商社などのバリュー株が急騰。日銀YCC修正も銀行株を後押し。',
+   pbr:[['銀行業',0.2],['保険業',0.2],['卸売業',0.2],['証券・先物',0.1],['情報・通信',0.2],['電気機器',0.1]],
+   shr:[['銀行業',0.8],['保険業',0.4],['卸売業',0.5],['電気機器',0.3]]},
+  {label:'日銀利上げ',period:'2024/01→2026/02',
+   desc:'日銀の段階的利上げ継続で銀行がさらに回復。半導体・AI需要で電気機器・情報通信が再加速。海運は供給正常化でPBR 1.0倍まで下落。',
+   pbr:[['銀行業',0.3],['電気機器',0.4],['情報・通信',0.4],['卸売業',0.2],['海運業',-1.2],['電気・ガス',0.3]],
+   shr:[['情報・通信',0.8],['電気機器',0.5],['銀行業',0.6],['海運業',-0.5]]},
+];
+const SECTORS=DASHBOARD_DATA?.sectors_latest || SAMPLE_SECTORS;
+const MONTHS=DASHBOARD_DATA?.months || SAMPLE_MONTHS;
+// 単純平均-加重平均スプレッド（avg_pbrが実データにあれば優先、なければ近似値）
+function _calcSprData(sectors){
+  const hasAvp=sectors.some(s=>s.avp!=null);
+  return [...sectors].map(s=>({
+    n:s.n,
+    v:hasAvp?(s.avp!=null&&s.pbr!=null?+(s.avp-s.pbr).toFixed(2):0):+(0.25-s.pbr*.08).toFixed(2)
+  })).sort((a,b)=>b.v-a.v);
+}
+const SPR_DATA=_calcSprData(SECTORS);
+// 選択月セクター（null=最新月）
+let _activeSectors=null;
+function _curSectors(){return _activeSectors||SECTORS;}
+const PBR_TS=DASHBOARD_DATA?.pbr_ts || SAMPLE_PBR_TS;
+const PER_TS=DASHBOARD_DATA?.per_ts || SAMPLE_PER_TS;
+const LG=DASHBOARD_DATA?.lg || SAMPLE_LG;
+const MED=DASHBOARD_DATA?.med || SAMPLE_MED;
+const SM=DASHBOARD_DATA?.sm || SAMPLE_SM;
+const MFG=DASHBOARD_DATA?.mfg || SAMPLE_MFG;
+const NMFG=DASHBOARD_DATA?.nmfg || SAMPLE_NMFG;
+const EVENTS=DASHBOARD_DATA?.events || SAMPLE_EVENTS;
+
+// ────── state ──────
+let fCat='all', fPbr='all', fChgMin=-1, fSearch='';
+let _screenSort={key:'code',asc:true};
+let notes=[], evNotes={};
+let charts={};
+let evCharts={bar:null,shr:null};
+let currentEv=0;
+let chartMode='chartjs';
+let themeMode='dark';
+
+function getUrlParam(name){
+  try{
+    const params=new URLSearchParams(window.location.search);
+    return params.get(name);
+  }catch(_e){
+    return null;
+  }
+}
+
+const GC={color:'rgba(255,255,255,0)',border:'rgba(255,255,255,0)',
+  responsive:true,maintainAspectRatio:false,
+  plugins:{legend:{labels:{color:'#6b7491',font:{size:11},usePointStyle:true}}},
+  scales:{
+    x:{ticks:{color:'#6b7491',font:{size:10}},grid:{color:'rgba(255,255,255,.04)'}},
+    y:{ticks:{color:'#6b7491',font:{size:10}},grid:{color:'rgba(255,255,255,.04)'}}
+  }
+};
+function syncChartDefaults(){
+  GC.plugins.legend.labels.color = chartTickColor();
+  GC.scales.x.ticks.color = chartTickColor();
+  GC.scales.y.ticks.color = chartTickColor();
+  GC.scales.x.grid.color = chartGridColor();
+  GC.scales.y.grid.color = chartGridColor();
+}
+// テーマ切り替え時に既存チャートインスタンスの色を一括更新
+function refreshChartColors(){
+  const tick=chartTickColor(),label=chartLabelColor(),grid=chartGridColor();
+  const gridS=chartGridColorSoft(),blue=accentBlue(),amber=accentAmber();
+  const ciColor=themeMode==='light'?'#0f9f6e':'#29c99a';
+  function _upd(ch,xCol,yCol,extra){
+    if(!ch) return;
+    const s=ch.options.scales;
+    if(ch.options.plugins?.legend?.labels) ch.options.plugins.legend.labels.color=tick;
+    if(s?.x?.ticks) s.x.ticks.color=xCol;
+    if(s?.x?.grid) s.x.grid.color=grid;
+    if(s?.y?.ticks) s.y.ticks.color=yCol;
+    if(extra) extra(ch.options,s);
+    ch.update('none');
+  }
+  _upd(charts.trend,tick,tick);
+  _upd(charts.valTrend,tick,blue,(_,s)=>{if(s?.y2?.ticks) s.y2.ticks.color=amber;});
+  _upd(charts.indRank,tick,label);
+  _upd(charts.decomp,tick,label);
+  _upd(charts.zscore,tick,label);
+  _upd(charts.cyclePhase,tick,ciColor,(_,s)=>{
+    if(s?.y?.title) s.y.title.color=tick;
+    if(s?.y?.grid) s.y.grid.color=grid;
+    if(s?.x?.grid) s.x.grid.color=gridS;
+    if(s?.y2?.ticks) s.y2.ticks.color=amber;
+  });
+  _upd(charts.cdRatio,tick,tick,(_,s)=>{
+    if(s?.y?.title) s.y.title.color=tick;
+    if(s?.y?.grid) s.y.grid.color=grid;
+  });
+}
+
+// ────── overview KPI 動的更新 ──────
+function updateOverviewKPI(){
+  const src=_curSectors();
+  if(!src.length) return;
+  const pbr=PBR_TS.length?PBR_TS[PBR_TS.length-1]:null;
+  const per=PER_TS.length?PER_TS[PER_TS.length-1]:null;
+  const latestYm=MONTHS.length?MONTHS[MONTHS.length-1]:null;
+  const below1=src.filter(s=>s.pbr!=null&&s.pbr<1.0).length;
+  const totalCap=src.reduce((s,a)=>s+(a.cap||0),0);
+  const maxS=src.reduce((m,s)=>(s.pbr||0)>(m.pbr||0)?s:m,src[0]||{n:'',pbr:0});
+  const total=src.length;
+  const el=document.querySelector('#pg-overview .kpi-row');
+  if(!el) return;
+  const kv=el.querySelectorAll('.kpi');
+  if(kv[0]){
+    kv[0].querySelector('.kpi-val').innerHTML=pbr!=null?`${pbr.toFixed(2)}<span style="font-size:12px;color:var(--muted)">x</span>`:'–';
+    if(latestYm) kv[0].querySelector('.kpi-sub').innerHTML=`<span class="fl">${latestYm}基準</span>`;
+  }
+  if(kv[1]&&per!=null) kv[1].querySelector('.kpi-val').innerHTML=`${per.toFixed(1)}<span style="font-size:12px;color:var(--muted)">x</span>`;
+  if(kv[2]) kv[2].querySelector('.kpi-val').innerHTML=`${below1}<span style="font-size:12px;color:var(--muted)">/${total}</span>`;
+  if(kv[3]) kv[3].querySelector('.kpi-val').innerHTML=`${Math.round(totalCap)}<span style="font-size:12px;color:var(--muted)">兆円</span>`;
+  if(kv[4]&&maxS.n){
+    kv[4].querySelector('.kpi-val').innerHTML=`<span style="font-size:15px">${maxS.n}</span>`;
+    kv[4].querySelector('.kpi-sub').innerHTML=`<span style="font-family:var(--mono);color:var(--purple)">${maxS.pbr!=null?maxS.pbr.toFixed(1):'–'}x</span>`;
+  }
+  document.getElementById('nb-below').textContent=below1;
+  const metaEl=document.querySelector('#pg-overview .g2 .card:first-child .card-meta');
+  if(metaEl&&latestYm) metaEl.textContent=latestYm;
+  renderOverviewSignals();
+  renderPbrHeatGrid(src);
+}
+
+// ────── overview signal summary ──────
+function renderOverviewSignals(){
+  const src=_curSectors();
+  const sb=src.filter(s=>signal(s).cls==='chip-g');
+  const b=src.filter(s=>signal(s).cls==='chip-b');
+  const ca=src.filter(s=>signal(s).cls==='chip-r'||signal(s).cls==='chip-a');
+  function fmt(list,empty){
+    if(!list.length) return `<span style="color:var(--muted)">${empty}</span>`;
+    return list.map(s=>{
+      const pbr=s.pbr!=null?s.pbr.toFixed(1)+'x':'–';
+      const catCol=CAT_COL[s.cat]||'var(--muted)';
+      return `<span style="display:inline-flex;align-items:center;gap:3px;margin:1px 6px 1px 0"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:${catCol};flex-shrink:0"></span><span style="color:var(--text)">${s.n}</span><span style="font-family:var(--mono);color:var(--muted);font-size:10px">${pbr}</span></span>`;
+    }).join('');
+  }
+  const sbEl=document.getElementById('ovStrongBuy');
+  const bEl=document.getElementById('ovBuy');
+  const cEl=document.getElementById('ovCaution');
+  if(sbEl) sbEl.innerHTML=fmt(sb,'該当なし');
+  if(bEl) bEl.innerHTML=fmt(b,'該当なし');
+  if(cEl) cEl.innerHTML=fmt(ca,'注意フラグなし');
+}
+
+// ────── screening ──────
+const _SIG_MAP={
+  strong_buy: {txt:'強いBuy候補',cls:'chip-g'},
+  buy:        {txt:'Buy候補',    cls:'chip-b'},
+  caution_hot:{txt:'過熱注意',   cls:'chip-r'},
+  caution_surge:{txt:'急騰注意', cls:'chip-a'},
+  hold:       {txt:'Hold',       cls:'chip-p'},
+  neutral:    {txt:'Neutral',    cls:''},
+};
+function signal(s){
+  if(s.sig && _SIG_MAP[s.sig]) return _SIG_MAP[s.sig];
+  if(s.pbr<0.6 && s.chg>0.2) return _SIG_MAP.strong_buy;
+  if(s.pbr<1.0 && s.chg>0.3) return _SIG_MAP.buy;
+  if(s.pbr>2.5 && s.chg<0)   return _SIG_MAP.caution_hot;
+  if(s.chg>0.8)               return _SIG_MAP.caution_surge;
+  if(s.pbr>=1.0 && s.pbr<1.5)return _SIG_MAP.hold;
+  return _SIG_MAP.neutral;
+}
+function _sortScreen(key){
+  if(_screenSort.key===key) _screenSort.asc=!_screenSort.asc;
+  else{_screenSort.key=key;_screenSort.asc=key==='code'||key==='n'||key==='cat';}
+  // ヘッダーのソート矢印を更新
+  document.querySelectorAll('#screenThead th[data-skey]').forEach(th=>{
+    const k=th.dataset.skey;
+    const arrow=k===_screenSort.key?(_screenSort.asc?' ▲':' ▼'):'';
+    th.textContent=th.textContent.replace(/ [▲▼]$/,'')+arrow;
+  });
+  renderScreen();
+}
+function renderScreen(){
+  const {key,asc}=_screenSort;
+  const cmp=(a,b)=>{
+    if(key==='code'){const ca=SECTOR_CODE[a.n]??9999,cb=SECTOR_CODE[b.n]??9999;return ca-cb;}
+    const va=a[key]??'',vb=b[key]??'';
+    return typeof va==='string'?va.localeCompare(vb,['ja','en']):va-vb;
+  };
+  const data=_curSectors().filter(s=>{
+    if(fCat!=='all'&&s.cat!==fCat) return false;
+    if(fPbr==='below1'&&(s.pbr??0)>=1.0) return false;
+    if(fPbr==='1to2'&&((s.pbr??0)<1.0||(s.pbr??0)>=2.0)) return false;
+    if(fPbr==='above2'&&(s.pbr??0)<2.0) return false;
+    if((s.chg??-Infinity)<fChgMin) return false;
+    if(fSearch&&!s.n.includes(fSearch)) return false;
+    return true;
+  }).sort((a,b)=>asc?cmp(a,b):cmp(b,a));
+  document.getElementById('screen-count').textContent=`${data.length} 業種 / ${_curSectors().length}業種中`;
+  const symEl=document.getElementById('screen-ym');
+  if(symEl) symEl.textContent=_activeSectors?document.getElementById('scYm').textContent+' 基準':'最新月';
+  document.getElementById('nb-screen').textContent=data.filter(s=>signal(s).cls==='chip-g'||signal(s).cls==='chip-b').length;
+  const tbody=document.getElementById('screenBody');
+  tbody.innerHTML=data.map(s=>{
+    const sig=signal(s);
+    const chgColor=s.chg>0?'var(--green)':s.chg<0?'var(--red)':'var(--muted)';
+    const chgSym=s.chg>0?'▲':s.chg<0?'▼':'±';
+    const catCol=CAT_COL[s.cat];
+    return `<tr>
+      <td class="bold">${s.n}</td>
+      <td><span class="chip" style="background:${catCol}22;color:${catCol}">${CAT_LBL[s.cat]}</span></td>
+      <td style="font-family:var(--mono);color:${s.pbr<1?'var(--amber)':'var(--text)'};font-weight:500">${s.pbr.toFixed(1)}x</td>
+      <td style="font-family:var(--mono);color:${chgColor}">${chgSym}${Math.abs(s.chg).toFixed(1)}</td>
+      <td style="font-family:var(--mono)">${s.per!=null?s.per+'x':'－'}</td>
+      <td style="font-family:var(--mono)">${s.cap.toFixed(1)}兆</td>
+      <td style="font-family:var(--mono)">${s.cos}</td>
+      <td style="font-family:var(--mono)">${s.dy!=null?s.dy.toFixed(1)+'%':'–'}</td>
+      <td>${sig.txt?`<span class="chip ${sig.cls}">${sig.txt}</span>`:''}</td>
+      <td><button onclick="addToNote('${s.n}',${s.pbr},${s.chg})" style="background:none;border:1px solid var(--border2);color:var(--muted);padding:2px 8px;border-radius:4px;font-size:10px;cursor:pointer">メモ</button></td>
+    </tr>`;
+  }).join('');
+}
+function fToggle(el,grp){
+  const val=el.dataset[grp];
+  if(grp==='cat') fCat=val;
+  if(grp==='pbr') fPbr=val;
+  document.querySelectorAll(`#fg-${grp} .ftag`).forEach(t=>t.classList.remove('on'));
+  el.classList.add('on');
+  _syncFilterUrl();
+  renderScreen();
+}
+function updateSl(){
+  fChgMin=parseFloat(document.getElementById('sl-chg').value);
+  document.getElementById('sl-val').textContent=fChgMin>=0?'+'+fChgMin.toFixed(1):fChgMin.toFixed(1);
+  _syncFilterUrl();
+  renderScreen();
+}
+function setSearch(v){
+  fSearch=v.trim();
+  renderScreen();
+}
+
+// ────── overview sector list ──────
+function renderSectList(){
+  const sorted=[..._curSectors()].sort((a,b)=>b.pbr-a.pbr);
+  const items=[...sorted.slice(0,5),null,...sorted.slice(-5).reverse()];
+  document.getElementById('sectList').innerHTML=items.map(s=>{
+    if(!s) return `<div style="height:6px;border-top:1px solid ${dividerColor()};margin:3px 0"></div>`;
+    const col=s.pbr>=1?'var(--green)':'var(--amber)';
+    const w=Math.min(100,s.pbr/4*100);
+    const c=s.chg>0?`<span class="up">▲${s.chg.toFixed(1)}</span>`:s.chg<0?`<span class="dn">▼${Math.abs(s.chg).toFixed(1)}</span>`:`<span style="color:var(--muted)">±0.0</span>`;
+    return `<div class="sbar-row"><span class="sbar-name">${s.n}</span>
+      <div class="sbar-track"><div class="sbar-fill" style="width:${w}%;background:${col}"></div></div>
+      <span class="sbar-val" style="color:${col}">${s.pbr.toFixed(1)}x</span>
+      <span class="sbar-chg">${c}</span></div>`;
+  }).join('');
+}
+
+// ────── heatmap ──────
+function renderHeatmap(){
+  const wrap=document.getElementById('heatWrap');
+  if(!wrap) return;
+  const months6=DASHBOARD_DATA?.pbr1?.months || ['2020/01','2020/07','2021/01','2021/07','2022/01','2022/07','2023/01','2023/07','2024/01','2024/07','2025/01','2025/07'];
+  const sectors=DASHBOARD_DATA?.pbr1?.sectors || SECTORS.map(s=>s.n);
+  const matrix=DASHBOARD_DATA?.pbr1?.matrix || null;
+  const isLight=themeMode==='light';
+  const headerColor=isLight ? '#475467' : '#6b7491';
+  const nameBorder=isLight ? 'rgba(16,24,40,.08)' : 'rgba(255,255,255,.05)';
+  const cellBorder='rgba(0,0,0,.08)';
+  const missingBg=isLight ? '#f3f6fb' : '#131722';
+  const missingFg=isLight ? '#667085' : '#6b7491';
+  let h=`<table style="border-collapse:collapse;font-size:10px;min-width:100%">
+    <tr><td style="width:100px"></td>${months6.map(m=>`<td style="padding:3px 5px;color:${headerColor};text-align:center;white-space:nowrap">${m}</td>`).join('')}</tr>`;
+  sectors.forEach((name,rowIdx)=>{
+    h+=`<tr><td style="padding:3px 10px;color:var(--text);white-space:nowrap;border-right:1px solid ${nameBorder}">${name}</td>`;
+    months6.forEach((_,i)=>{
+      const basePbr=SECTORS.find(s=>s.n===name)?.pbr ?? 1.0;
+      const raw = matrix ? matrix[rowIdx]?.[i] : Math.max(0.2,basePbr+(i-5)*0.06);
+      const v = raw == null ? null : Number(raw);
+      if(v == null || Number.isNaN(v)){
+        h+=`<td style="background:${missingBg};color:${missingFg};text-align:center;padding:3px 6px;border:1px solid ${cellBorder};font-family:var(--mono)">-</td>`;
+        return;
+      }
+      const [bg,fg]=isLight
+        ? (
+            v>=1.5?['#e6f6ee','#0f9f6e']
+            : v>=1.0?['#eef7f1','#0f9f6e']
+            : v>=0.8?['#fff4de','#c98512']
+            : ['#fdecec','#d14343']
+          )
+        : (
+            v>=1.5?['#0a3020','#29c99a']
+            : v>=1.0?['#1a3515','#29c99a']
+            : v>=0.8?['#3a2a00','#f5a623']
+            : ['#3a0e0e','#e05454']
+          );
+      h+=`<td style="background:${bg};color:${fg};text-align:center;padding:3px 6px;border:1px solid ${cellBorder};font-family:var(--mono)">${v.toFixed(1)}</td>`;
+    });
+    h+='</tr>';
+  });
+  wrap.innerHTML=h+'</table>';
+}
+function applyHeatmapMode(){
+  const tableHost=document.getElementById('heatWrap');
+  const plotlyHost=document.getElementById('heatWrapPlotly');
+  if(!tableHost || !plotlyHost) return;
+  const usePlotly=chartMode==='plotly';
+  tableHost.classList.toggle('chart-host-hide',usePlotly);
+  plotlyHost.classList.toggle('act',usePlotly);
+}
+function renderPlotlyHeatmap(){
+  const isLight=themeMode==='light';
+  const wrap=document.getElementById('heatWrap');
+  if(!wrap) return;
+  wrap.classList.add('heat-table-host');
+  let host=document.getElementById('heatWrapPlotly');
+  if(!host){
+    host=document.createElement('div');
+    host.id='heatWrapPlotly';
+    host.className='plotly-host';
+    host.style.minHeight='720px';
+    wrap.parentElement.appendChild(host);
+  }
+  const months6=DASHBOARD_DATA?.pbr1?.months || ['2020/01','2020/07','2021/01','2021/07','2022/01','2022/07','2023/01','2023/07','2024/01','2024/07','2025/01','2025/07'];
+  const sectors=DASHBOARD_DATA?.pbr1?.sectors || SECTORS.map(s=>s.n);
+  const z=DASHBOARD_DATA?.pbr1?.matrix || sectors.map(name=>{
+    const basePbr=SECTORS.find(s=>s.n===name)?.pbr ?? 1.0;
+    return months6.map((_,i)=>Math.max(0.2,basePbr+(i-5)*0.06));
+  });
+  Plotly.react(host,[{
+    type:'heatmap',
+    x:months6,
+    y:sectors,
+    z,
+    colorscale:[
+      [0.00,'#3a0e0e'],
+      [0.24,'#e05454'],
+      [0.40,'#3a2a00'],
+      [0.58,'#f5a623'],
+      [0.72,'#1a3515'],
+      [1.00,'#29c99a']
+    ],
+    colorbar:{title:'PBR',titleside:'right',tickfont:{color:isLight?'#475467':'#6b7491',size:10}},
+    hovertemplate:'%{y}<br>%{x}<br>PBR: %{z:.1f}x<extra></extra>'
+  }],plotlyTheme({
+    margin:{l:120,r:56,t:24,b:44},
+    xaxis:{side:'top',tickangle:0},
+    yaxis:{autorange:'reversed'},
+    height:760
+  }),{displayModeBar:false,responsive:true});
+}
+
+// ────── charts ──────
+function mk(id,cfg){const c=document.getElementById(id);if(!c)return null;return new Chart(c,cfg);}
+function lineDs(label,data,color,yAxis){return{label,data,borderColor:color,backgroundColor:color+'18',fill:false,tension:.4,pointRadius:2,borderWidth:2,yAxisID:yAxis||'y'};}
+function fmtMonth(s){return s.replace('/','-');}
+function chartTickColor(){ return themeMode==='light' ? '#475467' : '#6b7491'; }
+function chartLabelColor(){ return themeMode==='light' ? '#162031' : '#dde2f0'; }
+function chartGridColor(){ return themeMode==='light' ? 'rgba(16,24,40,.08)' : 'rgba(255,255,255,.04)'; }
+function chartGridColorSoft(){ return themeMode==='light' ? 'rgba(16,24,40,.06)' : 'rgba(255,255,255,.03)'; }
+function accentBlue(){ return themeMode==='light' ? '#2563eb' : '#5b8df6'; }
+function accentAmber(){ return themeMode==='light' ? '#c98512' : '#f5a623'; }
+function dividerColor(){ return themeMode==='light' ? 'rgba(16,24,40,.08)' : 'rgba(255,255,255,.04)'; }
+function ensurePlotlyHost(canvasId){
+  const canvas=document.getElementById(canvasId);
+  if(!canvas || !canvas.parentElement) return null;
+  const hostId=`${canvasId}Plotly`;
+  let host=document.getElementById(hostId);
+  if(!host){
+    host=document.createElement('div');
+    host.id=hostId;
+    host.className='plotly-host';
+    canvas.parentElement.appendChild(host);
+  }
+  return host;
+}
+function plotlyTheme(layout){
+  const isLight=themeMode==='light';
+  const tickColor=isLight?'#344054':'#6b7491';
+  const gridColor=isLight?'rgba(16,24,40,.08)':'rgba(255,255,255,.04)';
+  const axDef={gridcolor:gridColor,tickfont:{color:isLight?'#162031':'#6b7491',size:10},zeroline:false};
+  const merged={
+    paper_bgcolor:'rgba(0,0,0,0)',
+    plot_bgcolor:'rgba(0,0,0,0)',
+    font:{family:"IBM Plex Sans, Noto Sans JP, sans-serif",color:isLight?'#162031':'#dde2f0',size:11},
+    margin:{l:56,r:24,t:24,b:44},
+    legend:{orientation:'h',yanchor:'bottom',y:1.02,xanchor:'left',x:0,font:{color:tickColor,size:11}},
+    ...layout,
+    xaxis:{...axDef,...(layout.xaxis||{})},
+    yaxis:{...axDef,...(layout.yaxis||{})},
+  };
+  if(layout.yaxis2) merged.yaxis2={...axDef,showgrid:false,...layout.yaxis2};
+  return merged;
+}
+function renderPlotlyChart(canvasId,traces,layout,config){
+  const host=ensurePlotlyHost(canvasId);
+  if(!host) return;
+  Plotly.react(host,traces,plotlyTheme(layout),{
+    displayModeBar:false,
+    responsive:true,
+    ...config
+  });
+}
+function applyChartMode(){
+  const usePlotly=chartMode==='plotly';
+  document.querySelectorAll('canvas[id]').forEach(canvas=>{
+    canvas.classList.toggle('chart-host-hide',usePlotly);
+    const host=document.getElementById(`${canvas.id}Plotly`);
+    if(host) host.classList.toggle('act',usePlotly);
+  });
+  applyHeatmapMode();
+  window.dispatchEvent(new Event('resize'));
+}
+function setChartMode(mode){
+  chartMode=mode;
+  applyChartMode();
+}
+function setTheme(mode){
+  themeMode=mode;
+  document.body.setAttribute('data-theme', mode);
+  try{ localStorage.setItem('jpxDashboardTheme', mode); }catch(_e){}
+  syncChartDefaults();
+  refreshChartColors();
+  renderHeatmap();
+  selEv(currentEv, document.querySelector('.ev.act'));
+  renderAllPlotly();
+  renderPlotlyEvent(EVENTS[currentEv] || EVENTS[0]);
+  renderPlotlyCycle();
+}
+function initTheme(){
+  const paramTheme=getUrlParam('theme');
+  let saved='dark';
+  try{ saved=localStorage.getItem('jpxDashboardTheme') || 'dark'; }catch(_e){}
+  const initial = paramTheme || saved;
+  themeMode=initial === 'light' ? 'light' : 'dark';
+  document.body.setAttribute('data-theme', themeMode);
+  syncChartDefaults();
+  updateThemePill();
+}
+function populateYmOptions(){
+  const sel=document.getElementById('ymSel');
+  if(!sel || !MONTHS.length) return;
+  const yyyymms = MONTHS.map(v=>v.replace('/','')).slice().reverse();
+  sel.innerHTML=yyyymms.map(v=>`<option value="${v}">${v.slice(0,4)}年${v.slice(4,6)}月</option>`).join('');
+  const latest = DASHBOARD_DATA?.latest_yyyymm || yyyymms[0];
+  if(latest) sel.value = latest;
+}
+function updateDataModePill(){
+  const el=document.getElementById('dataModePill');
+  if(!el) return;
+  el.classList.remove('pill-amber','pill-green');
+  if(DASHBOARD_DATA){
+    el.textContent='実データ ⇌';
+    el.classList.add('pill-green');
+    el.style.cursor='pointer';
+    el.title='クリックでサンプルデータに切り替え';
+  } else if(window.JPX_DASHBOARD_DATA){
+    el.textContent='サンプル ⇌';
+    el.classList.add('pill-amber');
+    el.style.cursor='pointer';
+    el.title='クリックで実データに切り替え';
+  } else {
+    el.textContent='サンプルデータ';
+    el.classList.add('pill-amber');
+    el.style.cursor='default';
+    el.title='';
+  }
+}
+function toggleDataMode(){
+  if(!window.JPX_DASHBOARD_DATA) return;
+  const url=new URL(location.href);
+  if(_forceSample) url.searchParams.delete('mode');
+  else url.searchParams.set('mode','sample');
+  location.href=url.toString();
+}
+// A-2: 最新月へ
+function goLatestYm(){
+  const sel=document.getElementById('ymSel');
+  if(!sel||!sel.options.length) return;
+  sel.selectedIndex=0;
+  onYm(sel.value);
+}
+// A-1: 生成日時表示
+function updateGeneratedAt(){
+  const el=document.getElementById('generatedAt');
+  if(!el) return;
+  const ga=DASHBOARD_DATA?.generated_at;
+  if(!ga) return;
+  try{
+    const d=new Date(ga);
+    if(isNaN(d)) return;
+    el.textContent=`${d.getFullYear()}/${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getDate()).padStart(2,'0')} 更新`;
+    el.title='データ生成日時: '+ga;
+  }catch(_e){}
+}
+// A-6: テーマピル
+function toggleTheme(){
+  setTheme(themeMode==='dark'?'light':'dark');
+  updateThemePill();
+}
+function updateThemePill(){
+  const el=document.getElementById('themePill');
+  if(!el) return;
+  el.textContent=themeMode==='dark'?'Dark':'Light';
+  el.classList.toggle('pt-active',themeMode==='light');
+}
+// A-6: チャートモードピル
+function toggleChartModePill(){
+  const next=chartMode==='chartjs'?'plotly':'chartjs';
+  setChartMode(next);
+  try{const url=new URL(location.href);url.searchParams.set('chart',next);history.replaceState(null,'',url.toString());}catch(_e){}
+  updateChartModePill();
+}
+function updateChartModePill(){
+  const el=document.getElementById('chartModePill');
+  if(!el) return;
+  el.textContent=chartMode==='plotly'?'Plotly':'Chart.js';
+  el.classList.toggle('pt-active',chartMode==='plotly');
+}
+// A-3: フィルター URL 同期
+function _syncFilterUrl(){
+  try{
+    const url=new URL(location.href);
+    fCat!=='all'?url.searchParams.set('cat',fCat):url.searchParams.delete('cat');
+    fPbr!=='all'?url.searchParams.set('pbr',fPbr):url.searchParams.delete('pbr');
+    fChgMin!==-1?url.searchParams.set('chg',fChgMin):url.searchParams.delete('chg');
+    history.replaceState(null,'',url.toString());
+  }catch(_e){}
+}
+function _restoreFilterUrl(){
+  const cat=getUrlParam('cat');
+  const pbr=getUrlParam('pbr');
+  const chg=getUrlParam('chg');
+  if(cat){fCat=cat;document.querySelectorAll('#fg-cat .ftag').forEach(t=>t.classList.toggle('on',t.dataset.cat===cat));}
+  if(pbr){fPbr=pbr;document.querySelectorAll('#fg-pbr .ftag').forEach(t=>t.classList.toggle('on',t.dataset.pbr===pbr));}
+  if(chg!=null){const v=parseFloat(chg);if(!isNaN(v)){fChgMin=v;const sl=document.getElementById('sl-chg');const sv=document.getElementById('sl-val');if(sl)sl.value=v;if(sv)sv.textContent=v>=0?'+'+v.toFixed(1):v.toFixed(1);}}
+}
+
+// ─────────────────────────────────────────
+// B-1: PBR絶対値ラベル（Zスコアチャート用プラグイン）
+// ─────────────────────────────────────────
+Chart.register({
+  id:'zscorePbrLabel',
+  afterDraw(chart){
+    if(chart.canvas.id!=='zscoreC') return;
+    const {ctx,chartArea}=chart;
+    if(!chartArea) return;
+    const meta=chart.getDatasetMeta(0);
+    if(!meta||!meta.data) return;
+    const zd=chart._zPbrData||[];
+    ctx.save();
+    ctx.font='9px JetBrains Mono,monospace';
+    ctx.textAlign='left';
+    meta.data.forEach((bar,i)=>{
+      const pbr=zd[i]?.pbr;
+      if(pbr==null) return;
+      const z=chart.data.datasets[0].data[i];
+      ctx.fillStyle=z<-1?'rgba(91,141,246,.9)':z>1?'rgba(224,84,84,.8)':'rgba(107,116,145,.7)';
+      ctx.fillText(pbr.toFixed(1)+'x',chartArea.right+4,bar.y+3.5);
+    });
+    ctx.restore();
+  }
+});
+
+// ─────────────────────────────────────────
+// B-2: 比較モード（期間比較チャート）
+// ─────────────────────────────────────────
+let _compMode=false, _compChart=null;
+function toggleCompMode(){
+  _compMode=!_compMode;
+  const pill=document.getElementById('compModePill');
+  const sel=document.getElementById('compYmSel');
+  const card=document.getElementById('compCard');
+  if(pill) pill.classList.toggle('pt-active',_compMode);
+  if(sel) sel.style.display=_compMode?'':'none';
+  if(card) card.style.display=_compMode?'':'none';
+  if(_compMode){
+    _populateCompYmSel();
+    renderCompChart();
+  } else {
+    if(_compChart){_compChart.destroy();_compChart=null;}
+  }
+}
+function _populateCompYmSel(){
+  const sel=document.getElementById('compYmSel');
+  if(!sel||sel.options.length>1) return;
+  const yyyymms=MONTHS.map(v=>v.replace('/','')).slice().reverse();
+  yyyymms.forEach(v=>{
+    const o=document.createElement('option');
+    o.value=v;o.textContent=v.slice(0,4)+'年'+v.slice(4,6)+'月';
+    sel.appendChild(o);
+  });
+  if(yyyymms.length>1) sel.value=yyyymms[1];
+}
+function renderCompChart(){
+  const curYm=document.getElementById('ymSel')?.value;
+  const cmpYm=document.getElementById('compYmSel')?.value;
+  if(!curYm||!cmpYm) return;
+  const curSrc=DASHBOARD_DATA?.sectors_history?.[curYm]||SECTORS;
+  const cmpSrc=DASHBOARD_DATA?.sectors_history?.[cmpYm]||SECTORS;
+  const labels=curSrc.map(s=>s.n);
+  const curPbr=curSrc.map(s=>s.pbr??null);
+  const cmpPbr=labels.map(n=>cmpSrc.find(s=>s.n===n)?.pbr??null);
+  const meta=document.getElementById('compMeta');
+  const cy=curYm.slice(0,4)+'/'+curYm.slice(4,6);
+  const cm=cmpYm.slice(0,4)+'/'+cmpYm.slice(4,6);
+  if(meta) meta.textContent=`${cy} vs ${cm}`;
+  const el=document.getElementById('compC');
+  if(!el) return;
+  if(_compChart){_compChart.destroy();_compChart=null;}
+  _compChart=new Chart(el,{
+    type:'bar',
+    data:{labels,datasets:[
+      {label:cy,data:curPbr,backgroundColor:'rgba(91,141,246,.75)',borderRadius:3},
+      {label:cm,data:cmpPbr,backgroundColor:'rgba(245,166,35,.6)',borderRadius:3}
+    ]},
+    options:{...GC,indexAxis:'y',
+      plugins:{legend:{display:true,labels:{color:chartLabelColor(),font:{size:10}}},
+        tooltip:{callbacks:{label:c=>`${c.dataset.label}: ${c.parsed.x?.toFixed(2)||'–'}x`}}},
+      scales:{
+        x:{ticks:{color:chartTickColor(),font:{size:10},callback:v=>v+'x'},grid:{color:chartGridColor()},min:0},
+        y:{ticks:{color:chartLabelColor(),font:{size:9}},grid:{display:false}}
+      }}
+  });
+}
+
+// ─────────────────────────────────────────
+// B-3: C/D 上位業種内訳
+// ─────────────────────────────────────────
+function _renderCdTopSectors(src){
+  const el=document.getElementById('cdTopSectors');
+  if(!el||!src) return;
+  const cTop=[...src].filter(s=>s.cat==='C').sort((a,b)=>b.cap-a.cap).slice(0,3).map(s=>s.n).join('・');
+  const dTop=[...src].filter(s=>s.cat==='D').sort((a,b)=>b.cap-a.cap).slice(0,3).map(s=>s.n).join('・');
+  el.innerHTML=`<span style="color:var(--amber)">C: ${cTop||'–'}</span>　<span style="color:var(--green)">D: ${dTop||'–'}</span>`;
+}
+
+// ─────────────────────────────────────────
+// B-4: 散布図クリック → 詳細ダイアログ
+// ─────────────────────────────────────────
+let _dlgSector=null;
+function showSectorDetail(s){
+  if(!s) return;
+  _dlgSector=s;
+  const sig=signal(s);
+  document.getElementById('dlgTitle').innerHTML=`${s.n} <span class="chip" style="background:${CAT_COL[s.cat]}22;color:${CAT_COL[s.cat]};font-size:10px">${CAT_LBL[s.cat]}</span>`;
+  document.getElementById('dlgPbr').innerHTML=s.pbr!=null?`${s.pbr.toFixed(2)}<span style="font-size:11px;color:var(--muted)">x</span>`:'–';
+  document.getElementById('dlgPer').innerHTML=s.per!=null?`${s.per.toFixed(1)}<span style="font-size:11px;color:var(--muted)">x</span>`:'–';
+  document.getElementById('dlgCap').innerHTML=s.cap!=null?`${s.cap.toFixed(1)}<span style="font-size:11px;color:var(--muted)">兆</span>`:'–';
+  document.getElementById('dlgDy').innerHTML=s.dy!=null?`${s.dy.toFixed(1)}<span style="font-size:11px;color:var(--muted)">%</span>`:'–';
+  // PBR 推移スパークライン
+  const idx=SECTORS.findIndex(x=>x.n===s.n);
+  const pbrHistory=DASHBOARD_DATA?.pbr1?.matrix?.[idx]||null;
+  document.getElementById('dlgSparkline').innerHTML=pbrHistory
+    ?_sparkSvg(pbrHistory,'var(--accent)',180,24)
+    :'<span style="font-size:10px;color:var(--muted)">（実データ接続時に表示）</span>';
+  document.getElementById('dlgSignal').innerHTML=`<span class="chip ${sig.cls}">${sig.txt||'–'}</span>`;
+  document.getElementById('sectorDlg').showModal();
+}
+function dlgToNote(){
+  if(!_dlgSector) return;
+  document.getElementById('sectorDlg').close();
+  addToNote(_dlgSector.n,_dlgSector.pbr||0,_dlgSector.chg||0);
+}
+
+// ─────────────────────────────────────────
+// B-8: メモのピン留め
+// ─────────────────────────────────────────
+function pinNote(i){
+  notes[i]._pinned=!notes[i]._pinned;
+  persistNotes();
+  renderNotes();
+}
+
+// ─────────────────────────────────────────
+// B-9: PBR ミニヒートマップグリッド
+// ─────────────────────────────────────────
+function renderPbrHeatGrid(src){
+  const el=document.getElementById('pbrHeatGrid');
+  if(!el||!src||!src.length) return;
+  const pbrs=src.map(s=>s.pbr).filter(v=>v!=null);
+  if(!pbrs.length) return;
+  const mn=Math.min(...pbrs),mx=Math.max(...pbrs),rng=mx-mn||0.001;
+  el.innerHTML=src.map(s=>{
+    const t=s.pbr!=null?(s.pbr-mn)/rng:0.5;
+    const r=Math.round(t*224+(1-t)*91);
+    const g=Math.round(t*84+(1-t)*141);
+    const b2=Math.round(t*84+(1-t)*246);
+    const chgColor=s.chg>0?'var(--green)':s.chg<0?'var(--red)':'var(--muted)';
+    return `<div style="background:rgba(${r},${g},${b2},.18);border:1px solid rgba(${r},${g},${b2},.4);border-radius:5px;padding:5px 8px;cursor:pointer" onclick="showSectorDetail(SECTORS.find(x=>x.n==='${s.n}'))" title="${s.n}">
+      <div style="color:var(--muted);font-size:9px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${s.n}</div>
+      <div style="font-family:var(--mono);font-weight:500;font-size:11px;color:var(--text)">${s.pbr!=null?s.pbr.toFixed(1)+'x':'–'}</div>
+      <div style="font-size:9px;color:${chgColor}">${s.chg>0?'▲':s.chg<0?'▼':'±'}${Math.abs(s.chg).toFixed(1)}</div>
+    </div>`;
+  }).join('');
+}
+function renderPlotlyOverview(){
+  renderPlotlyChart('trendC',[
+    {type:'scatter',mode:'lines+markers',name:'加重PBR',x:MONTHS,y:PBR_TS,line:{color:'#5b8df6',width:2},marker:{size:5}}
+  ],{
+    xaxis:{title:''},
+    yaxis:{title:'加重PBR（倍）',ticksuffix:'x'}
+  });
+}
+function renderPlotlyValuation(){
+  renderPlotlyChart('valTrendC',[
+    {type:'scatter',mode:'lines+markers',name:'PBR',x:MONTHS,y:PBR_TS,line:{color:'#5b8df6',width:2},marker:{size:5},yaxis:'y'},
+    {type:'scatter',mode:'lines+markers',name:'PER',x:MONTHS,y:PER_TS,line:{color:'#f5a623',width:2},marker:{size:5},yaxis:'y2'}
+  ],{
+    yaxis:{title:'PBR（倍）',ticksuffix:'x'},
+    yaxis2:{title:'PER（倍）',ticksuffix:'x',overlaying:'y',side:'right',showgrid:false,tickfont:{color:'#f5a623',size:10}},
+    legend:{orientation:'h',yanchor:'bottom',y:1.02,x:0}
+  });
+
+  const byChg=[...SECTORS].sort((a,b)=>b.chg-a.chg);
+  renderPlotlyChart('indRankC',[
+    {type:'bar',orientation:'h',name:'PBR変化',x:byChg.map(s=>s.chg),y:byChg.map(s=>s.n),
+      marker:{color:byChg.map(s=>s.chg>=0?'rgba(91,141,246,.75)':'rgba(224,84,84,.75)')},hovertemplate:'%{y}<br>PBR変化: %{x:.1f}x<extra></extra>'}
+  ],{
+    margin:{l:92,r:24,t:24,b:44},
+    showlegend:false,
+    xaxis:{title:'PBR変化（倍）',ticksuffix:'x'},
+    yaxis:{autorange:'reversed'}
+  });
+
+  renderPlotlyChart('sizeC',[
+    {type:'scatter',mode:'lines+markers',name:'大型',x:MONTHS,y:LG,line:{color:'#5b8df6',width:2}},
+    {type:'scatter',mode:'lines+markers',name:'中型',x:MONTHS,y:MED,line:{color:'#29c99a',width:2}},
+    {type:'scatter',mode:'lines+markers',name:'小型',x:MONTHS,y:SM,line:{color:'#f5a623',width:2}}
+  ],{yaxis:{title:'PBR（倍）',ticksuffix:'x'}});
+
+  renderPlotlyChart('mfgC',[
+    {type:'scatter',mode:'lines+markers',name:'製造業',x:MONTHS,y:MFG,line:{color:'#5b8df6',width:2}},
+    {type:'scatter',mode:'lines+markers',name:'非製造業',x:MONTHS,y:NMFG,line:{color:'#29c99a',width:2}}
+  ],{
+    yaxis:{title:'PBR（倍）',ticksuffix:'x'},
+    shapes:[{type:'line',xref:'x',yref:'paper',x0:'2023/07',x1:'2023/07',y0:0,y1:1,line:{color:'#f5a623',width:1,dash:'dash'}}]
+  });
+
+  renderPlotlyChart('sprC',[
+    {type:'bar',orientation:'h',name:'単純−加重スプレッド',x:SPR_DATA.map(s=>s.v),y:SPR_DATA.map(s=>s.n),
+      marker:{color:SPR_DATA.map(s=>s.v>=0?'rgba(245,166,35,.75)':'rgba(91,141,246,.75)')},hovertemplate:'%{y}<br>スプレッド: %{x:.2f}x<extra></extra>'}
+  ],{
+    margin:{l:100,r:24,t:24,b:44},
+    showlegend:false,
+    xaxis:{title:'単純−加重 PBR スプレッド',ticksuffix:'x'},
+    yaxis:{autorange:'reversed'}
+  });
+}
+function renderPlotlyScatter(){
+  renderPlotlyChart('scatterC',[
+    {type:'scatter',mode:'markers',name:'業種',
+      x:SECTORS.map(s=>s.pbr),
+      y:SECTORS.map(s=>s.cap),
+      text:SECTORS.map(s=>s.n),
+      customdata:SECTORS.map(s=>[CAT_LBL[s.cat],s.cos,s.per]),
+      marker:{
+        size:SECTORS.map(s=>Math.max(12,Math.sqrt(s.cos)*3.8)),
+        color:SECTORS.map(s=>CAT_COL[s.cat]),
+        sizemode:'diameter',
+        opacity:0.78,
+        line:{width:1,color:'rgba(255,255,255,.18)'}
+      },
+      hovertemplate:'%{text}<br>PBR: %{x:.1f}x<br>時価総額: %{y:.1f}兆円<br>カテゴリ: %{customdata[0]}<br>上場社数: %{customdata[1]}<br>加重PER: %{customdata[2]}<extra></extra>'
+    }
+  ],{
+    showlegend:false,
+    xaxis:{title:'加重PBR（倍）',ticksuffix:'x',range:[0,4.5]},
+    yaxis:{title:'時価総額（兆円）'}
+  });
+}
+function renderPlotlyDecomp(){
+  const decomp=DASHBOARD_DATA?.decomp;
+  if(decomp&&decomp.length>0){
+    const top=decomp.slice(0,16);
+    renderPlotlyChart('decompC',[
+      {type:'bar',orientation:'h',name:'純資産（BPS）成長',x:top.map(d=>d.na),y:top.map(d=>d.n),marker:{color:'rgba(41,201,154,.7)'}},
+      {type:'bar',orientation:'h',name:'PBR倍率変化',x:top.map(d=>d.pbr),y:top.map(d=>d.n),marker:{color:'rgba(91,141,246,.7)'}}
+    ],{
+      barmode:'stack',
+      margin:{l:100,r:24,t:24,b:44},
+      xaxis:{title:'寄与度（率）',tickformat:'+.1%'},
+      yaxis:{autorange:'reversed'}
+    });
+    return;
+  }
+  const dcData=[...SECTORS].sort((a,b)=>b.cap-a.cap).slice(0,16);
+  renderPlotlyChart('decompC',[
+    {type:'bar',orientation:'h',name:'純資産（BPS）成長',x:dcData.map(s=>+(s.chg*.62).toFixed(2)),y:dcData.map(s=>s.n),marker:{color:'rgba(41,201,154,.7)'}},
+    {type:'bar',orientation:'h',name:'PBR倍率変化',x:dcData.map(s=>+(s.chg*.38).toFixed(2)),y:dcData.map(s=>s.n),marker:{color:'rgba(91,141,246,.7)'}}
+  ],{
+    barmode:'stack',
+    margin:{l:100,r:24,t:24,b:44},
+    xaxis:{title:'寄与度（倍）',ticksuffix:'x'},
+    yaxis:{autorange:'reversed'}
+  });
+}
+function renderPlotlyEvent(ev){
+  const pbr=[...ev.pbr].sort((a,b)=>b[1]-a[1]);
+  const shr=[...ev.shr].sort((a,b)=>b[1]-a[1]);
+  renderPlotlyChart('evBarC',[
+    {type:'bar',orientation:'h',name:'PBR変化',x:pbr.map(x=>x[1]),y:pbr.map(x=>x[0]),
+      marker:{color:pbr.map(x=>x[1]>=0?'rgba(91,141,246,.8)':'rgba(224,84,84,.8)')},hovertemplate:'%{y}<br>PBR変化: %{x:.1f}x<extra></extra>'}
+  ],{
+    margin:{l:88,r:24,t:24,b:44},
+    showlegend:false,
+    xaxis:{title:'PBR変化（倍）',ticksuffix:'x'},
+    yaxis:{autorange:'reversed'}
+  });
+  renderPlotlyChart('evShareC',[
+    {type:'bar',orientation:'h',name:'シェア変化',x:shr.map(x=>x[1]),y:shr.map(x=>x[0]),
+      marker:{color:shr.map(x=>x[1]>=0?'rgba(41,201,154,.8)':'rgba(224,84,84,.8)')},hovertemplate:'%{y}<br>シェア変化: %{x:.1f}pp<extra></extra>'}
+  ],{
+    margin:{l:88,r:24,t:24,b:44},
+    showlegend:false,
+    xaxis:{title:'シェア変化（pp）',ticksuffix:'pp'},
+    yaxis:{autorange:'reversed'}
+  });
+}
+function renderPlotlyCycle(){
+  renderPlotlyChart('cyclePhaseC',[
+    {type:'scatter',mode:'lines+markers',name:'CI一致指数',x:CYCLE_MONTHS,y:CI_COIN,line:{color:'#29c99a',width:2},yaxis:'y'},
+    {type:'scatter',mode:'lines+markers',name:'政策金利',x:CYCLE_MONTHS,y:POL_RATE,line:{color:'#f5a623',width:2,dash:'dash'},yaxis:'y2'},
+    {type:'scatter',mode:'lines+markers',name:'10年国債',x:CYCLE_MONTHS,y:JGB10Y,line:{color:'#9b7fe8',width:2,dash:'dot'},yaxis:'y2'}
+  ],{
+    yaxis:{title:'CI一致指数'},
+    yaxis2:{title:'金利（%）',overlaying:'y',side:'right',showgrid:false,ticksuffix:'%'}
+  });
+
+  renderPlotlyChart('zscoreC',[
+    {type:'bar',orientation:'h',name:'PBR乖離Zスコア',x:Z_SCORES.map(s=>s.z),y:Z_SCORES.map(s=>s.n),
+      marker:{color:Z_SCORES.map(s=>s.z<-1?'rgba(91,141,246,.8)':s.z>1?'rgba(224,84,84,.8)':'rgba(107,116,145,.4)')},
+      hovertemplate:'%{y}<br>Z=%{x:.2f}<extra></extra>'}
+  ],{
+    margin:{l:100,r:24,t:24,b:44},
+    showlegend:false,
+    xaxis:{title:'Zスコア',range:[-2.5,2.5]},
+    yaxis:{autorange:'reversed'}
+  });
+
+  renderPlotlyChart('cdRatioC',[
+    {type:'bar',name:'C/D相対強度',x:CYCLE_MONTHS,y:CD_RATIO,
+      marker:{color:CD_RATIO.map(v=>v>1.0?'rgba(245,166,35,.75)':v<0?'rgba(41,201,154,.75)':'rgba(107,116,145,.4)')},
+      hovertemplate:'%{x}<br>C/D比率: %{y:.1f}<extra></extra>'}
+  ],{
+    showlegend:false,
+    yaxis:{title:'C/D比率'}
+  });
+}
+function renderAllPlotly(){
+  renderPlotlyOverview();
+  renderPlotlyValuation();
+  renderPlotlyHeatmap();
+  renderPlotlyScatter();
+  renderPlotlyDecomp();
+  renderPlotlyCycle();
+}
+
+// A-7: イベント縦線プラグイン（Chart.js）
+Chart.register({
+  id:'evAnnotations',
+  afterDraw(chart){
+    if(chartMode==='plotly') return;
+    const evMonths=EVENTS.map(ev=>ev.period.split('→')[0]);
+    const evColors=['#e05454','#f5a623','#5b8df6','#9b7fe8','#29c99a'];
+    const {ctx,chartArea}=chart;
+    if(!chartArea) return;
+    const meta0=chart.getDatasetMeta(0);
+    if(!meta0||!meta0.data) return;
+    evMonths.forEach((ym,i)=>{
+      const idx=MONTHS.indexOf(ym);
+      if(idx<0||!meta0.data[idx]) return;
+      const x=meta0.data[idx].x;
+      ctx.save();
+      ctx.beginPath();
+      ctx.moveTo(x,chartArea.top);
+      ctx.lineTo(x,chartArea.bottom);
+      ctx.strokeStyle=(evColors[i]||'#888')+'88';
+      ctx.lineWidth=1;
+      ctx.setLineDash([4,3]);
+      ctx.stroke();
+      ctx.restore();
+    });
+  }
+});
+
+function initCharts(){
+  renderSectList();
+  // 初期ソートインジケーターを設定（業種コード昇順）
+  const initTh=document.querySelector('#screenThead th[data-skey="code"]');
+  if(initTh) initTh.textContent=initTh.textContent.replace(/ [▲▼]$/,'')+' ▲';
+  renderScreen();
+  renderHeatmap();
+
+  // trend (overview)
+  charts.trend=mk('trendC',{type:'line',data:{labels:MONTHS,datasets:[lineDs('加重PBR',PBR_TS,'#5b8df6')]},
+    options:{...GC,scales:{x:{ticks:{color:chartTickColor(),font:{size:10}},grid:{color:chartGridColor()}},
+      y:{ticks:{color:chartTickColor(),font:{size:10},callback:v=>v+'x'},grid:{color:chartGridColor()}}}}});
+
+  // val trend
+  charts.valTrend=mk('valTrendC',{type:'line',data:{labels:MONTHS,datasets:[
+    lineDs('PBR',PBR_TS,'#5b8df6','y'),lineDs('PER',PER_TS,'#f5a623','y2')]},
+    options:{...GC,scales:{
+      x:{ticks:{color:chartTickColor(),font:{size:10}},grid:{color:chartGridColor()}},
+      y:{ticks:{color:accentBlue(),font:{size:10},callback:v=>v+'x'},grid:{color:chartGridColor()},position:'left'},
+      y2:{ticks:{color:accentAmber(),font:{size:10},callback:v=>v+'x'},grid:{display:false},position:'right'}}}});
+
+  // ind rank
+  const byChg=[...SECTORS].sort((a,b)=>b.chg-a.chg);
+  charts.indRank=mk('indRankC',{type:'bar',
+    data:{labels:byChg.map(s=>s.n),datasets:[{label:'PBR変化',data:byChg.map(s=>s.chg),
+      backgroundColor:byChg.map(s=>s.chg>=0?'rgba(91,141,246,.75)':'rgba(224,84,84,.75)'),borderRadius:3}]},
+    options:{indexAxis:'y',...GC,plugins:{legend:{display:false}},
+      scales:{x:{ticks:{color:chartTickColor(),font:{size:10},callback:v=>v+'x'},grid:{color:chartGridColor()}},
+        y:{ticks:{color:chartLabelColor(),font:{size:9}},grid:{display:false}}}}});
+
+  // size
+  charts.size=mk('sizeC',{type:'line',data:{labels:MONTHS,datasets:[
+    lineDs('大型',LG,'#5b8df6'),lineDs('中型',MED,'#29c99a'),lineDs('小型',SM,'#f5a623')]},
+    options:{...GC,scales:{x:{ticks:{color:chartTickColor(),font:{size:10}},grid:{color:chartGridColor()}},
+      y:{ticks:{color:chartTickColor(),font:{size:10},callback:v=>v+'x'},grid:{color:chartGridColor()}}}}});
+
+  // mfg
+  charts.mfg=mk('mfgC',{type:'line',data:{labels:MONTHS,datasets:[
+    lineDs('製造業',MFG,'#5b8df6'),lineDs('非製造業',NMFG,'#29c99a')]},
+    options:{...GC,scales:{x:{ticks:{color:chartTickColor(),font:{size:10}},grid:{color:chartGridColor()}},
+      y:{ticks:{color:chartTickColor(),font:{size:10},callback:v=>v+'x'},grid:{color:chartGridColor()}}}}});
+
+  // spread — SPR_DATA（定数化済み、randomなし）
+  charts.spr=mk('sprC',{type:'bar',
+    data:{labels:SPR_DATA.map(s=>s.n),datasets:[{label:'単純−加重スプレッド',data:SPR_DATA.map(s=>s.v),
+      backgroundColor:SPR_DATA.map(s=>s.v>=0?'rgba(245,166,35,.7)':'rgba(91,141,246,.7)'),borderRadius:3}]},
+    options:{indexAxis:'y',...GC,plugins:{legend:{display:false}},
+      scales:{x:{ticks:{color:chartTickColor(),font:{size:10},callback:v=>v+'x'},grid:{color:chartGridColor()}},
+        y:{ticks:{color:chartLabelColor(),font:{size:9}},grid:{display:false}}}}});
+
+  // scatter
+  charts.scatter=mk('scatterC',{type:'bubble',
+    data:{datasets:[{label:'',data:SECTORS.map(s=>({x:s.pbr,y:s.cap,r:Math.sqrt(s.cos)*1.1,sector:s.n})),
+      backgroundColor:SECTORS.map(s=>CAT_COL[s.cat]+'bb'),borderColor:SECTORS.map(s=>CAT_COL[s.cat]),borderWidth:1}]},
+    options:{...GC,
+      onClick:(e,elements)=>{if(elements.length)showSectorDetail(_curSectors()[elements[0].index]);},
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`${c.raw.sector}  PBR:${c.raw.x}x  ${c.raw.y.toFixed(1)}兆円`}}},
+      scales:{x:{title:{display:true,text:'加重PBR（倍）',color:chartTickColor(),font:{size:10}},
+          ticks:{color:chartTickColor(),font:{size:10},callback:v=>v+'x'},grid:{color:chartGridColor()},min:0,max:4.5},
+        y:{title:{display:true,text:'時価総額（兆円）',color:chartTickColor(),font:{size:10}},
+          ticks:{color:chartTickColor(),font:{size:10}},grid:{color:chartGridColor()}}}}});
+
+  // decompose — 実データ優先、なければサンプル係数
+  const dcSrc=DASHBOARD_DATA?.decomp?.slice(0,16)||[...SECTORS].sort((a,b)=>b.cap-a.cap).slice(0,16);
+  const dcReal=!!(DASHBOARD_DATA?.decomp?.length);
+  const dcLbl=dcSrc.map(d=>d.n);
+  const dcNA=dcReal?dcSrc.map(d=>d.na):dcSrc.map(s=>+(s.chg*.62).toFixed(2));
+  const dcPBR=dcReal?dcSrc.map(d=>d.pbr):dcSrc.map(s=>+(s.chg*.38).toFixed(2));
+  const dcFmt=dcReal?v=>Math.round(v*100)+'%':v=>v+'x';
+  charts.decomp=mk('decompC',{type:'bar',
+    data:{labels:dcLbl,datasets:[
+      {label:'純資産（BPS）成長',data:dcNA,backgroundColor:'rgba(41,201,154,.7)',borderRadius:2,stack:'s'},
+      {label:'PBR倍率変化',data:dcPBR,backgroundColor:'rgba(91,141,246,.7)',borderRadius:2,stack:'s'}]},
+    options:{indexAxis:'y',...GC,
+      scales:{x:{stacked:true,ticks:{color:chartTickColor(),font:{size:10},callback:dcFmt},grid:{color:chartGridColor()}},
+        y:{stacked:true,ticks:{color:chartLabelColor(),font:{size:9}},grid:{display:false}}}}});
+
+  selEv(0, document.querySelector('.ev.act'));
+  renderAllPlotly();
+  applyChartMode();
+  updateOverviewKPI();
+  if(DASHBOARD_DATA?.latest_yyyymm) _onYmDecomp(DASHBOARD_DATA.latest_yyyymm);
+}
+
+// ────── event ──────
+function selEv(idx,btn){
+  currentEv=idx;
+  document.querySelectorAll('.ev').forEach(e=>e.classList.remove('act'));
+  if(btn) btn.classList.add('act');
+  const ev=EVENTS[idx];
+  document.getElementById('evBanner').innerHTML=`<strong>${ev.label}</strong>（${ev.period}）：${ev.desc}`;
+  document.getElementById('evPeriod').textContent=ev.period;
+  if(evNotes[idx]) document.getElementById('evNote').value=evNotes[idx];
+  else document.getElementById('evNote').value='';
+  const pbr=ev.pbr.sort((a,b)=>b[1]-a[1]);
+  const shr=ev.shr.sort((a,b)=>b[1]-a[1]);
+  if(evCharts.bar){evCharts.bar.destroy();evCharts.bar=null;}
+  if(evCharts.shr){evCharts.shr.destroy();evCharts.shr=null;}
+  evCharts.bar=mk('evBarC',{type:'bar',data:{labels:pbr.map(x=>x[0]),datasets:[{label:'PBR変化',
+    data:pbr.map(x=>x[1]),backgroundColor:pbr.map(x=>x[1]>=0?'rgba(91,141,246,.8)':'rgba(224,84,84,.8)'),borderRadius:4}]},
+    options:{indexAxis:'y',...GC,plugins:{legend:{display:false}},
+      scales:{x:{ticks:{color:chartTickColor(),font:{size:10},callback:v=>parseFloat(v.toFixed(1))+'x'},grid:{color:chartGridColor()}},
+        y:{ticks:{color:chartLabelColor(),font:{size:10}},grid:{display:false}}}}});
+  evCharts.shr=mk('evShareC',{type:'bar',data:{labels:shr.map(x=>x[0]),datasets:[{label:'シェア変化',
+    data:shr.map(x=>x[1]),backgroundColor:shr.map(x=>x[1]>=0?'rgba(41,201,154,.8)':'rgba(224,84,84,.8)'),borderRadius:4}]},
+    options:{indexAxis:'y',...GC,plugins:{legend:{display:false}},
+      scales:{x:{ticks:{color:chartTickColor(),font:{size:10},callback:v=>v+'pp'},grid:{color:chartGridColor()}},
+        y:{ticks:{color:chartLabelColor(),font:{size:10}},grid:{display:false}}}}});
+  renderPlotlyEvent(ev);
+  applyChartMode();
+}
+function saveEvNote(){
+  const t=document.getElementById('evNote').value.trim();
+  if(!t) return;
+  evNotes[currentEv]=t;
+  addNote(t,`イベント：${EVENTS[currentEv].label}`,'投資','(イベントメモ)');
+}
+
+// ────── notes ──────
+const _NOTES_KEY='jpxTeamNotes';
+let _noteFilterTeam='all', _noteFilterTag='all';
+
+function _noteKey(n){return `${n.ts}|${n.author}|${n.text}`;}
+
+function persistNotes(){
+  try{localStorage.setItem(_NOTES_KEY,JSON.stringify(notes));}catch(_e){}
+}
+function loadNotes(){
+  let stored=[];
+  try{stored=JSON.parse(localStorage.getItem(_NOTES_KEY)||'[]');}catch(_e){}
+  // 共有メモ（DASHBOARD_DATA.team_notes）をマージ（重複除外）
+  const shared=(DASHBOARD_DATA?.team_notes||[]).map(n=>({...n,_shared:true}));
+  const storedKeys=new Set(stored.map(_noteKey));
+  notes=[...stored,...shared.filter(n=>!storedKeys.has(_noteKey(n)))];
+  document.getElementById('nb-notes').textContent=notes.length;
+  renderNotes();
+}
+function saveNote(){
+  const t=document.getElementById('noteText').value.trim();
+  if(!t) return;
+  addNote(t,null,
+    document.getElementById('noteTag').value,
+    document.getElementById('noteAuthor').value||'匿名',
+    document.getElementById('noteTeam').value);
+  document.getElementById('noteText').value='';
+}
+function clearNote(){document.getElementById('noteText').value='';}
+function addNote(text,context,tag,author,team){
+  const n={text,context,tag,author,team:team||'全員',ts:new Date().toLocaleString('ja')};
+  notes.unshift(n);
+  persistNotes();
+  document.getElementById('nb-notes').textContent=notes.length;
+  renderNotes();
+}
+function addToNote(name,pbr,chg){
+  goto('notes',null,true);
+  document.getElementById('noteText').value=`【${name}】PBR ${pbr.toFixed(1)}x　前期比 ${chg>=0?'+':''}${chg.toFixed(1)}x\n`;
+  const tagEl=document.getElementById('noteTag');
+  if(tagEl) tagEl.value='投資';
+  document.getElementById('noteText').focus();
+}
+function delNote(i){
+  notes.splice(i,1);
+  persistNotes();
+  document.getElementById('nb-notes').textContent=notes.length;
+  renderNotes();
+}
+function filterNotes(type,val){
+  if(type==='team') _noteFilterTeam=val;
+  else _noteFilterTag=val;
+  renderNotes();
+}
+function renderNotes(){
+  const el=document.getElementById('noteList');
+  if(!el) return;
+  const filtered=notes.filter(n=>{
+    if(_noteFilterTeam!=='all'&&(n.team||'全員')!==_noteFilterTeam) return false;
+    if(_noteFilterTag!=='all'&&n.tag!==_noteFilterTag) return false;
+    return true;
+  }).sort((a,b)=>(b._pinned?1:0)-(a._pinned?1:0));
+  if(!filtered.length){
+    el.innerHTML=`<div style="color:var(--muted);font-size:11px;padding:14px 0;text-align:center">該当するメモがありません</div>`;
+    return;
+  }
+  const useMd=typeof marked!=='undefined';
+  el.innerHTML=filtered.map(n=>{
+    const realIdx=notes.indexOf(n);
+    const teamBadge=n.team&&n.team!=='全員'
+      ?`<span style="background:rgba(155,127,232,.15);color:var(--purple);border-radius:99px;padding:1px 6px;font-size:10px;margin-left:5px">${n.team}</span>`:'' ;
+    const sharedBadge=n._shared
+      ?`<span style="background:rgba(41,201,154,.12);color:var(--green);border-radius:99px;padding:1px 6px;font-size:9px;margin-left:5px">共有</span>`:'';
+    const pinBadge=n._pinned?`<span style="background:rgba(245,166,35,.18);color:var(--amber);border-radius:99px;padding:1px 6px;font-size:9px;margin-left:5px">📌</span>`:'';
+    const body=useMd?`<div class="snote-md">${marked.parse(n.text)}</div>`:n.text.replace(/\n/g,'<br>');
+    return `
+    <div class="snote" style="${n._pinned?'border-left:2px solid var(--amber);':''}">
+      <button class="del-btn" onclick="delNote(${realIdx})">×</button>
+      <button class="del-btn" onclick="pinNote(${realIdx})" style="right:30px;color:${n._pinned?'var(--amber)':'var(--hint)'}">📌</button>
+      <div style="font-size:10px;margin-bottom:4px;display:flex;align-items:center;flex-wrap:wrap;gap:2px">
+        <span class="chip chip-b">${n.tag}</span>
+        ${teamBadge}${sharedBadge}${pinBadge}
+        <span style="color:var(--muted);margin-left:6px">${n.author}</span>
+        ${n.context?`<span style="color:var(--hint);margin-left:6px">${n.context}</span>`:''}
+      </div>
+      ${body}
+      <div class="snote-ts">${n.ts}</div>
+    </div>`;
+  }).join('');
+}
+function exportNotes(){
+  const d=new Date();
+  const fname=`team_notes_${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}.json`;
+  const blob=new Blob([JSON.stringify(notes.map(n=>{const {_shared,...rest}=n;return rest;}),null,2)],{type:'application/json'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download=fname;
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+function importNotes(input){
+  const file=input.files[0];
+  if(!file) return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    try{
+      const imported=JSON.parse(e.target.result);
+      if(!Array.isArray(imported)) throw new Error('invalid');
+      const existingKeys=new Set(notes.map(_noteKey));
+      const newNotes=imported.filter(n=>!existingKeys.has(_noteKey(n)));
+      notes=[...newNotes,...notes];
+      persistNotes();
+      document.getElementById('nb-notes').textContent=notes.length;
+      renderNotes();
+      alert(`${newNotes.length}件のメモをインポートしました（重複${imported.length-newNotes.length}件除外）`);
+    }catch(_e){alert('JSONファイルの読み込みに失敗しました');}
+    input.value='';
+  };
+  reader.readAsText(file);
+}
+
+// ────── export ──────
+function exportCSV(){
+  const rows=[['業種','カテゴリ','加重PBR','PBR前期比','加重PER','時価総額(兆円)','上場社数','シグナル']];
+  _curSectors().forEach(s=>rows.push([s.n,CAT_LBL[s.cat],s.pbr,s.chg,s.per??'',s.cap,s.cos,signal(s).txt]));
+  const csv=rows.map(r=>r.join(',')).join('\n');
+  const a=document.createElement('a');
+  a.href='data:text/csv;charset=utf-8,\uFEFF'+encodeURIComponent(csv);
+  a.download='jpx_screening.csv';a.click();
+}
+
+// ────── navigation ──────
+let _cycleInited=false;
+function goto(id,el,silent){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('act'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('act'));
+  document.getElementById('pg-'+id).classList.add('act');
+  if(el) el.classList.add('act');
+  else if(!silent){
+    document.querySelectorAll('.nav-item').forEach(n=>{
+      if(n.getAttribute('onclick')&&n.getAttribute('onclick').includes(`'${id}'`)) n.classList.add('act');
+    });
+  }
+  if(id==='cycle'&&!_cycleInited){
+    _cycleInited=true;
+    _initCycleDom();
+    initCycleCharts();
+    renderPlotlyCycle();
+    applyChartMode();
+  }
+}
+function swTab(pg,id,el){
+  document.querySelectorAll(`#pg-${pg} .tab`).forEach(t=>t.classList.remove('act'));
+  document.querySelectorAll(`#pg-${pg} .tp`).forEach(p=>p.classList.remove('act'));
+  el.classList.add('act');
+  document.getElementById(`${pg}-${id}`).classList.add('act');
+}
+function onYm(v){
+  const ym=v.replace(/(\d{4})(\d{2})/,'$1/$2');
+  document.getElementById('scYm').textContent=ym;
+  _onYmKpi(v,ym);
+  _onYmVline(ym);
+  _onYmScatter(v,ym);
+  _onYmDecomp(v);
+  _onYmCycle(v);
+  _flashYmLinked();
+}
+function _onYmDecomp(yyyymm){
+  const dh=DASHBOARD_DATA?.decomp_history;
+  if(!dh) return;
+  const entry=dh[yyyymm];
+  if(!entry){
+    const periodEl=document.getElementById('decompPeriod');
+    const firstDh=Object.keys(dh).sort()[0];
+    const hintYm=firstDh?`${firstDh.slice(0,4)}/${firstDh.slice(4,6)}以降`:'';
+    if(periodEl) periodEl.innerHTML=`<span style="color:var(--muted);font-size:10px">データなし${hintYm?`（${hintYm}で選択）`:''}</span>`;
+    return;
+  }
+  const top=entry.sectors.slice(0,16);
+  const periodEl=document.getElementById('decompPeriod');
+  if(periodEl) periodEl.textContent=`${entry.start}→${entry.end}`;
+  if(charts.decomp){
+    charts.decomp.data.labels=top.map(d=>d.n);
+    charts.decomp.data.datasets[0].data=top.map(d=>d.na);
+    charts.decomp.data.datasets[1].data=top.map(d=>d.pbr);
+    charts.decomp.update();
+  }
+  renderPlotlyChart('decompC',[
+    {type:'bar',orientation:'h',name:'純資産（BPS）成長',x:top.map(d=>d.na),y:top.map(d=>d.n),marker:{color:'rgba(41,201,154,.7)'}},
+    {type:'bar',orientation:'h',name:'PBR倍率変化',x:top.map(d=>d.pbr),y:top.map(d=>d.n),marker:{color:'rgba(91,141,246,.7)'}}
+  ],{barmode:'stack',margin:{l:100,r:24,t:24,b:44},
+    xaxis:{title:'寄与度（率）',tickformat:'+.1%'},
+    yaxis:{autorange:'reversed'}});
+}
+function _flashYmLinked(){
+  const ids=['kpiRow','ov-trend-card'];
+  // card要素はcard-titleのym-badge親を辿って取得
+  document.querySelectorAll('.ym-badge').forEach(b=>{
+    const card=b.closest('.card,.kpi-row');
+    if(card) ids.push(card.id||null);
+  });
+  // スクリーニングカード（idなし）はclassで特定
+  const screenCard=document.querySelector('#pg-screen .card');
+  [
+    document.getElementById('kpiRow'),
+    document.getElementById('ov-trend-card'),
+    screenCard,
+    ...document.querySelectorAll('.ym-badge').map(b=>b.closest('.card')).filter(Boolean)
+  ].filter((el,i,a)=>el&&a.indexOf(el)===i).forEach(el=>{
+    el.classList.remove('ym-flash');
+    void el.offsetWidth; // reflow to restart animation
+    el.classList.add('ym-flash');
+    setTimeout(()=>el.classList.remove('ym-flash'),1100);
+  });
+}
+function _sparkSvg(data,color,w=64,h=14){
+  if(!data||data.length<2) return '';
+  const d=data.filter(v=>v!=null).slice(-12);
+  if(d.length<2) return '';
+  const mn=Math.min(...d),mx=Math.max(...d),rng=mx-mn||0.001;
+  const pts=d.map((v,i)=>`${(i/(d.length-1)*w).toFixed(1)},${(h-(v-mn)/rng*h).toFixed(1)}`).join(' ');
+  return `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" style="overflow:visible"><polyline points="${pts}" fill="none" stroke="${color}" stroke-width="1.5" stroke-linejoin="round"/></svg>`;
+}
+function _onYmKpi(yyyymm,ym){
+  const idx=MONTHS.indexOf(ym);
+  const el=document.querySelector('#pg-overview .kpi-row');
+  if(!el) return;
+  const kv=el.querySelectorAll('.kpi');
+  const prevIdx=idx>0?idx-1:-1;
+  if(idx!==-1){
+    const pbr=PBR_TS[idx]??null;
+    const per=PER_TS[idx]??null;
+    const prevPbr=prevIdx>=0?(PBR_TS[prevIdx]??null):null;
+    const pbrDiff=pbr!=null&&prevPbr!=null?pbr-prevPbr:null;
+    const pbrBadge=pbrDiff!=null?`<span class="kpi-badge ${pbrDiff>0?'up':'dn'}">${pbrDiff>0?'▲':'▼'}${Math.abs(pbrDiff).toFixed(2)}x</span>`:'';
+    if(kv[0]){
+      kv[0].querySelector('.kpi-val').innerHTML=pbr!=null?`${pbr.toFixed(2)}<span style="font-size:12px;color:var(--muted)">x</span>${pbrBadge}`:'–';
+      kv[0].querySelector('.kpi-sub').innerHTML=`<span class="fl">${ym}基準</span>`;
+      const sp=kv[0].querySelector('.kpi-spark');
+      if(sp) sp.innerHTML=_sparkSvg(PBR_TS.slice(0,idx+1),'var(--accent)');
+    }
+    const prevPer=prevIdx>=0?(PER_TS[prevIdx]??null):null;
+    const perDiff=per!=null&&prevPer!=null?per-prevPer:null;
+    const perBadge=perDiff!=null?`<span class="kpi-badge ${perDiff>0?'up':'dn'}">${perDiff>0?'▲':'▼'}${Math.abs(perDiff).toFixed(1)}x</span>`:'';
+    if(kv[1]&&per!=null){
+      kv[1].querySelector('.kpi-val').innerHTML=`${per.toFixed(1)}<span style="font-size:12px;color:var(--muted)">x</span>${perBadge}`;
+      const sp=kv[1].querySelector('.kpi-spark');
+      if(sp) sp.innerHTML=_sparkSvg(PER_TS.slice(0,idx+1),'var(--green)');
+    }
+    const metaEl=document.querySelector('#pg-overview .g2 .card:first-child .card-meta');
+    if(metaEl) metaEl.textContent=ym;
+  }
+  const sh=DASHBOARD_DATA?.sectors_history?.[yyyymm];
+  if(!sh||!sh.length) return;
+  const below1=sh.filter(s=>s.pbr!=null&&s.pbr<1.0).length;
+  const totalCap=sh.reduce((a,s)=>a+(s.cap||0),0);
+  const maxS=sh.reduce((m,s)=>(s.pbr||0)>(m.pbr||0)?s:m,sh[0]||{n:'',pbr:0});
+  const prevYyyyMm=prevIdx>=0?MONTHS[prevIdx].replace('/',''):null;
+  const prevSh=prevYyyyMm?(DASHBOARD_DATA?.sectors_history?.[prevYyyyMm]):null;
+  if(kv[2]){
+    const prevBelow1=prevSh?prevSh.filter(s=>s.pbr!=null&&s.pbr<1.0).length:null;
+    const belowDiff=prevBelow1!=null?below1-prevBelow1:null;
+    const belowBadge=belowDiff!=null?`<span class="kpi-badge ${belowDiff>0?'dn':'up'}">${belowDiff>0?'▲':'▼'}${Math.abs(belowDiff)}</span>`:'';
+    kv[2].querySelector('.kpi-val').innerHTML=`${below1}<span style="font-size:12px;color:var(--muted)">/${sh.length}</span>${belowBadge}`;
+  }
+  if(kv[3]){
+    const capRound=Math.round(totalCap);
+    const prevCap=prevSh?Math.round(prevSh.reduce((a,s)=>a+(s.cap||0),0)):null;
+    const capDiff=prevCap!=null?capRound-prevCap:null;
+    const capPct=capDiff!=null&&prevCap>0?capDiff/prevCap*100:null;
+    const capBadge=capPct!=null?`<span class="kpi-badge ${capDiff>0?'up':'dn'}">${capDiff>0?'▲':'▼'}${Math.abs(capPct).toFixed(1)}%</span>`:'';
+    kv[3].querySelector('.kpi-val').innerHTML=`${capRound}<span style="font-size:12px;color:var(--muted)">兆円</span>${capBadge}`;
+  }
+  if(kv[4]&&maxS.n){
+    kv[4].querySelector('.kpi-val').innerHTML=`<span style="font-size:15px">${maxS.n}</span>`;
+    kv[4].querySelector('.kpi-sub').innerHTML=`<span style="font-family:var(--mono);color:var(--purple)">${maxS.pbr!=null?maxS.pbr.toFixed(1):'–'}x</span>`;
+  }
+  document.getElementById('nb-below').textContent=below1;
+  renderOverviewSignals();
+  renderPbrHeatGrid(_activeSectors||SECTORS);
+}
+function _onYmVline(ym){
+  const shape={type:'line',x0:ym,x1:ym,y0:0,y1:1,xref:'x',yref:'paper',
+    line:{color:'rgba(255,200,50,.55)',width:1.5,dash:'dot'}};
+  ['trendC','valTrendC','sizeC','mfgC','cyclePhaseC','cdRatioC'].forEach(id=>{
+    const el=document.getElementById(id+'Plotly');
+    if(el&&el.data) Plotly.relayout(el,{shapes:[shape]});
+  });
+}
+function _onYmCycle(yyyymm){
+  if(!_cycleInited) return;
+  _updateMacroCards(yyyymm);
+  renderCycleSectors(_zScoresFor(yyyymm));
+}
+function _updateMacroCards(yyyymm){
+  // yyyymm = "YYYYMM"、CYCLE_MONTHS は "YYYY/MM"
+  const ymKey=yyyymm.slice(0,4)+'/'+yyyymm.slice(4,6);
+  const idx=CYCLE_MONTHS.indexOf(ymKey);
+  const _setEl=(id,html)=>{const e=document.getElementById(id);if(e)e.innerHTML=html;};
+  const _dir=(v)=>v==null?'':v>0?'<span class="up">▲ 上昇</span>':'<span class="dn">▼ 低下</span>';
+
+  if(idx<0){
+    // 範囲外は最新値・最新フェーズ・最新シェア表示に戻す
+    _activePhase=CURRENT_PHASE;
+    const lm=_CYCLE_RAW.latest_macro||{};
+    if(lm.ci_coin!=null) _setEl('mcCiCoin',(lm.ci_coin_mom!=null?(lm.ci_coin_mom>=0?'+':'')+lm.ci_coin_mom.toFixed(1):lm.ci_coin.toFixed(1))+'<span style="font-size:11px;color:var(--muted)"> pt</span>');
+    if(lm.ci_leading!=null) _setEl('mcCiLead',(lm.ci_leading_mom!=null?(lm.ci_leading_mom>=0?'+':'')+lm.ci_leading_mom.toFixed(1):lm.ci_leading.toFixed(1))+'<span style="font-size:11px;color:var(--muted)"> pt</span>');
+    if(lm.pol_rate!=null) _setEl('mcPolRate',lm.pol_rate.toFixed(2)+'<span style="font-size:11px;color:var(--muted)"> %</span>');
+    if(lm.jgb_10y!=null){const per=(1/lm.jgb_10y*100).toFixed(1);_setEl('mcJgb',lm.jgb_10y.toFixed(2)+'<span style="font-size:11px;color:var(--muted)"> %</span>');_setEl('mcJgbSub','<span class="up">▲ PER理論値 '+per+'倍相当</span>');}
+    _updateCdShareBar(null, null);
+    return;
+  }
+
+  const ci=CI_COIN[idx], ciPrev=idx>0?CI_COIN[idx-1]:null;
+  const ciMom=ci!=null&&ciPrev!=null?+(ci-ciPrev).toFixed(1):null;
+  const lead=CI_LEADING[idx], leadPrev=idx>0?CI_LEADING[idx-1]:null;
+  const leadMom=lead!=null&&leadPrev!=null?+(lead-leadPrev).toFixed(1):null;
+  const rate=POL_RATE[idx], jgb=JGB10Y[idx];
+
+  if(ci!=null){
+    const disp=ciMom!=null?(ciMom>=0?'+':'')+ciMom.toFixed(1):ci.toFixed(1);
+    _setEl('mcCiCoin',disp+'<span style="font-size:11px;color:var(--muted)"> pt</span>');
+    _setEl('mcCiCoinSub',_dir(ciMom)+' '+ymKey+'時点');
+  }
+  if(lead!=null){
+    const disp=leadMom!=null?(leadMom>=0?'+':'')+leadMom.toFixed(1):lead.toFixed(1);
+    _setEl('mcCiLead',disp+'<span style="font-size:11px;color:var(--muted)"> pt</span>');
+    _setEl('mcCiLeadSub',_dir(leadMom)+' '+ymKey+'時点');
+  }
+  if(rate!=null) _setEl('mcPolRate',rate.toFixed(2)+'<span style="font-size:11px;color:var(--muted)"> %</span>');
+  if(jgb!=null){
+    const per=(1/jgb*100).toFixed(1);
+    _setEl('mcJgb',jgb.toFixed(2)+'<span style="font-size:11px;color:var(--muted)"> %</span>');
+    _setEl('mcJgbSub','PER理論値 '+per+'倍相当　'+ymKey+'時点');
+  }
+
+  // フェーズバッジ・_activePhase も選択月に連動
+  const ph=(_CYCLE_RAW.phase_history||[]).find(p=>p.month===ymKey);
+  if(ph){
+    _activePhase=ph.phase;
+    const badge=document.getElementById('currentPhaseBadge');
+    const _cls={'回復期':'phase-recovery','拡張期':'phase-expansion','後退前期':'phase-inflation','後退期':'phase-recession','新サイクル回復期':'phase-recovery'};
+    if(badge){badge.className='phase-badge '+(_cls[ph.phase]||'phase-pending');badge.textContent='● '+ph.phase;}
+    const lbl=document.getElementById('phaseSrcLabel');
+    if(lbl) lbl.textContent='景気フェーズ（'+ymKey+'）';
+  }
+
+  // C/D シェアバー を選択月に連動
+  _updateCdShareBar(idx>=0?CD_SHARE_HISTORY[idx]:null, idx>=0?ymKey:null);
+}
+function _updateCdShareBar(share, ymKey){
+  let cds=share||(ymKey==null?(_CYCLE_RAW.cd_share||{}):null);
+  if(!cds||cds.c_pct==null){
+    const src=_curSectors();
+    const totalCap=src.reduce((s,a)=>s+(a.cap||0),0);
+    if(totalCap>0){
+      const cCap=src.filter(s=>s.cat==='C').reduce((s,a)=>s+(a.cap||0),0);
+      const dCap=src.filter(s=>s.cat==='D').reduce((s,a)=>s+(a.cap||0),0);
+      cds={c_pct:+(cCap/totalCap*100).toFixed(1),d_pct:+(dCap/totalCap*100).toFixed(1)};
+    } else return;
+  }
+  const total=cds.c_pct+cds.d_pct;
+  const cW=total>0?Math.round(cds.c_pct/total*80):40;
+  const dW=total>0?Math.round(cds.d_pct/total*80):20;
+  document.getElementById('cdShareC').textContent='シクリカル '+cds.c_pct+'%';
+  document.getElementById('cdShareD').textContent='ディフェンシブ '+cds.d_pct+'%';
+  document.getElementById('cdShareBarC').style.width=cW+'%';
+  document.getElementById('cdShareBarD').style.width=dW+'%';
+  const lbl=document.getElementById('cdShareLabel');
+  if(lbl) lbl.textContent='シクリカル/ディフェンシブ シェアバランス'+(ymKey?' ('+ymKey+')':cds.as_of?' ('+cds.as_of+')':'');
+  _renderCdTopSectors(_curSectors());
+}
+function _onYmScatter(yyyymm,ym){
+  const sh=DASHBOARD_DATA?.sectors_history?.[yyyymm];
+  _activeSectors=sh&&sh.length?sh:null;
+  const src=_curSectors();
+
+  // PBRがnullの月（mart データギャップ期間）はSECTORSからフォールバック
+  const hasPbr=src.some(s=>s.pbr!=null);
+  const pbrByName={};
+  SECTORS.forEach(s=>{pbrByName[s.n]=s.pbr;});
+  const _pbr=s=>s.pbr!=null?s.pbr:(pbrByName[s.n]??0);
+
+  // バブルチャートのメタ表示（PBRがなければ注記）
+  const scYmEl=document.getElementById('scYm');
+  if(scYmEl){
+    if(!hasPbr&&sh&&sh.length) scYmEl.innerHTML=`${ym}<span style="font-size:10px;color:var(--muted);margin-left:4px">(PBR: 最新値)</span>`;
+    else scYmEl.textContent=ym;
+  }
+
+  // バブルチャート（Chart.js）
+  if(charts.scatter){
+    charts.scatter.data.datasets[0].data=src.map(s=>({x:_pbr(s),y:s.cap??0,r:Math.sqrt(s.cos??1)*1.1,sector:s.n}));
+    charts.scatter.data.datasets[0].backgroundColor=src.map(s=>CAT_COL[s.cat]+'bb');
+    charts.scatter.data.datasets[0].borderColor=src.map(s=>CAT_COL[s.cat]);
+    charts.scatter.update();
+  }
+  // バブルチャート（Plotly）
+  renderPlotlyChart('scatterC',[
+    {type:'scatter',mode:'markers',name:'業種',
+      x:src.map(s=>_pbr(s)),y:src.map(s=>s.cap),text:src.map(s=>s.n),
+      customdata:src.map(s=>[CAT_LBL[s.cat],s.cos,s.per]),
+      marker:{size:src.map(s=>Math.max(12,Math.sqrt(s.cos??1)*3.8)),color:src.map(s=>CAT_COL[s.cat]),
+        sizemode:'diameter',opacity:0.78,line:{width:1,color:'rgba(255,255,255,.18)'}},
+      hovertemplate:'%{text}<br>PBR: %{x:.1f}x<br>時価総額: %{y:.1f}兆円<br>カテゴリ: %{customdata[0]}<br>上場社数: %{customdata[1]}<br>加重PER: %{customdata[2]}<extra></extra>'}
+  ],{showlegend:false,
+    xaxis:{title:'加重PBR（倍）',ticksuffix:'x',range:[0,4.5]},
+    yaxis:{title:'時価総額（兆円）'}});
+
+  // 業種ランキング（Chart.js）
+  if(charts.indRank){
+    const byChg=[...src].sort((a,b)=>(b.chg??0)-(a.chg??0));
+    charts.indRank.data.labels=byChg.map(s=>s.n);
+    charts.indRank.data.datasets[0].data=byChg.map(s=>s.chg??0);
+    charts.indRank.data.datasets[0].backgroundColor=byChg.map(s=>(s.chg??0)>=0?'rgba(91,141,246,.75)':'rgba(224,84,84,.75)');
+    charts.indRank.update();
+  }
+  // 業種ランキング（Plotly）
+  const byChgP=[...src].sort((a,b)=>(b.chg??0)-(a.chg??0));
+  renderPlotlyChart('indRankC',[
+    {type:'bar',orientation:'h',name:'PBR変化',x:byChgP.map(s=>s.chg??0),y:byChgP.map(s=>s.n),
+      marker:{color:byChgP.map(s=>(s.chg??0)>=0?'rgba(91,141,246,.75)':'rgba(224,84,84,.75)')},
+      hovertemplate:'%{y}<br>PBR変化: %{x:.1f}x<extra></extra>'}
+  ],{margin:{l:92,r:24,t:24,b:44},showlegend:false,
+    xaxis:{title:'PBR変化（倍）',ticksuffix:'x'},yaxis:{autorange:'reversed'}});
+
+  // スプレッド（Chart.js）
+  const sprD=_calcSprData(src);
+  if(charts.spr){
+    charts.spr.data.labels=sprD.map(s=>s.n);
+    charts.spr.data.datasets[0].data=sprD.map(s=>s.v);
+    charts.spr.data.datasets[0].backgroundColor=sprD.map(s=>s.v>=0?'rgba(245,166,35,.7)':'rgba(91,141,246,.7)');
+    charts.spr.update();
+  }
+  // スプレッド（Plotly）
+  renderPlotlyChart('sprC',[
+    {type:'bar',orientation:'h',name:'単純−加重スプレッド',x:sprD.map(s=>s.v),y:sprD.map(s=>s.n),
+      marker:{color:sprD.map(s=>s.v>=0?'rgba(245,166,35,.75)':'rgba(91,141,246,.75)')},
+      hovertemplate:'%{y}<br>スプレッド: %{x:.2f}x<extra></extra>'}
+  ],{margin:{l:100,r:24,t:24,b:44},showlegend:false,
+    xaxis:{title:'単純−加重 PBR スプレッド',ticksuffix:'x'},yaxis:{autorange:'reversed'}});
+
+  // スクリーニングテーブル・業種リスト
+  renderScreen();
+  renderSectList();
+}
+
+// ────── 景気循環データ（実データ優先、フォールバックはサンプル値）──────
+const _CYCLE_RAW=DASHBOARD_DATA?.cycle||{};
+const CYCLE_MONTHS=_CYCLE_RAW.months?.length?_CYCLE_RAW.months:['2020/01','2020/07','2021/01','2021/07','2022/01','2022/07','2023/01','2023/07','2024/01','2024/07','2025/01','2025/07','2026/02'];
+const CI_COIN=_CYCLE_RAW.ci_coin?.length?_CYCLE_RAW.ci_coin:[98.2,97.1,99.4,101.8,103.2,104.1,102.8,104.5,105.9,107.2,108.1,109.0,110.2];
+const CI_LEADING=_CYCLE_RAW.ci_leading?.length?_CYCLE_RAW.ci_leading:CYCLE_MONTHS.map(()=>null);
+const POL_RATE=_CYCLE_RAW.pol_rate?.length?_CYCLE_RAW.pol_rate:[-0.1,-0.1,-0.1,-0.1,-0.1,-0.1,-0.1,0.0,0.1,0.25,0.5,0.5,0.5];
+const JGB10Y=_CYCLE_RAW.jgb_10y?.length?_CYCLE_RAW.jgb_10y:[0.02,0.04,0.09,0.22,0.19,0.24,0.42,0.58,0.72,0.90,1.10,1.35,1.50];
+const CD_RATIO=(_CYCLE_RAW.cd_ratio?.some(v=>v!=null))?_CYCLE_RAW.cd_ratio:CYCLE_MONTHS.map(()=>null);
+const CD_SHARE_HISTORY=_CYCLE_RAW.cd_share_history?.length?_CYCLE_RAW.cd_share_history:CYCLE_MONTHS.map(()=>null);
+// フェーズ帯: phase_history から動的生成（フォールバックは固定バンド）
+const _PHASE_COLORS={'回復期':'rgba(41,201,154,.10)','拡張期':'rgba(91,141,246,.10)','後退前期':'rgba(245,166,35,.10)','後退期':'rgba(224,84,84,.10)','新サイクル回復期':'rgba(41,201,154,.12)'};
+const PHASE_BANDS=(()=>{
+  const ph=_CYCLE_RAW.phase_history||[];
+  if(!ph.length) return [{s:0,e:2,phase:'回復期',col:'rgba(41,201,154,.10)'},{s:2,e:5,phase:'拡張期',col:'rgba(91,141,246,.10)'},{s:5,e:8,phase:'後退前期',col:'rgba(245,166,35,.10)'},{s:8,e:10,phase:'後退期',col:'rgba(224,84,84,.10)'},{s:10,e:12,phase:'新サイクル回復期',col:'rgba(41,201,154,.12)'}];
+  const bands=[];
+  let cur=ph[0].phase,start=0;
+  for(let i=1;i<ph.length;i++){
+    if(ph[i].phase!==cur){bands.push({s:start,e:i,phase:cur,col:_PHASE_COLORS[cur]||'rgba(107,116,145,.08)'});cur=ph[i].phase;start=i;}
+  }
+  bands.push({s:start,e:ph.length-1,phase:cur,col:_PHASE_COLORS[cur]||'rgba(107,116,145,.08)'});
+  return bands;
+})();
+const PHASE_REC={
+  '回復期':          {BUY:['G','V'],HOLD:['D'],SELL:['C']},
+  '拡張期':          {BUY:['C','V'],HOLD:['G'],SELL:['D']},
+  '後退前期':        {BUY:['V'],    HOLD:['C'],SELL:['G','D']},
+  '後退期':          {BUY:['D'],    HOLD:['V'],SELL:['C','G']},
+  '新サイクル回復期':{BUY:['G','V'],HOLD:['D'],SELL:['C']},
+};
+const CURRENT_PHASE=_CYCLE_RAW.current_phase||'新サイクル回復期';
+// 年月選択に連動して変わるアクティブフェーズ（phaseRec() が参照する）
+let _activePhase=CURRENT_PHASE;
+
+// ── cycle DOM 一括初期化（cycle タブ初回表示時に呼ぶ）──
+function _initCycleDom(){
+  // フェーズバッジ
+  const badge=document.getElementById('currentPhaseBadge');
+  const srcLbl=document.getElementById('phaseSrcLabel');
+  const _cls={'回復期':'phase-recovery','拡張期':'phase-expansion','後退前期':'phase-inflation','後退期':'phase-recession','新サイクル回復期':'phase-recovery'};
+  if(badge){badge.className='phase-badge '+(_cls[CURRENT_PHASE]||'phase-pending');badge.textContent='● '+CURRENT_PHASE;}
+  if(srcLbl) srcLbl.textContent='現在の景気フェーズ（実データ）';
+
+  // フェーズ説明文
+  const _phDesc={
+    '回復期':        'CI一致指数が上昇へ転換、政策金利は低位安定。<strong style="color:var(--green)">グロース・バリュー系が有利</strong>なフェーズ。',
+    '拡張期':        'CI一致指数が上昇継続、PMI 50超、金利は横ばい。<strong style="color:var(--accent)">シクリカル・バリューが有利</strong>なフェーズ。',
+    '後退前期':      'CI一致指数が高原付近、利上げ開始・エネルギー高。<strong style="color:var(--amber)">バリューのみ相対有利</strong>、グロース注意。',
+    '後退期':        'CI一致指数が下降、PMI 50割れ、高金利継続。<strong style="color:var(--red)">ディフェンシブへシフト</strong>推奨。',
+    '新サイクル回復期':'CI一致指数が再上昇、金利正常化済み。<strong style="color:var(--green)">グロース・バリュー系が有利</strong>なフェーズ。',
+  };
+  const phDesc=document.getElementById('phaseDesc');
+  if(phDesc) phDesc.innerHTML=_phDesc[CURRENT_PHASE]||phDesc.innerHTML;
+
+  // BUY/SELL バナー
+  const recBP=document.getElementById('recBannerPhase');
+  if(recBP) recBP.textContent='現フェーズ（'+CURRENT_PHASE+'）';
+  const finalMeta=document.getElementById('finalPhaseMeta');
+  if(finalMeta) finalMeta.textContent='現フェーズ: '+CURRENT_PHASE;
+
+  // マクロカード（実データ）
+  const lm=_CYCLE_RAW.latest_macro||{};
+  const _setEl=(id,html)=>{const e=document.getElementById(id);if(e)e.innerHTML=html;};
+  const _mom=(v)=>v==null?'–':((v>=0?'+':'')+v.toFixed(1)+' pt');
+  const _dir=(v)=>v==null?'':v>0?'<span class="up">▲ 上昇</span>':'<span class="dn">▼ 低下</span>';
+  if(lm.ci_coin!=null){
+    _setEl('mcCiCoin',(lm.ci_coin_mom!=null?(lm.ci_coin_mom>=0?'+':'')+lm.ci_coin_mom.toFixed(1):lm.ci_coin.toFixed(1))+'<span style="font-size:11px;color:var(--muted)"> pt</span>');
+    _setEl('mcCiCoinSub',_dir(lm.ci_coin_mom)+(lm.as_of?' '+lm.as_of+'時点':''));
+  }
+  if(lm.ci_leading!=null){
+    _setEl('mcCiLead',(lm.ci_leading_mom!=null?(lm.ci_leading_mom>=0?'+':'')+lm.ci_leading_mom.toFixed(1):lm.ci_leading.toFixed(1))+'<span style="font-size:11px;color:var(--muted)"> pt</span>');
+    _setEl('mcCiLeadSub',_dir(lm.ci_leading_mom)+(lm.as_of?' '+lm.as_of+'時点':''));
+  }
+  if(lm.pol_rate!=null){
+    _setEl('mcPolRate',lm.pol_rate.toFixed(2)+'<span style="font-size:11px;color:var(--muted)"> %</span>');
+    _setEl('mcPolRateSub','<span class="up">▲ 段階的利上げ継続</span>');
+  }
+  if(lm.jgb_10y!=null){
+    const per=(1/lm.jgb_10y*100).toFixed(1);
+    _setEl('mcJgb',lm.jgb_10y.toFixed(2)+'<span style="font-size:11px;color:var(--muted)"> %</span>');
+    _setEl('mcJgbSub','<span class="up">▲ PER理論値 '+per+'倍相当</span>');
+  }
+
+  // C/D シェアバー（初期表示は最新月）
+  _updateCdShareBar(null, null);
+
+  // C/D シグナルリスト（phase_history から連続フェーズを集約）
+  const ph=_CYCLE_RAW.phase_history||[];
+  if(ph.length){
+    const _phCol={'回復期':'var(--green)','拡張期':'var(--accent)','後退前期':'var(--amber)','後退期':'var(--red)','新サイクル回復期':'var(--green)'};
+    const bands=[];
+    let cur=ph[0],start=ph[0].month;
+    for(let i=1;i<ph.length;i++){
+      if(ph[i].phase!==cur.phase){bands.push({s:start,e:cur.month,phase:cur.phase});cur=ph[i];start=ph[i].month;}
+    }
+    bands.push({s:start,e:ph[ph.length-1].month,phase:cur.phase});
+    const cdSig=document.getElementById('cdSignalList');
+    if(cdSig) cdSig.innerHTML=bands.map(b=>{
+      const col=_phCol[b.phase]||'var(--muted)';
+      const sep=themeMode==='light'?'rgba(16,24,40,.06)':'rgba(255,255,255,.025)';
+      return `<div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid ${sep}">
+        <span style="font-family:var(--mono);font-size:10px;color:var(--muted);width:130px;flex-shrink:0">${b.s}〜${b.e}</span>
+        <span class="chip" style="background:${col}22;color:${col};border:1px solid ${col}44">${b.phase}</span>
+      </div>`;
+    }).join('');
+  }
+}
+
+// 業種別PBR乖離Zスコア（pbr1実データから計算、フォールバックは推定値）
+const Z_SCORES=(()=>{
+  const pbr1=DASHBOARD_DATA?.pbr1;
+  if(pbr1?.sectors?.length&&pbr1?.matrix?.length){
+    return pbr1.sectors.map((name,ri)=>{
+      const s=SECTORS.find(x=>x.n===name)||{n:name,cat:'V',pbr:1.0};
+      const vals=(pbr1.matrix[ri]||[]).filter(v=>v!=null);
+      if(vals.length<3) return {n:name,cat:s.cat,pbr:s.pbr,z:0};
+      const mean=vals.reduce((a,v)=>a+v,0)/vals.length;
+      const std=Math.sqrt(vals.reduce((a,v)=>a+(v-mean)**2,0)/vals.length);
+      const z=std>0?+((s.pbr-mean)/std).toFixed(2):0;
+      return {n:name,cat:s.cat,pbr:s.pbr,z};
+    }).sort((a,b)=>a.z-b.z);
+  }
+  const base={'G':0.3,'D':-0.2,'C':-0.8,'V':-1.1};
+  return SECTORS.map(s=>({n:s.n,cat:s.cat,pbr:s.pbr,
+    z:+(base[s.cat]+(s.pbr-1.2)*0.3).toFixed(2)})).sort((a,b)=>a.z-b.z);
+})();
+
+function phaseRec(cat){
+  const r=PHASE_REC[_activePhase]||PHASE_REC[CURRENT_PHASE];
+  if(r.BUY.includes(cat))  return 'BUY';
+  if(r.SELL.includes(cat)) return 'SELL';
+  return 'HOLD';
+}
+function finalScore(s){
+  const phase={'BUY':2,'HOLD':0,'SELL':-2}[phaseRec(s.cat)];
+  const z=s.z!=null?-Math.round(Math.max(-1,Math.min(1,s.z))):0;
+  const cd=(s.cat==='G'||s.cat==='V')?1:0; // 回復期ボーナス
+  const total=phase+z+cd;
+  return Math.max(-2,Math.min(2,total));
+}
+function scoreLabel(v){
+  if(v>=2)  return {txt:'Strong BUY', cls:'signal-strong-buy'};
+  if(v===1) return {txt:'BUY',        cls:'signal-buy'};
+  if(v===0) return {txt:'HOLD',       cls:'signal-hold'};
+  if(v===-1)return {txt:'SELL',       cls:'signal-sell'};
+  return          {txt:'Strong SELL', cls:'signal-strong-sell'};
+}
+
+// 選択月のPBRを使ってZスコアを再計算（正規化は全期間固定）
+function _zScoresFor(yyyymm){
+  const pbr1=DASHBOARD_DATA?.pbr1;
+  const sh=DASHBOARD_DATA?.sectors_history?.[yyyymm];
+  if(!pbr1?.sectors?.length||!sh) return Z_SCORES;
+  return pbr1.sectors.map((name,ri)=>{
+    const s=sh.find(x=>x.n===name)||{n:name,cat:'V',pbr:1.0};
+    const vals=(pbr1.matrix[ri]||[]).filter(v=>v!=null);
+    if(vals.length<3) return {n:name,cat:s.cat,pbr:s.pbr??1.0,z:0};
+    const mean=vals.reduce((a,v)=>a+v,0)/vals.length;
+    const std=Math.sqrt(vals.reduce((a,v)=>a+(v-mean)**2,0)/vals.length);
+    const z=std>0?+((s.pbr-mean)/std).toFixed(2):0;
+    return {n:name,cat:s.cat,pbr:s.pbr??1.0,z};
+  }).sort((a,b)=>a.z-b.z);
+}
+
+// BUY/HOLD/SELL・Zスコア・総合スコアを再描画（_curSectors()と任意のzScoresで動作）
+function renderCycleSectors(zScores){
+  const src=_curSectors();
+  // ② BUY/HOLD/SELL推奨リスト
+  const byRec={BUY:[],HOLD:[],SELL:[]};
+  src.forEach(s=>{byRec[phaseRec(s.cat)].push(s);});
+  const renderRecList=(elId,list,color)=>{
+    const el=document.getElementById(elId);
+    if(!el) return;
+    el.innerHTML=list.map(s=>`
+      <div class="rec-row">
+        <span class="rec-name">${s.n}</span>
+        <span class="rec-cat"><span class="chip" style="background:${CAT_COL[s.cat]}22;color:${CAT_COL[s.cat]}">${CAT_LBL[s.cat]}</span></span>
+        <span class="rec-pbr" style="color:${color}">${s.pbr!=null?s.pbr.toFixed(1)+'x':'–'}</span>
+      </div>`).join('');
+  };
+  renderRecList('recBuyList',byRec.BUY,'var(--green)');
+  renderRecList('recSellList',byRec.SELL,'var(--red)');
+  const recBody=document.getElementById('recBody');
+  if(recBody) recBody.innerHTML=src.map(s=>{
+    const r=phaseRec(s.cat);
+    const col=r==='BUY'?'var(--green)':r==='SELL'?'var(--red)':'var(--muted)';
+    return `<tr>
+      <td class="bold">${s.n}</td>
+      <td><span class="chip" style="background:${CAT_COL[s.cat]}22;color:${CAT_COL[s.cat]}">${CAT_LBL[s.cat]}</span></td>
+      <td style="font-family:var(--mono)">${s.pbr!=null?s.pbr.toFixed(1)+'x':'–'}</td>
+      <td><span class="chip" style="font-size:10px;padding:1px 8px;border-radius:99px;${r==='BUY'?'background:rgba(41,201,154,.15);color:var(--green)':r==='SELL'?'background:rgba(224,84,84,.12);color:var(--red)':'background:rgba(107,116,145,.12);color:var(--muted)'}">${r}</span></td>
+    </tr>`;
+  }).join('');
+  // ③ Zスコアチャート更新
+  if(charts.zscore){
+    charts.zscore.data.labels=zScores.map(s=>s.n);
+    charts.zscore.data.datasets[0].data=zScores.map(s=>s.z);
+    charts.zscore.data.datasets[0].backgroundColor=zScores.map(s=>s.z<-1?'rgba(91,141,246,.8)':s.z>1?'rgba(224,84,84,.8)':'rgba(107,116,145,.4)');
+    charts.zscore.options.plugins.tooltip.callbacks.label=c=>`Z=${c.parsed.x.toFixed(2)}　PBR:${zScores[c.dataIndex]?.pbr?.toFixed(1)||'?'}x`;
+    charts.zscore.update();
+    charts.zscore._zPbrData=zScores;
+  }
+  renderPlotlyChart('zscoreC',[
+    {type:'bar',orientation:'h',name:'PBR乖離Zスコア',
+      x:zScores.map(s=>s.z),y:zScores.map(s=>s.n),
+      marker:{color:zScores.map(s=>s.z<-1?'rgba(91,141,246,.8)':s.z>1?'rgba(224,84,84,.8)':'rgba(107,116,145,.4)')},
+      hovertemplate:'%{y}<br>Z=%{x:.2f}<extra></extra>'}
+  ],{margin:{l:100,r:24,t:24,b:44},showlegend:false,
+    xaxis:{title:'Zスコア',range:[-2.5,2.5]},yaxis:{autorange:'reversed'}});
+  // ⑤ 総合スコアランキング
+  const scored=src.map(s=>{
+    const ze=zScores.find(z=>z.n===s.n);
+    const sv={...s,z:ze?.z??0};
+    return {...sv,total:finalScore(sv)};
+  }).sort((a,b)=>b.total-a.total);
+  const fsl=document.getElementById('finalSignalList');
+  if(fsl) fsl.innerHTML=scored.map((s,i)=>{
+    const {txt,cls}=scoreLabel(s.total);
+    const barW=Math.min(100,(s.total+2)/4*100);
+    const barCol=s.total>=1?'var(--green)':s.total<=-1?'var(--red)':'var(--muted)';
+    return `<div class="rec-row" style="gap:10px">
+      <span style="width:18px;font-family:var(--mono);font-size:10px;color:var(--muted);flex-shrink:0">${i+1}</span>
+      <span class="rec-name">${s.n}</span>
+      <span class="rec-cat"><span class="chip" style="background:${CAT_COL[s.cat]}22;color:${CAT_COL[s.cat]}">${CAT_LBL[s.cat]}</span></span>
+      <span class="rec-pbr">${s.pbr!=null?s.pbr.toFixed(1)+'x':'–'}</span>
+      <div class="bar-track" style="flex:1">
+        <div class="bar-fill" style="width:${barW}%;background:${barCol}"></div>
+      </div>
+      <span style="width:22px;text-align:right;font-family:var(--mono);font-size:11px;color:${barCol}">${s.total>0?'+':''}${s.total}</span>
+      <span class="chip ${cls}" style="padding:2px 9px;border-radius:99px;font-size:10px">${txt}</span>
+    </div>`;
+  }).join('');
+}
+
+function initCycleCharts(){
+  // ① フェーズ判定チャート
+  const phasePlugin={
+    id:'phaseBands',
+    beforeDraw(chart){
+      const {ctx,chartArea,scales}=chart;
+      if(!chartArea) return;
+      PHASE_BANDS.forEach(b=>{
+        const x0=scales.x.getPixelForValue(b.s);
+        const x1=scales.x.getPixelForValue(b.e);
+        ctx.fillStyle=b.col;
+        ctx.fillRect(x0,chartArea.top,x1-x0,chartArea.bottom-chartArea.top);
+      });
+    }
+  };
+  charts.cyclePhase=new Chart(document.getElementById('cyclePhaseC'),{
+    type:'line',
+    plugins:[phasePlugin],
+    data:{labels:CYCLE_MONTHS,datasets:[
+      {label:'CI一致指数',data:CI_COIN,borderColor:'#29c99a',backgroundColor:'rgba(41,201,154,.06)',
+       fill:false,tension:.4,pointRadius:2,borderWidth:2,yAxisID:'y'},
+      {label:'政策金利（%）',data:POL_RATE,borderColor:'#f5a623',
+       fill:false,tension:.3,pointRadius:2,borderWidth:1.5,borderDash:[5,3],yAxisID:'y2'},
+      {label:'10年国債（%）',data:JGB10Y,borderColor:'#9b7fe8',
+       fill:false,tension:.3,pointRadius:2,borderWidth:1.5,borderDash:[3,3],yAxisID:'y2'},
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{labels:{color:chartTickColor(),font:{size:11},usePointStyle:true}}},
+      scales:{
+        x:{ticks:{color:chartTickColor(),font:{size:10}},grid:{color:chartGridColorSoft()}},
+        y:{position:'left',ticks:{color:themeMode==='light' ? '#0f9f6e' : '#29c99a',font:{size:10}},
+          grid:{color:chartGridColor()},title:{display:true,text:'CI一致指数',color:chartTickColor(),font:{size:10}}},
+        y2:{position:'right',ticks:{color:accentAmber(),font:{size:10},callback:v=>v+'%'},
+          grid:{display:false},min:-0.3,max:2.0}
+      }
+    }
+  });
+
+  // ③ Zスコアチャート
+  charts.zscore=new Chart(document.getElementById('zscoreC'),{
+    type:'bar',
+    data:{labels:Z_SCORES.map(s=>s.n),datasets:[{
+      label:'PBR乖離Zスコア',
+      data:Z_SCORES.map(s=>s.z),
+      backgroundColor:Z_SCORES.map(s=>s.z<-1?'rgba(91,141,246,.8)':s.z>1?'rgba(224,84,84,.8)':'rgba(107,116,145,.4)'),
+      borderRadius:3
+    }]},
+    options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,
+      layout:{padding:{right:36}},
+      plugins:{legend:{display:false},
+        tooltip:{callbacks:{label:c=>`Z=${c.parsed.x.toFixed(2)}　PBR:${Z_SCORES[c.dataIndex].pbr.toFixed(1)}x`}}},
+      scales:{
+        x:{ticks:{color:chartTickColor(),font:{size:10}},grid:{color:chartGridColor()},
+          min:-2.5,max:2.5},
+        y:{ticks:{color:chartLabelColor(),font:{size:9}},grid:{display:false}}
+      }
+    }
+  });
+  charts.zscore._zPbrData=Z_SCORES;
+
+  // ④ C/Dシグナル
+  charts.cdRatio=new Chart(document.getElementById('cdRatioC'),{
+    type:'bar',
+    data:{labels:CYCLE_MONTHS,datasets:[{
+      label:'C/D相対強度',
+      data:CD_RATIO,
+      backgroundColor:CD_RATIO.map(v=>v>1.0?'rgba(245,166,35,.75)':v<0?'rgba(41,201,154,.75)':'rgba(107,116,145,.4)'),
+      borderRadius:3
+    }]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false}},
+      scales:{
+        x:{ticks:{color:chartTickColor(),font:{size:9}},grid:{display:false}},
+        y:{ticks:{color:chartTickColor(),font:{size:10}},grid:{color:chartGridColor()},
+          title:{display:true,text:'C/D比率',color:chartTickColor(),font:{size:10}}}
+      }
+    }
+  });
+  const cdSignalData=[
+    {m:'2020/01〜2021/06',sig:'回復→拡張',col:'var(--accent)'},
+    {m:'2021/07〜2022/06',sig:'拡張期シグナル',col:'var(--amber)'},
+    {m:'2022/07〜2023/03',sig:'後退期シグナル',col:'var(--red)'},
+    {m:'2023/04〜2026/02',sig:'ニュートラル→回復',col:'var(--green)'},
+  ];
+  document.getElementById('cdSignalList').innerHTML=cdSignalData.map(d=>`
+    <div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid ${themeMode==='light' ? 'rgba(16,24,40,.06)' : 'rgba(255,255,255,.025)'}">
+      <span style="font-family:var(--mono);font-size:10px;color:var(--muted);width:130px;flex-shrink:0">${d.m}</span>
+      <span class="chip" style="background:${d.col}22;color:${d.col};border:1px solid ${d.col}44">${d.sig}</span>
+    </div>`).join('');
+
+  // ②③⑤ セクター依存レンダリング（年月連動対応）
+  const initYm=document.getElementById('ymSel')?.value;
+  renderCycleSectors(initYm?_zScoresFor(initYm):Z_SCORES);
+}
+
+window.addEventListener('load',()=>{
+  initTheme();
+  updateThemePill();
+  populateYmOptions();
+  updateDataModePill();
+  updateGeneratedAt();
+  loadNotes();
+  initCharts();
+  const chartParam=getUrlParam('chart');
+  if(chartParam==='chartjs'||chartParam==='plotly') setChartMode(chartParam);
+  else setChartMode('chartjs');
+  updateChartModePill();
+  _restoreFilterUrl();
+  const ymParam=getUrlParam('ym');
+  const ymSel=document.getElementById('ymSel');
+  if(ymSel && ymParam && Array.from(ymSel.options).some(o=>o.value===ymParam)){
+    ymSel.value=ymParam;
+    onYm(ymParam);
+  }
+});
+</script>
+
+<!-- B-4: セクター詳細ダイアログ -->
+<dialog id="sectorDlg" class="sector-dlg">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+    <span id="dlgTitle" style="font-size:14px;font-weight:500"></span>
+    <button onclick="document.getElementById('sectorDlg').close()" style="background:none;border:none;color:var(--muted);font-size:18px;cursor:pointer;padding:0">×</button>
+  </div>
+  <div class="g2" style="gap:10px;margin-bottom:12px">
+    <div class="kpi ka" style="padding:10px 12px">
+      <div class="kpi-label" style="font-size:9px">加重PBR</div>
+      <div class="kpi-val" id="dlgPbr" style="font-size:16px;color:var(--accent)">–</div>
+    </div>
+    <div class="kpi kg" style="padding:10px 12px">
+      <div class="kpi-label" style="font-size:9px">加重PER</div>
+      <div class="kpi-val" id="dlgPer" style="font-size:16px;color:var(--green)">–</div>
+    </div>
+    <div class="kpi kam" style="padding:10px 12px">
+      <div class="kpi-label" style="font-size:9px">時価総額</div>
+      <div class="kpi-val" id="dlgCap" style="font-size:16px;color:var(--amber)">–</div>
+    </div>
+    <div class="kpi kp" style="padding:10px 12px">
+      <div class="kpi-label" style="font-size:9px">配当利回り</div>
+      <div class="kpi-val" id="dlgDy" style="font-size:16px;color:var(--purple)">–</div>
+    </div>
+  </div>
+  <div style="font-size:11px;color:var(--muted);margin-bottom:8px">PBR 推移（過去）</div>
+  <div id="dlgSparkline" style="margin-bottom:14px"></div>
+  <div style="font-size:11px;color:var(--muted);margin-bottom:6px">シグナル</div>
+  <div id="dlgSignal" style="margin-bottom:14px"></div>
+  <div style="display:flex;justify-content:flex-end;gap:8px">
+    <button class="tb-btn" onclick="dlgToNote()">メモに追加</button>
+    <button class="tb-btn" onclick="document.getElementById('sectorDlg').close()">閉じる</button>
+  </div>
+</dialog>
+</body>
+</html>
