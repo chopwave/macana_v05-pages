@@ -886,8 +886,8 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13
 
 <script>
 // ────── data ──────
-const _forceSample=(()=>{try{return new URLSearchParams(window.location.search).get('mode')==='sample';}catch(_){return false;}})();
-const DASHBOARD_DATA = (!_forceSample && window.JPX_DASHBOARD_DATA) || null;
+const _useRealData=(()=>{try{return new URLSearchParams(window.location.search).get('mode')==='real';}catch(_){return false;}})();
+const DASHBOARD_DATA = (_useRealData && window.JPX_DASHBOARD_DATA) || null;
 
 const SAMPLE_SECTORS=[
   {n:'水産・農林', cat:'D',pbr:1.2,per:13.2,cap:0.6, cos:7,  chg:+0.0,dy:2.2},
@@ -1418,8 +1418,8 @@ function updateDataModePill(){
 function toggleDataMode(){
   if(!window.JPX_DASHBOARD_DATA) return;
   const url=new URL(location.href);
-  if(_forceSample) url.searchParams.delete('mode');
-  else url.searchParams.set('mode','sample');
+  if(_useRealData) url.searchParams.delete('mode');
+  else url.searchParams.set('mode','real');
   location.href=url.toString();
 }
 // A-2: 最新月へ
