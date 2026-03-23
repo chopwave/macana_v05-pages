@@ -400,6 +400,11 @@ function _slRow(r) {
     ? `<span style="font-size:9px;padding:1px 5px;border-radius:3px;background:var(--bg3);color:var(--hint)">${r.scale.replace('TOPIX ', '')}</span>`
     : '<span style="color:var(--border2)">–</span>';
 
+  const mktcapCell = r.mktcap != null
+    ? r.mktcap.toLocaleString()
+    : '<span style="color:var(--border2)">–</span>';
+  const yfUrl = `https://finance.yahoo.co.jp/quote/${r.code}.T`;
+
   return `<tr style="border-bottom:1px solid var(--border);line-height:2">
     <td style="padding:4px 8px;font-family:var(--mono);color:var(--muted);white-space:nowrap">${r.code}</td>
     <td style="padding:4px 8px;color:var(--text);white-space:nowrap">${r.name}</td>
@@ -410,5 +415,10 @@ function _slRow(r) {
     <td style="padding:4px 8px;white-space:nowrap">
       <span style="font-size:10px;color:${mktColor}">${r.mkt || '–'}</span></td>
     <td style="padding:4px 8px">${scaleBadge}</td>
+    <td style="padding:4px 8px;text-align:right;font-family:var(--mono);font-size:11px;color:var(--text)">${mktcapCell}</td>
+    <td style="padding:4px 8px;text-align:center">
+      <a href="${yfUrl}" target="_blank" rel="noopener"
+         style="font-size:10px;padding:1px 6px;border-radius:3px;background:var(--bg3);color:var(--accent);text-decoration:none;border:1px solid var(--border2)">↗</a>
+    </td>
   </tr>`;
 }
