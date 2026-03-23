@@ -1,4 +1,4 @@
-# macana_v05-pages
+# macana_pages
 
 Public GitHub Pages host for the JPX dashboard exported from the private
-`chopwave/macana_v05` repository.
+`chopwave/macana_v0x` repository.
