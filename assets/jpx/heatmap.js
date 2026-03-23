@@ -92,6 +92,86 @@ function showHeatDrilldown(td){
   dlg.showModal();
 }
 
+// 折れ線グラフ（C-*追加: 業種別PBR推移）
+let _heatLineInited=false;
+let _heatLineAll=false;
+
+function toggleHeatLineFilter(){
+  _heatLineAll=!_heatLineAll;
+  const btn=document.getElementById('heatLineFilterBtn');
+  if(btn) btn.textContent=_heatLineAll?'全業種':'PBR < 1.0 のみ';
+  renderHeatmapChart(true);
+}
+
+function renderHeatmapChart(force){
+  if(_heatLineInited&&!force) return;
+  _heatLineInited=true;
+  const months=DASHBOARD_DATA?.pbr1?.months||[];
+  const sectors=DASHBOARD_DATA?.pbr1?.sectors||[];
+  const matrix=DASHBOARD_DATA?.pbr1?.matrix||[];
+  if(!months.length||!sectors.length||!matrix.length) return;
+  const lastIdx=months.length-1;
+  const filteredIdx=sectors.map((name,i)=>{
+    if(_heatLineAll) return i;
+    const v=matrix[i]?.[lastIdx];
+    return (v!=null&&v<1.0)?i:null;
+  }).filter(i=>i!==null);
+  const refDs={
+    label:'1.0x',
+    data:months.map(()=>1.0),
+    borderColor:themeMode==='light'?'rgba(16,24,40,.25)':'rgba(255,255,255,.2)',
+    borderDash:[4,3],
+    borderWidth:1,
+    pointRadius:0,
+    fill:false,
+    tension:0,
+  };
+  const datasets=[
+    ...filteredIdx.map(ri=>{
+      const name=sectors[ri];
+      const cat=SECTORS.find(s=>s.n===name)?.cat||'V';
+      return lineDs(name,matrix[ri].map(v=>v==null?null:+v.toFixed(2)),CAT_COL[cat]||'#6b7491');
+    }),
+    refDs
+  ];
+  const canvas=document.getElementById('heatLineC');
+  if(!canvas) return;
+  if(charts.heatLine){charts.heatLine.destroy();charts.heatLine=null;}
+  charts.heatLine=new Chart(canvas,{
+    type:'line',
+    data:{labels:months,datasets},
+    options:{
+      responsive:true,
+      maintainAspectRatio:false,
+      animation:false,
+      spanGaps:true,
+      plugins:{
+        legend:{
+          display:filteredIdx.length<=20,
+          labels:{
+            color:chartLabelColor(),
+            font:{size:10},
+            boxWidth:10,
+            filter:item=>item.label!=='1.0x',
+          }
+        },
+        tooltip:{
+          callbacks:{
+            label:ctx=>ctx.dataset.label==='1.0x'?null:`${ctx.dataset.label}: ${ctx.parsed.y?.toFixed(2)}x`
+          }
+        }
+      },
+      scales:{
+        x:{ticks:{color:chartTickColor(),font:{size:9},maxTicksLimit:12},grid:{color:chartGridColor()}},
+        y:{
+          ticks:{color:chartTickColor(),font:{size:10},callback:v=>v.toFixed(1)+'x'},
+          grid:{color:chartGridColor()}
+        }
+      }
+    }
+  });
+}
+
 function applyHeatmapMode(){
   const tableHost=document.getElementById('heatWrap');
   const plotlyHost=document.getElementById('heatWrapPlotly');

@@ -1,0 +1,414 @@
+// ────── 銘柄一覧 ──────
+let _stocksInited = false;
+let _selectedSector = null;
+let _stocksSortState = { key: 'score', asc: false };
+let _stocksSearchVal = '';
+let _stocksRankFilter = 'all';
+let _stocksStepMin = 0;
+
+// ── 会員認証 ──────────────────────────────────────────
+const _MEMBER_LS_KEY = 'jpxMemberAuth';
+
+function _isMember() {
+  return localStorage.getItem(_MEMBER_LS_KEY) === MEMBER_KEY;
+}
+
+function showMemberLogin() {
+  let dlg = document.getElementById('memberLoginDlg');
+  if (!dlg) {
+    dlg = document.createElement('dialog');
+    dlg.id = 'memberLoginDlg';
+    dlg.className = 'sector-dlg';
+    dlg.style.maxWidth = '340px';
+    dlg.innerHTML = `
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+        <strong style="font-size:13px">🔒 会員ログイン</strong>
+        <button onclick="this.closest('dialog').close()" style="background:none;border:none;color:var(--muted);font-size:16px;cursor:pointer">×</button>
+      </div>
+      <div style="font-size:11px;color:var(--muted);margin-bottom:14px;line-height:1.7">
+        スコア・ランク・ステップ通過は有償会員限定の情報です。<br>
+        アクセスキーを入力してください。
+      </div>
+      <div id="memberLoginMsg" style="display:none;font-size:11px;color:#f87171;margin-bottom:8px"></div>
+      <input id="memberKeyInput" type="password" placeholder="アクセスキー"
+        style="width:100%;box-sizing:border-box;padding:6px 10px;font-size:12px;border:1px solid var(--border2);border-radius:5px;background:var(--bg3);color:var(--text);outline:none;margin-bottom:10px"
+        onkeydown="if(event.key==='Enter') _doMemberLogin()">
+      <div style="display:flex;gap:8px;justify-content:flex-end">
+        <button onclick="this.closest('dialog').close()"
+          style="padding:5px 14px;font-size:11px;border:1px solid var(--border2);border-radius:4px;background:var(--bg3);color:var(--muted);cursor:pointer">
+          キャンセル
+        </button>
+        <button onclick="_doMemberLogin()"
+          style="padding:5px 14px;font-size:11px;border:none;border-radius:4px;background:var(--accent);color:#fff;cursor:pointer">
+          ログイン
+        </button>
+      </div>
+      <div id="memberLogoutRow" style="margin-top:14px;border-top:1px solid var(--border);padding-top:10px;display:none">
+        <div style="font-size:11px;color:var(--muted);margin-bottom:6px">現在ログイン中です。</div>
+        <button onclick="_doMemberLogout()"
+          style="padding:4px 12px;font-size:11px;border:1px solid var(--border2);border-radius:4px;background:var(--bg3);color:var(--muted);cursor:pointer">
+          ログアウト
+        </button>
+      </div>`;
+    document.body.appendChild(dlg);
+  }
+  // ログイン済みならログアウトエリアを表示
+  const logoutRow = dlg.querySelector('#memberLogoutRow');
+  const inputArea = dlg.querySelector('#memberKeyInput');
+  if (_isMember()) {
+    logoutRow.style.display = 'block';
+    inputArea.style.display = 'none';
+    dlg.querySelectorAll('button[onclick="_doMemberLogin()"]').forEach(b => b.style.display = 'none');
+  } else {
+    logoutRow.style.display = 'none';
+    inputArea.style.display = 'block';
+    dlg.querySelectorAll('button[onclick="_doMemberLogin()"]').forEach(b => b.style.display = '');
+  }
+  dlg.showModal();
+  if (!_isMember()) setTimeout(() => inputArea.focus(), 80);
+}
+
+function _doMemberLogin() {
+  const input = document.getElementById('memberKeyInput')?.value || '';
+  const msgEl = document.getElementById('memberLoginMsg');
+  if (input === MEMBER_KEY) {
+    localStorage.setItem(_MEMBER_LS_KEY, MEMBER_KEY);
+    document.getElementById('memberLoginDlg')?.close();
+    _updateMemberUI();
+    _renderStocksTable();
+  } else {
+    if (msgEl) { msgEl.textContent = 'アクセスキーが正しくありません。'; msgEl.style.display = 'block'; }
+    document.getElementById('memberKeyInput').select();
+  }
+}
+
+function _doMemberLogout() {
+  localStorage.removeItem(_MEMBER_LS_KEY);
+  document.getElementById('memberLoginDlg')?.close();
+  _updateMemberUI();
+  _renderStocksTable();
+}
+
+function _updateMemberUI() {
+  const member = _isMember();
+  const badge = document.getElementById('stocksMemberBadge');
+  const lockBtn = document.getElementById('stocksLockBtn');
+  if (badge) badge.style.display = member ? 'inline' : 'none';
+  if (lockBtn) {
+    lockBtn.textContent = member ? '🔓 会員メニュー' : '🔒 会員ログイン';
+    lockBtn.title = member
+      ? 'ログイン中。クリックでメニューを表示。'
+      : 'スコア・ランク・ステップ通過は有償会員限定の情報です。';
+  }
+}
+
+// ── 初期化 ─────────────────────────────────────────────
+function initStocks() {
+  if (_stocksInited) return;
+  _stocksInited = true;
+
+  _setAsOfLabel(STOCKS.as_of);
+  _buildSectorPills(STOCKS);
+  _updateMemberUI();
+  _renderStocksTable();
+}
+
+function _setAsOfLabel(asOf) {
+  const el = document.getElementById('stocksAsOf');
+  if (!el) return;
+  el.textContent = asOf ? `評価日: ${asOf}` : '評価日: 不明';
+  el.title = '直近スクリーニング実行時点の評価結果（年月セレクターとは連動しません）';
+}
+
+// ── 業種ピル ────────────────────────────────────────────
+function _buildSectorPills(data) {
+  const container = document.getElementById('stocksSectorPills');
+  if (!container) return;
+  const sectors = Object.keys(data.by_sector || {});
+  container.appendChild(_makePill('すべて', null));
+  sectors.forEach(sec => container.appendChild(_makePill(sec, sec)));
+}
+
+function _makePill(label, sector) {
+  const pill = document.createElement('span');
+  pill.textContent = label;
+  pill.dataset.sector = sector || '';
+  pill.style.cssText = 'display:inline-block;padding:3px 10px;border-radius:99px;font-size:10px;cursor:pointer;border:1px solid var(--border2);transition:.15s';
+  _setPillActive(pill, sector === _selectedSector || (sector === null && _selectedSector === null));
+  pill.addEventListener('click', () => {
+    _selectedSector = sector;
+    document.querySelectorAll('#stocksSectorPills span').forEach(p => {
+      _setPillActive(p, p.dataset.sector === (sector || ''));
+    });
+    _renderStocksTable();
+  });
+  return pill;
+}
+
+function _setPillActive(pill, active) {
+  pill.style.background = active ? 'var(--accent)' : 'var(--bg4)';
+  pill.style.color = active ? '#fff' : 'var(--muted)';
+  pill.style.borderColor = active ? 'var(--accent)' : 'var(--border2)';
+}
+
+// ── フィルター・ソート ───────────────────────────────────
+function filterStocksTable() {
+  _stocksSearchVal = (document.getElementById('stocksSearch')?.value || '').toLowerCase();
+  _stocksRankFilter = document.getElementById('stocksRankSel')?.value || 'all';
+  _stocksStepMin = parseInt(document.getElementById('stocksStepSel')?.value || '0', 10);
+  _renderStocksTable();
+}
+
+function _stocksSort(key) {
+  if (_stocksSortState.key === key) {
+    _stocksSortState.asc = !_stocksSortState.asc;
+  } else {
+    _stocksSortState.key = key;
+    _stocksSortState.asc = key === 'code' || key === 'name';
+  }
+  _renderStocksTable();
+}
+
+// ── テーブル描画 ────────────────────────────────────────
+function _renderStocksTable() {
+  const tbody = document.getElementById('stocksTbody');
+  const emptyEl = document.getElementById('stocksEmpty');
+  if (!tbody) return;
+
+  const bySector = STOCKS.by_sector || {};
+  const sectorKeys = _selectedSector ? [_selectedSector] : Object.keys(bySector);
+
+  let rows = [];
+  sectorKeys.forEach(sec => {
+    (bySector[sec] || []).forEach(s => rows.push({ ...s, sector: sec }));
+  });
+
+  if (_stocksStepMin > 0) {
+    rows = rows.filter(r => {
+      const steps = r.steps || [];
+      for (let i = 0; i < _stocksStepMin; i++) {
+        if (!steps[i]) return false;
+      }
+      return true;
+    });
+  }
+  if (_stocksSearchVal) {
+    rows = rows.filter(r =>
+      r.name.toLowerCase().includes(_stocksSearchVal) ||
+      r.code.includes(_stocksSearchVal)
+    );
+  }
+  if (_stocksRankFilter !== 'all') {
+    rows = rows.filter(r => r.rank === _stocksRankFilter);
+  }
+
+  const { key, asc } = _stocksSortState;
+  rows.sort((a, b) => {
+    const av = a[key] ?? (asc ? Infinity : -Infinity);
+    const bv = b[key] ?? (asc ? Infinity : -Infinity);
+    if (typeof av === 'string') return asc ? av.localeCompare(bv) : bv.localeCompare(av);
+    return asc ? av - bv : bv - av;
+  });
+
+  const badge = document.getElementById('nb-eval');
+  if (badge) badge.textContent = rows.length || '';
+
+  if (rows.length === 0) {
+    tbody.innerHTML = '';
+    if (emptyEl) emptyEl.style.display = 'block';
+    return;
+  }
+  if (emptyEl) emptyEl.style.display = 'none';
+  tbody.innerHTML = rows.map(r => _stocksRow(r)).join('');
+}
+
+function _stocksRow(r) {
+  const member = _isMember();
+
+  // 会員限定セル
+  const _lock = (content) => member
+    ? content
+    : `<span style="color:var(--border2);font-size:10px" title="有償会員限定の情報です">🔒</span>`;
+
+  // スコア
+  const scoreCell = _lock(
+    `<span style="font-family:var(--mono);color:var(--accent)">${r.score ?? '–'}</span>`
+  );
+
+  // ランク
+  const rankColor = { S: '#f5a623', A: '#29c99a', B: '#5b8df6', C: '#9b7fe8', D: '#6b7491' }[r.rank] || '#6b7491';
+  const rankCell = _lock(
+    `<span style="padding:1px 6px;border-radius:4px;font-size:10px;font-weight:600;background:${rankColor}22;color:${rankColor}">${r.rank ?? '–'}</span>`
+  );
+
+  // ステップ通過
+  const stepsHtml = (r.steps || []).map((v, i) =>
+    `<span title="Step${i + 1}" style="display:inline-block;width:14px;height:14px;border-radius:2px;font-size:9px;line-height:14px;text-align:center;background:${v ? '#29c99a22' : '#ff000022'};color:${v ? '#29c99a' : '#f87171'}">${i + 1}</span>`
+  ).join('');
+  const stepsCell = _lock(stepsHtml);
+
+  const dy = r.dy != null ? r.dy.toFixed(1) + '%' : '–';
+  const pbr = r.pbr != null ? r.pbr.toFixed(2) + 'x' : '–';
+  const per = r.per != null ? r.per.toFixed(1) + 'x' : '–';
+  const price = r.price != null ? (+r.price).toLocaleString() : '–';
+  const cap = r.cap != null ? (+r.cap).toFixed(0) : '–';
+
+  return `<tr style="border-bottom:1px solid var(--border);line-height:2">
+    <td style="padding:4px 8px;font-family:var(--mono);color:var(--muted)">${r.code}</td>
+    <td style="padding:4px 8px;color:var(--text)">${r.name}<span style="font-size:9px;color:var(--hint);margin-left:4px">${r.sector}</span></td>
+    <td style="padding:4px 8px;text-align:right">${scoreCell}</td>
+    <td style="padding:4px 8px;text-align:center">${rankCell}</td>
+    <td style="padding:4px 8px;text-align:right;font-family:var(--mono);color:var(--purple)">${dy}</td>
+    <td style="padding:4px 8px;text-align:right;font-family:var(--mono)">${pbr}</td>
+    <td style="padding:4px 8px;text-align:right;font-family:var(--mono)">${per}</td>
+    <td style="padding:4px 8px;text-align:right;font-family:var(--mono)">${price}</td>
+    <td style="padding:4px 8px;text-align:right;font-family:var(--mono)">${cap}</td>
+    <td style="padding:4px 8px;text-align:center;white-space:nowrap">${stepsCell}</td>
+  </tr>`;
+}
+
+// ════════════════════════════════════════════════════════
+// 銘柄一覧 (J-Quants master ベース)
+// ════════════════════════════════════════════════════════
+let _slInited = false;
+let _slSector = null;
+let _slSortState = { key: 'code', asc: true };
+let _slSearchVal = '';
+let _slMktFilter = 'all';
+let _slScaleFilter = 'all';
+let _slRows = [];  // フィルター前の全行キャッシュ
+
+function initStockList() {
+  if (_slInited) return;
+  _slInited = true;
+
+  const data = STOCK_LIST;
+  const isSample = !DASHBOARD_DATA?.stock_list;
+  const asOfEl = document.getElementById('slAsOf');
+  if (asOfEl && data.as_of) asOfEl.textContent = `マスタ取得日: ${data.as_of}`;
+  const noticeEl = document.getElementById('slSampleNotice');
+  if (noticeEl) noticeEl.style.display = isSample ? '' : 'none';
+
+  // 全行を事前展開してキャッシュ
+  _slRows = [];
+  const bySector = data.by_sector || {};
+  Object.keys(bySector).forEach(sec => {
+    (bySector[sec] || []).forEach(s => _slRows.push({ ...s, sector: sec }));
+  });
+
+  _slBuildSectorPills(Object.keys(bySector));
+  _slRenderTable();
+}
+
+function _slBuildSectorPills(sectors) {
+  const container = document.getElementById('slSectorPills');
+  if (!container) return;
+  container.appendChild(_slMakePill('すべて', null));
+  sectors.forEach(sec => container.appendChild(_slMakePill(sec, sec)));
+}
+
+function _slMakePill(label, sector) {
+  const pill = document.createElement('span');
+  pill.textContent = label;
+  pill.dataset.sector = sector || '';
+  pill.style.cssText = 'display:inline-block;padding:3px 10px;border-radius:99px;font-size:10px;cursor:pointer;border:1px solid var(--border2);transition:.15s';
+  _slSetPillActive(pill, sector === _slSector || (sector === null && _slSector === null));
+  pill.addEventListener('click', () => {
+    _slSector = sector;
+    document.querySelectorAll('#slSectorPills span').forEach(p => {
+      _slSetPillActive(p, p.dataset.sector === (sector || ''));
+    });
+    _slRenderTable();
+  });
+  return pill;
+}
+
+function _slSetPillActive(pill, active) {
+  pill.style.background = active ? 'var(--accent)' : 'var(--bg4)';
+  pill.style.color = active ? '#fff' : 'var(--muted)';
+  pill.style.borderColor = active ? 'var(--accent)' : 'var(--border2)';
+}
+
+function filterStockList() {
+  _slSearchVal = (document.getElementById('slSearch')?.value || '').toLowerCase();
+  _slMktFilter = document.getElementById('slMktSel')?.value || 'all';
+  _slScaleFilter = document.getElementById('slScaleSel')?.value || 'all';
+  _slRenderTable();
+}
+
+function slSort(key) {
+  if (_slSortState.key === key) {
+    _slSortState.asc = !_slSortState.asc;
+  } else {
+    _slSortState.key = key;
+    _slSortState.asc = true;
+  }
+  _slRenderTable();
+}
+
+function _slRenderTable() {
+  const tbody = document.getElementById('slTbody');
+  const emptyEl = document.getElementById('slEmpty');
+  const countEl = document.getElementById('slCount');
+  if (!tbody) return;
+
+  let rows = _slSector
+    ? _slRows.filter(r => r.sector === _slSector)
+    : [..._slRows];
+
+  if (_slMktFilter !== 'all') rows = rows.filter(r => r.mkt === _slMktFilter);
+  if (_slScaleFilter !== 'all') rows = rows.filter(r => r.scale === _slScaleFilter);
+  if (_slSearchVal) {
+    rows = rows.filter(r =>
+      r.name.toLowerCase().includes(_slSearchVal) ||
+      (r.s33nm || '').toLowerCase().includes(_slSearchVal) ||
+      (r.s17nm || '').toLowerCase().includes(_slSearchVal) ||
+      r.code.includes(_slSearchVal)
+    );
+  }
+
+  const { key, asc } = _slSortState;
+  rows.sort((a, b) => {
+    const av = (a[key] ?? '').toString();
+    const bv = (b[key] ?? '').toString();
+    return asc ? av.localeCompare(bv) : bv.localeCompare(av);
+  });
+
+  // バッジ更新
+  const badge = document.getElementById('nb-stocklist');
+  if (badge) badge.textContent = rows.length || '';
+
+  if (rows.length === 0) {
+    tbody.innerHTML = '';
+    if (emptyEl) emptyEl.style.display = 'block';
+    if (countEl) countEl.textContent = '';
+    return;
+  }
+  if (emptyEl) emptyEl.style.display = 'none';
+  if (countEl) countEl.textContent = `${rows.length.toLocaleString()} 銘柄`;
+
+  tbody.innerHTML = rows.map(r => _slRow(r)).join('');
+}
+
+function _slRow(r) {
+  const mktColor = {
+    'プライム': 'var(--accent)', 'スタンダード': 'var(--green)',
+    'グロース': 'var(--amber)', 'TOKYO PRO MARKET': 'var(--muted)'
+  }[r.mkt] || 'var(--hint)';
+
+  const scaleBadge = r.scale && r.scale !== '-'
+    ? `<span style="font-size:9px;padding:1px 5px;border-radius:3px;background:var(--bg3);color:var(--hint)">${r.scale.replace('TOPIX ', '')}</span>`
+    : '<span style="color:var(--border2)">–</span>';
+
+  return `<tr style="border-bottom:1px solid var(--border);line-height:2">
+    <td style="padding:4px 8px;font-family:var(--mono);color:var(--muted);white-space:nowrap">${r.code}</td>
+    <td style="padding:4px 8px;color:var(--text);white-space:nowrap">${r.name}</td>
+    <td style="padding:4px 8px;text-align:right;font-family:var(--mono);color:var(--hint)">${r.s17 || '–'}</td>
+    <td style="padding:4px 8px;color:var(--muted);white-space:nowrap;font-size:10px">${r.s17nm || '–'}</td>
+    <td style="padding:4px 8px;text-align:right;font-family:var(--mono);color:var(--hint)">${r.s33 || '–'}</td>
+    <td style="padding:4px 8px;color:var(--muted);white-space:nowrap;font-size:10px">${r.s33nm || '–'}</td>
+    <td style="padding:4px 8px;white-space:nowrap">
+      <span style="font-size:10px;color:${mktColor}">${r.mkt || '–'}</span></td>
+    <td style="padding:4px 8px">${scaleBadge}</td>
+  </tr>`;
+}

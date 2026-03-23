@@ -120,6 +120,250 @@ const MFG=DASHBOARD_DATA?.mfg || SAMPLE_MFG;
 const NMFG=DASHBOARD_DATA?.nmfg || SAMPLE_NMFG;
 const EVENTS=DASHBOARD_DATA?.events || SAMPLE_EVENTS;
 
+// ─── サンプル: 銘柄一覧 ───
+// steps配列: [step1,step2,...,step7] 各要素 1=通過 0=非通過
+// step1=基本条件(時価総額・流動性・上場年数・業種)
+// step2=配当利回り(2-8%・特配除外)  step3=配当持続性(ペイアウト・DOE・FCF)
+// step4=財務健全性(自己資本比率・営業利益率)  step5=成長安定性(CAGR・利益ボラ)
+// step6=バリュエーション(PER/PBR)  step7=タイミング(テクニカル)
+const SAMPLE_STOCKS={
+  as_of:'2026/02/28',
+  by_sector:{
+    '情報・通信':[
+      {code:'9433',name:'KDDI',         score:75,rank:'A',dy:3.4,pbr:2.10,per:14.2,price:4800, cap:1100.0,steps:[1,1,1,1,1,1,1]},
+      {code:'9432',name:'NTT',          score:72,rank:'B',dy:3.5,pbr:1.80,per:12.3,price:155,  cap:2400.0,steps:[1,1,1,1,1,1,0]},
+      {code:'4689',name:'LYコーポレーション',score:68,rank:'B',dy:3.2,pbr:1.20,per:18.5,price:450,  cap:210.0, steps:[1,1,1,0,1,1,0]},
+      {code:'4755',name:'楽天グループ', score:28,rank:'D',dy:0.0,pbr:2.90,per:null,price:920,  cap:185.0, steps:[1,0,0,0,0,0,0]},
+      {code:'9984',name:'ソフトバンクG',score:20,rank:'D',dy:0.8,pbr:1.60,per:null,price:8200, cap:1200.0,steps:[0,0,0,0,0,0,0]},
+    ],
+    '電気機器':[
+      {code:'6501',name:'日立製作所',   score:78,rank:'A',dy:1.2,pbr:2.30,per:18.4,price:3800, cap:980.0, steps:[1,1,1,1,1,1,1]},
+      {code:'6861',name:'キーエンス',   score:70,rank:'B',dy:0.4,pbr:5.20,per:40.2,price:65000,cap:1580.0,steps:[1,0,1,1,1,1,1]},
+      {code:'6758',name:'ソニーG',      score:65,rank:'B',dy:0.7,pbr:1.95,per:20.1,price:13500,cap:1700.0,steps:[1,0,1,1,1,1,0]},
+      {code:'6702',name:'富士通',       score:55,rank:'C',dy:0.9,pbr:3.50,per:28.0,price:3200, cap:650.0, steps:[1,0,1,1,0,0,0]},
+      {code:'6594',name:'日本電産',     score:40,rank:'C',dy:0.5,pbr:3.80,per:55.0,price:2400, cap:450.0, steps:[1,0,0,1,0,0,0]},
+    ],
+    '銀行業':[
+      {code:'8306',name:'三菱UFJ FG',   score:80,rank:'A',dy:3.8,pbr:0.85,per:10.5,price:1680, cap:2300.0,steps:[1,1,1,1,1,1,1]},
+      {code:'8316',name:'三井住友FG',   score:78,rank:'A',dy:4.1,pbr:0.90,per:9.8, price:9800, cap:1400.0,steps:[1,1,1,1,1,1,1]},
+      {code:'8411',name:'みずほFG',     score:72,rank:'B',dy:4.0,pbr:0.70,per:9.2, price:3200, cap:850.0, steps:[1,1,1,1,0,1,1]},
+      {code:'8308',name:'りそなHD',     score:65,rank:'B',dy:3.5,pbr:0.65,per:10.1,price:820,  cap:380.0, steps:[1,1,1,0,1,1,0]},
+      {code:'8309',name:'三井住友TH',   score:48,rank:'C',dy:2.8,pbr:0.55,per:12.0,price:320,  cap:95.0,  steps:[1,1,0,0,0,1,0]},
+    ],
+    '卸売業':[
+      {code:'8058',name:'三菱商事',     score:82,rank:'A',dy:3.6,pbr:1.10,per:10.2,price:2800, cap:450.0, steps:[1,1,1,1,1,1,1]},
+      {code:'8031',name:'三井物産',     score:80,rank:'A',dy:3.9,pbr:1.00,per:9.5, price:3200, cap:420.0, steps:[1,1,1,1,1,1,1]},
+      {code:'8001',name:'伊藤忠商事',   score:78,rank:'A',dy:3.2,pbr:1.50,per:11.8,price:7800, cap:1080.0,steps:[1,1,1,1,1,1,0]},
+      {code:'8002',name:'丸紅',         score:72,rank:'B',dy:3.8,pbr:1.00,per:9.8, price:2600, cap:380.0, steps:[1,1,1,1,1,0,1]},
+      {code:'8053',name:'住友商事',     score:70,rank:'B',dy:4.0,pbr:0.90,per:9.2, price:3100, cap:420.0, steps:[1,1,1,1,0,1,1]},
+    ],
+    '輸送用機器':[
+      {code:'7203',name:'トヨタ自動車', score:75,rank:'A',dy:3.0,pbr:0.92,per:12.1,price:3000, cap:4800.0,steps:[1,1,1,1,1,1,1]},
+      {code:'7267',name:'ホンダ',       score:68,rank:'B',dy:3.8,pbr:0.70,per:8.5, price:1680, cap:890.0, steps:[1,1,1,1,0,1,1]},
+      {code:'7201',name:'日産自動車',   score:22,rank:'D',dy:0.0,pbr:0.30,per:null, price:380,  cap:160.0, steps:[1,0,0,0,0,0,0]},
+      {code:'7269',name:'スズキ',       score:60,rank:'B',dy:2.2,pbr:1.40,per:14.0,price:1850, cap:320.0, steps:[1,1,0,1,1,1,0]},
+    ],
+    '食料品':[
+      {code:'2914',name:'日本たばこ産業',score:72,rank:'B',dy:5.8,pbr:1.70,per:13.5,price:4200,cap:800.0, steps:[1,1,1,1,0,1,1]},
+      {code:'2802',name:'味の素',        score:68,rank:'B',dy:1.5,pbr:3.20,per:24.5,price:4800,cap:620.0, steps:[1,0,1,1,1,1,1]},
+      {code:'2503',name:'キリンHD',      score:55,rank:'C',dy:2.5,pbr:1.90,per:22.0,price:2100,cap:370.0, steps:[1,1,0,1,0,0,0]},
+      {code:'2282',name:'日本ハム',      score:45,rank:'C',dy:2.0,pbr:1.20,per:28.0,price:3500,cap:155.0, steps:[1,0,0,1,0,0,0]},
+    ],
+    '医薬品':[
+      {code:'4519',name:'中外製薬',     score:65,rank:'B',dy:1.2,pbr:6.10,per:38.2,price:5800, cap:960.0, steps:[1,0,1,1,1,1,0]},
+      {code:'4568',name:'第一三共',     score:60,rank:'B',dy:0.8,pbr:4.80,per:45.0,price:4500, cap:880.0, steps:[1,0,1,1,0,1,0]},
+      {code:'4502',name:'武田薬品',     score:52,rank:'C',dy:3.8,pbr:1.50,per:null, price:4200, cap:680.0, steps:[1,1,0,0,0,0,0]},
+      {code:'4523',name:'エーザイ',     score:38,rank:'D',dy:0.5,pbr:3.20,per:null, price:5200, cap:310.0, steps:[1,0,0,0,0,0,0]},
+    ],
+  }
+};
+const STOCKS=DASHBOARD_DATA?.stocks || SAMPLE_STOCKS;
+
+// ─── サンプル: 銘柄一覧（J-Quants master ベース）───
+const SAMPLE_STOCK_LIST={
+  as_of:'2026-03-14',
+  by_sector:{
+    '水産・農林業':[
+      {code:'1301',name:'極洋',                  s17:1,s17nm:'食品',          s33:50,  s33nm:'水産・農林業',  mkt:'プライム',scale:'TOPIX Small 1'},
+      {code:'1332',name:'日本水産',              s17:1,s17nm:'食品',          s33:50,  s33nm:'水産・農林業',  mkt:'プライム',scale:'TOPIX Mid400'},
+    ],
+    '鉱業':[
+      {code:'1605',name:'INPEX',                 s17:2,s17nm:'エネルギー資源',s33:1050,s33nm:'鉱業',          mkt:'プライム',scale:'TOPIX Mid400'},
+      {code:'1662',name:'石油資源開発',          s17:2,s17nm:'エネルギー資源',s33:1050,s33nm:'鉱業',          mkt:'プライム',scale:'TOPIX Small 1'},
+    ],
+    '建設業':[
+      {code:'1801',name:'大成建設',              s17:3,s17nm:'建設・資材',    s33:1350,s33nm:'建設業',         mkt:'プライム',scale:'TOPIX Mid400'},
+      {code:'1802',name:'大林組',                s17:3,s17nm:'建設・資材',    s33:1350,s33nm:'建設業',         mkt:'プライム',scale:'TOPIX Mid400'},
+      {code:'1803',name:'清水建設',              s17:3,s17nm:'建設・資材',    s33:1350,s33nm:'建設業',         mkt:'プライム',scale:'TOPIX Mid400'},
+      {code:'1808',name:'長谷工コーポレーション',s17:3,s17nm:'建設・資材',    s33:1350,s33nm:'建設業',         mkt:'プライム',scale:'TOPIX Mid400'},
+    ],
+    '食料品':[
+      {code:'2914',name:'日本たばこ産業',        s17:1,s17nm:'食品',          s33:2050,s33nm:'食料品',          mkt:'プライム',scale:'TOPIX Core30'},
+      {code:'2802',name:'味の素',                s17:1,s17nm:'食品',          s33:2050,s33nm:'食料品',          mkt:'プライム',scale:'TOPIX Mid400'},
+      {code:'2503',name:'キリンホールディングス',s17:1,s17nm:'食品',          s33:2050,s33nm:'食料品',          mkt:'プライム',scale:'TOPIX Mid400'},
+      {code:'2282',name:'日本ハム',              s17:1,s17nm:'食品',          s33:2050,s33nm:'食料品',          mkt:'プライム',scale:'TOPIX Mid400'},
+      {code:'2269',name:'明治ホールディングス',  s17:1,s17nm:'食品',          s33:2050,s33nm:'食料品',          mkt:'プライム',scale:'TOPIX Mid400'},
+    ],
+    '繊維製品':[
+      {code:'3401',name:'帝人',                  s17:4,s17nm:'素材・化学',    s33:3050,s33nm:'繊維製品',        mkt:'プライム',scale:'TOPIX Mid400'},
+      {code:'3402',name:'東レ',                  s17:4,s17nm:'素材・化学',    s33:3050,s33nm:'繊維製品',        mkt:'プライム',scale:'TOPIX Mid400'},
+      {code:'3404',name:'三菱ケミカルグループ',  s17:4,s17nm:'素材・化学',    s33:3050,s33nm:'繊維製品',        mkt:'プライム',scale:'TOPIX Mid400'},
+    ],
+    'パルプ・紙':[
+      {code:'3861',name:'王子ホールディングス',  s17:4,s17nm:'素材・化学',    s33:3100,s33nm:'パルプ・紙',      mkt:'プライム',scale:'TOPIX Mid400'},
+      {code:'3863',name:'日本製紙',              s17:4,s17nm:'素材・化学',    s33:3100,s33nm:'パルプ・紙',      mkt:'プライム',scale:'TOPIX Mid400'},
+    ],
+    '化学':[
+      {code:'4063',name:'信越化学工業',          s17:4,s17nm:'素材・化学',    s33:3150,s33nm:'化学',            mkt:'プライム',scale:'TOPIX Core30'},
+      {code:'4183',name:'三井化学',              s17:4,s17nm:'素材・化学',    s33:3150,s33nm:'化学',            mkt:'プライム',scale:'TOPIX Mid400'},
+      {code:'4188',name:'三菱ケミカルグループ',  s17:4,s17nm:'素材・化学',    s33:3150,s33nm:'化学',            mkt:'プライム',scale:'TOPIX Mid400'},
+      {code:'4452',name:'花王',                  s17:4,s17nm:'素材・化学',    s33:3150,s33nm:'化学',            mkt:'プライム',scale:'TOPIX Mid400'},
+    ],
+    '医薬品':[
+      {code:'4502',name:'武田薬品工業',          s17:5,s17nm:'医薬品・バイオ',s33:3250,s33nm:'医薬品',          mkt:'プライム',scale:'TOPIX Core30'},
+      {code:'4519',name:'中外製薬',              s17:5,s17nm:'医薬品・バイオ',s33:3250,s33nm:'医薬品',          mkt:'プライム',scale:'TOPIX Mid400'},
+      {code:'4568',name:'第一三共',              s17:5,s17nm:'医薬品・バイオ',s33:3250,s33nm:'医薬品',          mkt:'プライム',scale:'TOPIX Mid400'},
+      {code:'4523',name:'エーザイ',              s17:5,s17nm:'医薬品・バイオ',s33:3250,s33nm:'医薬品',          mkt:'プライム',scale:'TOPIX Mid400'},
+      {code:'4578',name:'大塚ホールディングス',  s17:5,s17nm:'医薬品・バイオ',s33:3250,s33nm:'医薬品',          mkt:'プライム',scale:'TOPIX Mid400'},
+    ],
+    '石油・石炭製品':[
+      {code:'5019',name:'出光興産',              s17:2,s17nm:'エネルギー資源',s33:3350,s33nm:'石油・石炭製品',  mkt:'プライム',scale:'TOPIX Mid400'},
+      {code:'5020',name:'ENEOSホールディングス', s17:2,s17nm:'エネルギー資源',s33:3350,s33nm:'石油・石炭製品',  mkt:'プライム',scale:'TOPIX Mid400'},
+    ],
+    'ゴム製品':[
+      {code:'5108',name:'ブリヂストン',          s17:6,s17nm:'自動車・輸送機',s33:3400,s33nm:'ゴム製品',        mkt:'プライム',scale:'TOPIX Mid400'},
+      {code:'5110',name:'住友ゴム工業',          s17:6,s17nm:'自動車・輸送機',s33:3400,s33nm:'ゴム製品',        mkt:'プライム',scale:'TOPIX Mid400'},
+    ],
+    'ガラス・土石製品':[
+      {code:'5201',name:'AGC',                   s17:3,s17nm:'建設・資材',    s33:3450,s33nm:'ガラス・土石製品',mkt:'プライム',scale:'TOPIX Mid400'},
+      {code:'5214',name:'日本電気硝子',          s17:3,s17nm:'建設・資材',    s33:3450,s33nm:'ガラス・土石製品',mkt:'プライム',scale:'TOPIX Mid400'},
+    ],
+    '鉄鋼':[
+      {code:'5401',name:'日本製鉄',              s17:7,s17nm:'鉄鋼・非鉄',   s33:3500,s33nm:'鉄鋼',            mkt:'プライム',scale:'TOPIX Mid400'},
+      {code:'5411',name:'JFEホールディングス',   s17:7,s17nm:'鉄鋼・非鉄',   s33:3500,s33nm:'鉄鋼',            mkt:'プライム',scale:'TOPIX Mid400'},
+      {code:'5461',name:'中部鋼鈑',              s17:7,s17nm:'鉄鋼・非鉄',   s33:3500,s33nm:'鉄鋼',            mkt:'プライム',scale:'TOPIX Small 1'},
+    ],
+    '非鉄金属':[
+      {code:'5711',name:'三菱マテリアル',        s17:7,s17nm:'鉄鋼・非鉄',   s33:3550,s33nm:'非鉄金属',        mkt:'プライム',scale:'TOPIX Mid400'},
+      {code:'5713',name:'住友金属鉱山',          s17:7,s17nm:'鉄鋼・非鉄',   s33:3550,s33nm:'非鉄金属',        mkt:'プライム',scale:'TOPIX Mid400'},
+      {code:'5802',name:'住友電気工業',          s17:7,s17nm:'鉄鋼・非鉄',   s33:3550,s33nm:'非鉄金属',        mkt:'プライム',scale:'TOPIX Mid400'},
+    ],
+    '金属製品':[
+      {code:'5901',name:'東洋製罐グループHD',    s17:3,s17nm:'建設・資材',    s33:3600,s33nm:'金属製品',        mkt:'プライム',scale:'TOPIX Mid400'},
+      {code:'5938',name:'LIXIL',                 s17:3,s17nm:'建設・資材',    s33:3600,s33nm:'金属製品',        mkt:'プライム',scale:'TOPIX Mid400'},
+    ],
+    '機械':[
+      {code:'6301',name:'小松製作所',            s17:8,s17nm:'機械',          s33:3650,s33nm:'機械',            mkt:'プライム',scale:'TOPIX Core30'},
+      {code:'6326',name:'クボタ',                s17:8,s17nm:'機械',          s33:3650,s33nm:'機械',            mkt:'プライム',scale:'TOPIX Mid400'},
+      {code:'6367',name:'ダイキン工業',          s17:8,s17nm:'機械',          s33:3650,s33nm:'機械',            mkt:'プライム',scale:'TOPIX Mid400'},
+      {code:'6506',name:'安川電機',              s17:8,s17nm:'機械',          s33:3650,s33nm:'機械',            mkt:'プライム',scale:'TOPIX Mid400'},
+    ],
+    '電気機器':[
+      {code:'6758',name:'ソニーグループ',        s17:9,s17nm:'電機・精密',    s33:3700,s33nm:'電気機器',        mkt:'プライム',scale:'TOPIX Core30'},
+      {code:'6861',name:'キーエンス',            s17:9,s17nm:'電機・精密',    s33:3700,s33nm:'電気機器',        mkt:'プライム',scale:'TOPIX Core30'},
+      {code:'6501',name:'日立製作所',            s17:9,s17nm:'電機・精密',    s33:3700,s33nm:'電気機器',        mkt:'プライム',scale:'TOPIX Core30'},
+      {code:'6702',name:'富士通',                s17:9,s17nm:'電機・精密',    s33:3700,s33nm:'電気機器',        mkt:'プライム',scale:'TOPIX Mid400'},
+      {code:'6594',name:'ニデック',              s17:9,s17nm:'電機・精密',    s33:3700,s33nm:'電気機器',        mkt:'プライム',scale:'TOPIX Mid400'},
+    ],
+    '輸送用機器':[
+      {code:'7203',name:'トヨタ自動車',          s17:6,s17nm:'自動車・輸送機',s33:3750,s33nm:'輸送用機器',      mkt:'プライム',scale:'TOPIX Core30'},
+      {code:'7267',name:'本田技研工業',          s17:6,s17nm:'自動車・輸送機',s33:3750,s33nm:'輸送用機器',      mkt:'プライム',scale:'TOPIX Core30'},
+      {code:'7201',name:'日産自動車',            s17:6,s17nm:'自動車・輸送機',s33:3750,s33nm:'輸送用機器',      mkt:'プライム',scale:'TOPIX Mid400'},
+      {code:'7269',name:'スズキ',                s17:6,s17nm:'自動車・輸送機',s33:3750,s33nm:'輸送用機器',      mkt:'プライム',scale:'TOPIX Mid400'},
+      {code:'7270',name:'SUBARU',                s17:6,s17nm:'自動車・輸送機',s33:3750,s33nm:'輸送用機器',      mkt:'プライム',scale:'TOPIX Mid400'},
+    ],
+    '精密機器':[
+      {code:'7733',name:'オリンパス',            s17:9,s17nm:'電機・精密',    s33:3800,s33nm:'精密機器',        mkt:'プライム',scale:'TOPIX Mid400'},
+      {code:'7741',name:'HOYA',                  s17:9,s17nm:'電機・精密',    s33:3800,s33nm:'精密機器',        mkt:'プライム',scale:'TOPIX Mid400'},
+      {code:'7832',name:'バンダイナムコHD',      s17:9,s17nm:'電機・精密',    s33:3800,s33nm:'精密機器',        mkt:'プライム',scale:'TOPIX Mid400'},
+    ],
+    'その他製品':[
+      {code:'7951',name:'ヤマハ',                s17:9,s17nm:'電機・精密',    s33:3900,s33nm:'その他製品',      mkt:'プライム',scale:'TOPIX Mid400'},
+      {code:'7912',name:'大日本印刷',            s17:3,s17nm:'建設・資材',    s33:3900,s33nm:'その他製品',      mkt:'プライム',scale:'TOPIX Mid400'},
+      {code:'7911',name:'TOPPAN',                s17:3,s17nm:'建設・資材',    s33:3900,s33nm:'その他製品',      mkt:'プライム',scale:'TOPIX Mid400'},
+    ],
+    '電気・ガス業':[
+      {code:'9501',name:'東京電力ホールディングス',s17:11,s17nm:'電力・ガス',  s33:4050,s33nm:'電気・ガス業',   mkt:'プライム',scale:'TOPIX Mid400'},
+      {code:'9502',name:'中部電力',              s17:11,s17nm:'電力・ガス',   s33:4050,s33nm:'電気・ガス業',   mkt:'プライム',scale:'TOPIX Mid400'},
+      {code:'9503',name:'関西電力',              s17:11,s17nm:'電力・ガス',   s33:4050,s33nm:'電気・ガス業',   mkt:'プライム',scale:'TOPIX Mid400'},
+      {code:'9531',name:'東京ガス',              s17:11,s17nm:'電力・ガス',   s33:4050,s33nm:'電気・ガス業',   mkt:'プライム',scale:'TOPIX Mid400'},
+    ],
+    '陸運業':[
+      {code:'9020',name:'東日本旅客鉄道',        s17:12,s17nm:'運輸・物流',   s33:5050,s33nm:'陸運業',          mkt:'プライム',scale:'TOPIX Core30'},
+      {code:'9022',name:'東海旅客鉄道',          s17:12,s17nm:'運輸・物流',   s33:5050,s33nm:'陸運業',          mkt:'プライム',scale:'TOPIX Mid400'},
+      {code:'9064',name:'ヤマトホールディングス',s17:12,s17nm:'運輸・物流',   s33:5050,s33nm:'陸運業',          mkt:'プライム',scale:'TOPIX Mid400'},
+    ],
+    '海運業':[
+      {code:'9101',name:'日本郵船',              s17:12,s17nm:'運輸・物流',   s33:5100,s33nm:'海運業',          mkt:'プライム',scale:'TOPIX Mid400'},
+      {code:'9104',name:'商船三井',              s17:12,s17nm:'運輸・物流',   s33:5100,s33nm:'海運業',          mkt:'プライム',scale:'TOPIX Mid400'},
+      {code:'9107',name:'川崎汽船',              s17:12,s17nm:'運輸・物流',   s33:5100,s33nm:'海運業',          mkt:'プライム',scale:'TOPIX Mid400'},
+    ],
+    '空運業':[
+      {code:'9202',name:'ANAホールディングス',   s17:12,s17nm:'運輸・物流',   s33:5150,s33nm:'空運業',          mkt:'プライム',scale:'TOPIX Mid400'},
+      {code:'9201',name:'日本航空',              s17:12,s17nm:'運輸・物流',   s33:5150,s33nm:'空運業',          mkt:'プライム',scale:'TOPIX Mid400'},
+    ],
+    '倉庫・運輸関連業':[
+      {code:'9301',name:'三菱倉庫',              s17:12,s17nm:'運輸・物流',   s33:5200,s33nm:'倉庫・運輸関連業',mkt:'プライム',scale:'TOPIX Mid400'},
+      {code:'9302',name:'三井倉庫ホールディングス',s17:12,s17nm:'運輸・物流', s33:5200,s33nm:'倉庫・運輸関連業',mkt:'プライム',scale:'TOPIX Mid400'},
+    ],
+    '情報・通信業':[
+      {code:'9432',name:'日本電信電話',          s17:10,s17nm:'IT・サービス他',s33:5250,s33nm:'情報・通信業',   mkt:'プライム',scale:'TOPIX Core30'},
+      {code:'9433',name:'KDDI',                  s17:10,s17nm:'IT・サービス他',s33:5250,s33nm:'情報・通信業',   mkt:'プライム',scale:'TOPIX Core30'},
+      {code:'9984',name:'ソフトバンクグループ',  s17:10,s17nm:'IT・サービス他',s33:5250,s33nm:'情報・通信業',   mkt:'プライム',scale:'TOPIX Core30'},
+      {code:'4689',name:'LYコーポレーション',    s17:10,s17nm:'IT・サービス他',s33:5250,s33nm:'情報・通信業',   mkt:'プライム',scale:'TOPIX Mid400'},
+      {code:'4755',name:'楽天グループ',          s17:10,s17nm:'IT・サービス他',s33:5250,s33nm:'情報・通信業',   mkt:'プライム',scale:'TOPIX Mid400'},
+    ],
+    '卸売業':[
+      {code:'8058',name:'三菱商事',              s17:13,s17nm:'商社・卸売',   s33:6050,s33nm:'卸売業',          mkt:'プライム',scale:'TOPIX Core30'},
+      {code:'8031',name:'三井物産',              s17:13,s17nm:'商社・卸売',   s33:6050,s33nm:'卸売業',          mkt:'プライム',scale:'TOPIX Core30'},
+      {code:'8001',name:'伊藤忠商事',            s17:13,s17nm:'商社・卸売',   s33:6050,s33nm:'卸売業',          mkt:'プライム',scale:'TOPIX Core30'},
+      {code:'8002',name:'丸紅',                  s17:13,s17nm:'商社・卸売',   s33:6050,s33nm:'卸売業',          mkt:'プライム',scale:'TOPIX Mid400'},
+      {code:'8053',name:'住友商事',              s17:13,s17nm:'商社・卸売',   s33:6050,s33nm:'卸売業',          mkt:'プライム',scale:'TOPIX Mid400'},
+    ],
+    '小売業':[
+      {code:'3382',name:'セブン＆アイ・ホールディングス',s17:14,s17nm:'小売', s33:6100,s33nm:'小売業',          mkt:'プライム',scale:'TOPIX Core30'},
+      {code:'8267',name:'イオン',                s17:14,s17nm:'小売',         s33:6100,s33nm:'小売業',          mkt:'プライム',scale:'TOPIX Mid400'},
+      {code:'3088',name:'マツキヨHD',            s17:14,s17nm:'小売',         s33:6100,s33nm:'小売業',          mkt:'プライム',scale:'TOPIX Mid400'},
+      {code:'2651',name:'ローソン',              s17:14,s17nm:'小売',         s33:6100,s33nm:'小売業',          mkt:'プライム',scale:'TOPIX Mid400'},
+    ],
+    '銀行業':[
+      {code:'8306',name:'三菱UFJフィナンシャル・グループ',s17:15,s17nm:'銀行',s33:7050,s33nm:'銀行業',         mkt:'プライム',scale:'TOPIX Core30'},
+      {code:'8316',name:'三井住友フィナンシャルグループ',  s17:15,s17nm:'銀行',s33:7050,s33nm:'銀行業',         mkt:'プライム',scale:'TOPIX Core30'},
+      {code:'8411',name:'みずほフィナンシャルグループ',    s17:15,s17nm:'銀行',s33:7050,s33nm:'銀行業',         mkt:'プライム',scale:'TOPIX Core30'},
+      {code:'8308',name:'りそなホールディングス',          s17:15,s17nm:'銀行',s33:7050,s33nm:'銀行業',         mkt:'プライム',scale:'TOPIX Mid400'},
+      {code:'8309',name:'三井住友トラスト・ホールディングス',s17:15,s17nm:'銀行',s33:7050,s33nm:'銀行業',      mkt:'プライム',scale:'TOPIX Mid400'},
+    ],
+    '証券、商品先物取引業':[
+      {code:'8601',name:'大和証券グループ本社',  s17:16,s17nm:'金融（除く銀行）',s33:7100,s33nm:'証券、商品先物取引業',mkt:'プライム',scale:'TOPIX Mid400'},
+      {code:'8604',name:'野村ホールディングス',  s17:16,s17nm:'金融（除く銀行）',s33:7100,s33nm:'証券、商品先物取引業',mkt:'プライム',scale:'TOPIX Mid400'},
+    ],
+    '保険業':[
+      {code:'8725',name:'MS&ADインシュアランス',s17:16,s17nm:'金融（除く銀行）',s33:7150,s33nm:'保険業',        mkt:'プライム',scale:'TOPIX Mid400'},
+      {code:'8750',name:'第一生命ホールディングス',s17:16,s17nm:'金融（除く銀行）',s33:7150,s33nm:'保険業',     mkt:'プライム',scale:'TOPIX Mid400'},
+      {code:'8766',name:'東京海上ホールディングス',s17:16,s17nm:'金融（除く銀行）',s33:7150,s33nm:'保険業',    mkt:'プライム',scale:'TOPIX Mid400'},
+    ],
+    'その他金融業':[
+      {code:'8591',name:'オリックス',            s17:16,s17nm:'金融（除く銀行）',s33:7200,s33nm:'その他金融業',mkt:'プライム',scale:'TOPIX Mid400'},
+      {code:'8697',name:'日本取引所グループ',    s17:16,s17nm:'金融（除く銀行）',s33:7200,s33nm:'その他金融業',mkt:'プライム',scale:'TOPIX Mid400'},
+    ],
+    '不動産業':[
+      {code:'8801',name:'三井不動産',            s17:17,s17nm:'不動産',        s33:8050,s33nm:'不動産業',        mkt:'プライム',scale:'TOPIX Mid400'},
+      {code:'8802',name:'三菱地所',              s17:17,s17nm:'不動産',        s33:8050,s33nm:'不動産業',        mkt:'プライム',scale:'TOPIX Mid400'},
+      {code:'8830',name:'住友不動産',            s17:17,s17nm:'不動産',        s33:8050,s33nm:'不動産業',        mkt:'プライム',scale:'TOPIX Mid400'},
+    ],
+    'サービス業':[
+      {code:'6098',name:'リクルートホールディングス',s17:10,s17nm:'IT・サービス他',s33:9050,s33nm:'サービス業', mkt:'プライム',scale:'TOPIX Core30'},
+      {code:'9021',name:'西日本旅客鉄道',        s17:12,s17nm:'運輸・物流',   s33:9050,s33nm:'サービス業',      mkt:'プライム',scale:'TOPIX Mid400'},
+      {code:'2371',name:'カカクコム',            s17:10,s17nm:'IT・サービス他',s33:9050,s33nm:'サービス業',     mkt:'プライム',scale:'TOPIX Mid400'},
+      {code:'6619',name:'W-SCOPE CORPORATION',   s17:10,s17nm:'IT・サービス他',s33:9050,s33nm:'サービス業',     mkt:'プライム',scale:'TOPIX Small 1'},
+    ],
+  }
+};
+const STOCK_LIST=DASHBOARD_DATA?.stock_list || SAMPLE_STOCK_LIST;
+// 有償会員パスキー（実データでは DASHBOARD_DATA.member_key に設定）
+// 静的サイトのため完全な認証ではなく、閲覧ソフトゲートとして機能する
+const MEMBER_KEY=DASHBOARD_DATA?.member_key || 'demo';
+
 // ────── state ──────
 let fCat='all', fPbr='all', fChgMin=-1, fSearch='';
 let _screenSort={key:'code',asc:true};
@@ -184,5 +428,10 @@ function refreshChartColors(){
     if(s?.y?.title) s.y.title.color=tick;
     if(s?.y?.grid) s.y.grid.color=grid;
   });
+  _upd(charts.heatLine,tick,tick);
+  _upd(charts.decompCap,tick,label);
+  _upd(charts.decompNav,tick,label);
+  _upd(charts.decompCapLine,tick,tick);
+  _upd(charts.decompNavLine,tick,tick);
 }
 

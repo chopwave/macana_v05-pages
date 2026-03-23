@@ -94,6 +94,18 @@
     <span class="nav-badge g" id="nb-cycle">④</span>
   </div>
 
+  <div class="nav-group">銘柄</div>
+  <div class="nav-item" onclick="goto('stocks',this)">
+    <svg class="nav-icon" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="1" y1="3" x2="13" y2="3"/><line x1="1" y1="7" x2="13" y2="7"/><line x1="1" y1="11" x2="8" y2="11"/></svg>
+    銘柄一覧
+    <span class="nav-badge" id="nb-stocklist"></span>
+  </div>
+  <div class="nav-item" onclick="goto('eval',this)" style="display:none">
+    <svg class="nav-icon" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="2" width="12" height="10" rx="1"/><line x1="1" y1="5" x2="13" y2="5"/><line x1="4" y1="5" x2="4" y2="12"/><line x1="8" y1="5" x2="8" y2="12"/></svg>
+    銘柄別評価
+    <span class="nav-badge" id="nb-eval"></span>
+  </div>
+
   <div class="nav-group">チーム</div>
   <div class="nav-item" onclick="goto('notes',this)">
     <svg class="nav-icon" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="1" width="10" height="12" rx="1"/><line x1="4" y1="5" x2="10" y2="5"/><line x1="4" y1="8" x2="8" y2="8"/></svg>
@@ -133,8 +145,12 @@
         <div style="color:var(--muted)">右上の <strong>Chart.js ⇌</strong> ボタンで描画エンジンを切り替えられます。Plotly はインタラクティブ操作（ズーム・ホバー詳細）に対応します。</div>
       </div>
       <div>
-        <div style="font-weight:500;color:var(--text);margin-bottom:4px">CSV出力</div>
-        <div style="color:var(--muted)">右上の <strong>CSV出力</strong> ボタンでスクリーニング結果をCSVファイルとして保存できます。</div>
+        <div style="font-weight:500;color:var(--text);margin-bottom:4px">CSV出力 / 印刷</div>
+        <div style="color:var(--muted)">右上の <strong>CSV出力</strong> でスクリーニング結果をCSV保存。<strong>印刷</strong> ボタンでブラウザの印刷ダイアログを開きます（印刷用CSSで最適化済み）。</div>
+      </div>
+      <div>
+        <div style="font-weight:500;color:var(--text);margin-bottom:4px">キーボードショートカット</div>
+        <div style="color:var(--muted)"><strong>←／→</strong> で年月を1ヶ月移動。<strong>1〜9</strong> でメニューページ切替。<strong>T</strong> でテーマ切替。<strong>?</strong> でショートカット一覧を表示（右上の <strong>?</strong> ボタンでも表示）。</div>
       </div>
     </div>
   </div>
@@ -180,7 +196,7 @@
           <div style="font-size:10px;color:var(--muted);margin-top:2px">分析① › 東証改革モニタリング</div>
         </div>
         <div style="font-size:11px;color:var(--muted);line-height:1.7">
-          PBR &lt; 1.0x の業種を一覧表示。東証改革（2023年4月要請）に基づく改善状況をモニタリングし、業種別のヒートマップで推移を可視化します。
+          PBR &lt; 1.0x の業種を一覧表示。東証改革（2023年4月要請）に基づく改善状況をモニタリングします。<strong>ヒートマップ表</strong>（緑=1倍超／黄=0.8〜1倍／赤=0.8倍未満、セルクリックで詳細ダイアログ）と<strong>折れ線グラフ</strong>（PBR推移トレンド、全業種／PBR&lt;1.0のみ切替）の2タブで確認できます。
         </div>
       </div>
 
@@ -200,17 +216,17 @@
           <div style="font-size:10px;color:var(--muted);margin-top:2px">分析③ › ポジショニング</div>
         </div>
         <div style="font-size:11px;color:var(--muted);line-height:1.7">
-          時価総額（規模）× PBRのバブルチャート。各業種のポジショニングを把握し、規模に見合った評価がされているかを視覚的に確認できます。
+          2タブ構成。<strong>時価総額×PBR</strong>：規模とバリュエーションのポジショニング。▶再生ボタンで年月を自動コマ送りし、バブルの動きでトレンドをアニメーション確認できます。<strong>ROE×PBR</strong>：理論ROE（PBR÷PER×100）と PBR の関係から「割安な高ROE業種」を探索できます。
         </div>
       </div>
 
       <div style="display:flex;gap:14px;padding:10px 0;border-bottom:1px solid var(--border)">
         <div style="width:140px;flex-shrink:0">
-          <div style="font-weight:500;font-size:12px;color:var(--text)">成長要因分解</div>
-          <div style="font-size:10px;color:var(--muted);margin-top:2px">分析③ › PBR変化の内訳</div>
+          <div style="font-weight:500;font-size:12px;color:var(--text)">成長要因分析</div>
+          <div style="font-size:10px;color:var(--muted);margin-top:2px">分析③ › 規模・成長の内訳</div>
         </div>
         <div style="font-size:11px;color:var(--muted);line-height:1.7">
-          PBRの変化をBPS（1株純資産）成長とPBR倍率膨張に分解し、業種ごとに「実力の改善」か「期待先行」かを判断する材料を提供します。
+          5タブ構成。①<strong>時価総額成長要因分解</strong>：PBR変化をBPS（純資産）成長とPBR倍率変化に分解し「実力改善 vs 期待先行」を判断。②<strong>業種別 時価総額</strong>・③<strong>業種別 純資産</strong>：選択年月時点の規模ランキング（横棒グラフ、年月連動）。④<strong>時価総額 推移</strong>・⑤<strong>純資産 推移</strong>：2020/01〜最新の月次トレンドを業種別折れ線グラフで表示（初回クリック時に描画）。
         </div>
       </div>
 
@@ -220,7 +236,17 @@
           <div style="font-size:10px;color:var(--muted);margin-top:2px">分析④ › サイクル判定</div>
         </div>
         <div style="font-size:11px;color:var(--muted);line-height:1.7">
-          景気循環フェーズ（回復・拡張・インフレ・後退）を判定し、フェーズに応じた業種推奨（BUY/HOLD/SELL）を表示。Zスコアヒートマップ・景気指標・Cyclical/Defensive強度も確認できます。
+          6タブ構成。<strong>フェーズ判定チャート</strong>・<strong>BUY/HOLD/SELL推奨</strong>・<strong>PBR乖離Zスコア</strong>（同フェーズ比較）・<strong>シクリカル/ディフェンシブ比率</strong>・<strong>総合シグナル</strong>・<strong>フェーズ遷移履歴</strong>（月次タイムラインバー）。フェーズ判定には信頼スコア（0〜100%）を表示。年月スライダーに連動して全指標が更新されます。
+        </div>
+      </div>
+
+      <div style="display:flex;gap:14px;padding:10px 0;border-bottom:1px solid var(--border)">
+        <div style="width:140px;flex-shrink:0">
+          <div style="font-weight:500;font-size:12px;color:var(--text)">銘柄一覧</div>
+          <div style="font-size:10px;color:var(--muted);margin-top:2px">銘柄 › 業種別銘柄テーブル</div>
+        </div>
+        <div style="font-size:11px;color:var(--muted);line-height:1.7">
+          業種ピルで対象業種を絞り込み、スクリーニングを通過した銘柄をテーブル表示します。コード・銘柄名・スコア・ランク・配当利回り・PBR・PER・株価・時価総額・ステップ通過状況を確認できます。ヘッダークリックで昇降順ソート、テキスト検索・ランクフィルターも利用可能です。
         </div>
       </div>
 
@@ -453,9 +479,24 @@
   <div class="banner banner-blue">
     <strong>PBR 1倍割れ追跡</strong>：緑=1倍超、黄=0.8〜1倍（改善途上）、赤=0.8倍未満。東証改革要請（2023/04）以降に改善した業種に注目。セルをクリックすると詳細を表示します。
   </div>
-  <div class="card">
-    <div class="card-hd"><span class="card-title">業種別 PBR水準ヒートマップ（月次）</span></div>
-    <div style="overflow-x:auto" id="heatWrap"></div>
+  <div class="tabs">
+    <div class="tab act" onclick="swTab('pbr1','table',this)" title="月次PBR水準をヒートマップ表で確認">ヒートマップ表<br><span style="font-size:9px;opacity:.65;font-weight:400">色分け水準確認</span></div>
+    <div class="tab" onclick="swTab('pbr1','line',this);renderHeatmapChart()" title="業種別PBR推移を折れ線グラフで確認">折れ線グラフ<br><span style="font-size:9px;opacity:.65;font-weight:400">トレンド比較</span></div>
+  </div>
+  <div class="tp act" id="pbr1-table">
+    <div class="card">
+      <div class="card-hd"><span class="card-title">業種別 PBR水準ヒートマップ（月次）</span></div>
+      <div style="overflow-x:auto" id="heatWrap"></div>
+    </div>
+  </div>
+  <div class="tp" id="pbr1-line">
+    <div class="card">
+      <div class="card-hd">
+        <span class="card-title">業種別 PBR推移（月次）</span>
+        <button id="heatLineFilterBtn" onclick="toggleHeatLineFilter()" style="background:var(--bg4);border:1px solid var(--border2);color:var(--muted);padding:3px 10px;border-radius:5px;font-size:11px;cursor:pointer">PBR &lt; 1.0 のみ</button>
+      </div>
+      <div class="ch ch-360"><canvas id="heatLineC"></canvas></div>
+    </div>
   </div>
 </div>
 
@@ -705,12 +746,44 @@
 <!-- ═══ ロードマップ ═══ -->
 <div class="page" id="pg-decomp">
   <div class="banner banner-green">
-    <strong>成長要因分解</strong>：時価総額成長 ≈ 純資産（BPS）成長寄与 ＋ PBR倍率変化寄与。<br>
-    緑バー = 実質的な企業価値向上（EPS・BPS改善）　青バー = 市場センチメント・期待変化
+    <strong>成長要因分析</strong>：①要因分解 = 時価総額成長 ≈ BPS成長寄与＋PBR変化寄与　②時価総額 / ③純資産（BPS）= 業種別の規模ランキング（年月連動）
   </div>
-  <div class="card">
-    <div class="card-hd"><span class="card-title">業種別 時価総額成長の要因分解<span class="ym-badge" title="年月連動">年月連動</span></span><span class="card-meta" id="decompPeriod">前年同月比</span></div>
-    <div class="ch" style="height:420px"><canvas id="decompC"></canvas></div>
+  <div class="tabs">
+    <div class="tab act" onclick="swTab('decomp','decomp',this)" title="時価総額成長をBPS成長とPBR変化に分解">時価総額成長要因分解<br><span style="font-size:9px;opacity:.65;font-weight:400">BPS＋PBR寄与</span></div>
+    <div class="tab" onclick="swTab('decomp','cap',this)" title="業種別の時価総額ランキング（年月連動）">業種別 時価総額<br><span style="font-size:9px;opacity:.65;font-weight:400">規模ランキング</span></div>
+    <div class="tab" onclick="swTab('decomp','nav',this)" title="業種別の純資産（時価総額÷PBR）ランキング（年月連動）">業種別 純資産<br><span style="font-size:9px;opacity:.65;font-weight:400">BPS基準規模</span></div>
+    <div class="tab" onclick="swTab('decomp','capline',this);renderDecompCapLine()" title="業種別 時価総額の月次推移（全期間）">時価総額 推移<br><span style="font-size:9px;opacity:.65;font-weight:400">全期間 折れ線</span></div>
+    <div class="tab" onclick="swTab('decomp','navline',this);renderDecompNavLine()" title="業種別 純資産の月次推移（全期間）">純資産 推移<br><span style="font-size:9px;opacity:.65;font-weight:400">全期間 折れ線</span></div>
+  </div>
+  <div class="tp act" id="decomp-decomp">
+    <div class="card">
+      <div class="card-hd"><span class="card-title">業種別 時価総額成長の要因分解<span class="ym-badge" title="年月連動">年月連動</span></span><span class="card-meta" id="decompPeriod">前年同月比</span></div>
+      <div class="ch" style="height:420px"><canvas id="decompC"></canvas></div>
+    </div>
+  </div>
+  <div class="tp" id="decomp-cap">
+    <div class="card">
+      <div class="card-hd"><span class="card-title">業種別 時価総額<span class="ym-badge" title="年月連動">年月連動</span></span><span class="card-meta" id="decompCapYm"></span></div>
+      <div class="ch" style="height:660px"><canvas id="decompCapC"></canvas></div>
+    </div>
+  </div>
+  <div class="tp" id="decomp-nav">
+    <div class="card">
+      <div class="card-hd"><span class="card-title">業種別 純資産（時価総額÷PBR）<span class="ym-badge" title="年月連動">年月連動</span></span><span class="card-meta" id="decompNavYm"></span></div>
+      <div class="ch" style="height:660px"><canvas id="decompNavC"></canvas></div>
+    </div>
+  </div>
+  <div class="tp" id="decomp-capline">
+    <div class="card">
+      <div class="card-hd"><span class="card-title">業種別 時価総額 月次推移</span><span class="card-meta">2020/01〜最新</span></div>
+      <div class="ch" style="height:420px"><canvas id="decompCapLineC"></canvas></div>
+    </div>
+  </div>
+  <div class="tp" id="decomp-navline">
+    <div class="card">
+      <div class="card-hd"><span class="card-title">業種別 純資産 月次推移（時価総額÷PBR）</span><span class="card-meta">2020/01〜最新</span></div>
+      <div class="ch" style="height:420px"><canvas id="decompNavLineC"></canvas></div>
+    </div>
   </div>
 </div>
 
@@ -823,6 +896,134 @@
   </div>
 </div>
 
+<!-- ═══ 銘柄一覧 ═══ -->
+<div class="page" id="pg-stocks">
+  <div class="card" style="margin-bottom:12px">
+    <div class="card-hd" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+      <span class="card-title">銘柄一覧</span>
+      <span id="slAsOf" style="font-size:10px;padding:2px 8px;border-radius:4px;background:var(--bg3);color:var(--hint);font-family:var(--mono)"></span>
+      <span id="slSampleNotice" style="display:none;font-size:10px;padding:2px 8px;border-radius:4px;background:#7c3a0022;border:1px solid #c0562055;color:#c05620">※ サンプルデータ（代表銘柄のみ表示）</span>
+      <div style="margin-left:auto;display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+        <select id="slMktSel" onchange="filterStockList()"
+          style="padding:3px 6px;font-size:11px;border:1px solid var(--border2);border-radius:4px;background:var(--bg3);color:var(--text)">
+          <option value="all">全市場</option>
+          <option value="プライム">プライム</option>
+          <option value="スタンダード">スタンダード</option>
+          <option value="グロース">グロース</option>
+        </select>
+        <select id="slScaleSel" onchange="filterStockList()"
+          style="padding:3px 6px;font-size:11px;border:1px solid var(--border2);border-radius:4px;background:var(--bg3);color:var(--text)">
+          <option value="all">全規模</option>
+          <option value="TOPIX Core30">Core30</option>
+          <option value="TOPIX Mid400">Mid400</option>
+          <option value="TOPIX Small 1">Small 1</option>
+          <option value="TOPIX Small 2">Small 2</option>
+        </select>
+        <input id="slSearch" type="text" placeholder="銘柄名・コード検索…" oninput="filterStockList()"
+          style="padding:3px 8px;font-size:11px;border:1px solid var(--border2);border-radius:4px;background:var(--bg3);color:var(--text);outline:none;width:170px">
+      </div>
+    </div>
+    <div id="slSectorPills" style="display:flex;flex-wrap:wrap;gap:5px;margin-top:10px"></div>
+  </div>
+  <div class="card" style="overflow-x:auto">
+    <table style="width:100%;border-collapse:collapse;font-size:11px">
+      <thead>
+        <tr style="color:var(--hint);text-align:left;border-bottom:1px solid var(--border2)">
+          <th onclick="slSort('code')" style="cursor:pointer;padding:5px 8px;white-space:nowrap">
+            コード <span class="info-icon" data-tip="東証証券コード（4桁）。" data-tip-pos="bottom">i</span> ↕</th>
+          <th onclick="slSort('name')" style="cursor:pointer;padding:5px 8px;white-space:nowrap">
+            銘柄名 <span class="info-icon" data-tip="正式会社名（日本語）。" data-tip-pos="bottom">i</span> ↕</th>
+          <th onclick="slSort('s17')" style="cursor:pointer;padding:5px 8px;white-space:nowrap;text-align:right">
+            17C <span class="info-icon" data-tip="J-Quants 17業種コード。&#10;TOPIXの17業種分類に対応する数値コード。" data-tip-pos="bottom">i</span> ↕</th>
+          <th onclick="slSort('s17nm')" style="cursor:pointer;padding:5px 8px;white-space:nowrap">
+            17業種名 <span class="info-icon" data-tip="J-Quants 17業種分類名。&#10;33業種より粗い大分類（例：電機・精密、IT・サービス他）。" data-tip-pos="bottom">i</span> ↕</th>
+          <th onclick="slSort('s33')" style="cursor:pointer;padding:5px 8px;white-space:nowrap;text-align:right">
+            33C <span class="info-icon" data-tip="J-Quants 33業種コード。&#10;東証33業種分類に対応する数値コード。" data-tip-pos="bottom">i</span> ↕</th>
+          <th onclick="slSort('s33nm')" style="cursor:pointer;padding:5px 8px;white-space:nowrap">
+            33業種名 <span class="info-icon" data-tip="J-Quants 33業種分類名。&#10;東証の業種大分類（例：電気機器、情報・通信業）。" data-tip-pos="bottom">i</span> ↕</th>
+          <th onclick="slSort('mkt')" style="cursor:pointer;padding:5px 8px;white-space:nowrap">
+            市場 <span class="info-icon" data-tip="上場市場区分。&#10;プライム / スタンダード / グロース" data-tip-pos="bottom">i</span> ↕</th>
+          <th onclick="slSort('scale')" style="cursor:pointer;padding:5px 8px;white-space:nowrap">
+            規模区分 <span class="info-icon" data-tip="TOPIX規模区分。&#10;Core30 / Mid400 / Small 1 / Small 2&#10;（グロース上場は「–」）" data-tip-pos="bottom">i</span> ↕</th>
+        </tr>
+      </thead>
+      <tbody id="slTbody"></tbody>
+    </table>
+    <div id="slEmpty" style="display:none;padding:24px;text-align:center;color:var(--hint);font-size:12px">該当銘柄なし</div>
+    <div id="slCount" style="padding:8px 12px;font-size:10px;color:var(--hint);border-top:1px solid var(--border)"></div>
+  </div>
+</div>
+
+<!-- ═══ 銘柄別評価 ═══ -->
+<div class="page" id="pg-eval">
+  <div class="card" style="margin-bottom:12px">
+    <div class="card-hd" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+      <span class="card-title">銘柄一覧</span>
+      <span id="stocksAsOf" style="font-size:10px;padding:2px 8px;border-radius:4px;background:var(--bg3);color:var(--hint);font-family:var(--mono)"></span>
+      <span id="stocksMemberBadge" style="display:none;font-size:10px;padding:2px 8px;border-radius:4px;background:#29c99a22;color:#29c99a;border:1px solid #29c99a44">🔓 会員ログイン中</span>
+      <div style="margin-left:auto;display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+        <input id="stocksSearch" type="text" placeholder="銘柄名・コード検索…" oninput="filterStocksTable()"
+          style="padding:3px 8px;font-size:11px;border:1px solid var(--border2);border-radius:4px;background:var(--bg3);color:var(--text);outline:none;width:160px">
+        <select id="stocksRankSel" onchange="filterStocksTable()"
+          style="padding:3px 6px;font-size:11px;border:1px solid var(--border2);border-radius:4px;background:var(--bg3);color:var(--text)">
+          <option value="all">全ランク</option>
+          <option value="S">S</option>
+          <option value="A">A</option>
+          <option value="B">B</option>
+          <option value="C">C</option>
+          <option value="D">D</option>
+        </select>
+        <select id="stocksStepSel" onchange="filterStocksTable()"
+          style="padding:3px 6px;font-size:11px;border:1px solid var(--border2);border-radius:4px;background:var(--bg3);color:var(--text)">
+          <option value="0">全銘柄</option>
+          <option value="1">Step1以上（基本条件）</option>
+          <option value="2">Step2以上（配当利回り）</option>
+          <option value="3">Step3以上（配当持続性）</option>
+          <option value="4">Step4以上（財務健全性）</option>
+          <option value="5">Step5以上（成長安定性）</option>
+          <option value="6">Step6以上（バリュエーション）</option>
+          <option value="7">Step7通過（タイミング）</option>
+        </select>
+        <button id="stocksLockBtn" onclick="showMemberLogin()" class="tb-btn"
+          title="スコア・ランク・ステップ通過は有償会員限定の情報です">🔒 会員ログイン</button>
+      </div>
+    </div>
+    <!-- 業種ピル -->
+    <div id="stocksSectorPills" style="display:flex;flex-wrap:wrap;gap:5px;margin-top:10px"></div>
+  </div>
+  <!-- テーブル -->
+  <div class="card" style="overflow-x:auto">
+    <table id="stocksTable" style="width:100%;border-collapse:collapse;font-size:11px">
+      <thead>
+        <tr style="color:var(--hint);text-align:left;border-bottom:1px solid var(--border2)">
+          <th onclick="_stocksSort('code')" style="cursor:pointer;padding:5px 8px;white-space:nowrap">
+            コード <span class="info-icon" data-tip="東証上場の4桁証券コード。&#10;（5桁コードは末尾0を省略）" data-tip-pos="bottom">i</span> ↕</th>
+          <th onclick="_stocksSort('name')" style="cursor:pointer;padding:5px 8px;white-space:nowrap">
+            銘柄名 <span class="info-icon" data-tip="正式会社名。&#10;右に業種名を淡色表示。&#10;（東証33業種分類）" data-tip-pos="bottom">i</span> ↕</th>
+          <th onclick="_stocksSort('score')" style="cursor:pointer;padding:5px 8px;white-space:nowrap;text-align:right">
+            スコア <span class="info-icon" data-tip="🔒 有償会員限定&#10;スクリーニング総合スコア（0〜100点）。&#10;7ステップの通過状況と各指標値から算出。&#10;高いほど投資候補として有望。" data-tip-pos="bottom">i</span> ↕</th>
+          <th style="padding:5px 8px;white-space:nowrap;text-align:center">
+            ランク <span class="info-icon" data-tip="🔒 有償会員限定&#10;スコアに基づく5段階評価。&#10;S: 80以上  A: 70以上&#10;B: 60以上  C: 40以上  D: 40未満" data-tip-pos="bottom">i</span></th>
+          <th onclick="_stocksSort('dy')" style="cursor:pointer;padding:5px 8px;white-space:nowrap;text-align:right">
+            配当% <span class="info-icon" data-tip="予想配当利回り（年間配当÷株価×100）。&#10;スクリーニング対象は2〜8%の範囲。&#10;特別配当・記念配当は除外して判定。" data-tip-pos="bottom">i</span> ↕</th>
+          <th onclick="_stocksSort('pbr')" style="cursor:pointer;padding:5px 8px;white-space:nowrap;text-align:right">
+            PBR <span class="info-icon" data-tip="株価純資産倍率（Price-to-Book Ratio）。&#10;1.0倍未満 = 純資産より安い評価。&#10;東証は全上場企業に1.0倍超を要請（2023〜）。" data-tip-pos="bottom">i</span> ↕</th>
+          <th onclick="_stocksSort('per')" style="cursor:pointer;padding:5px 8px;white-space:nowrap;text-align:right">
+            PER <span class="info-icon" data-tip="株価収益率（Price-to-Earnings Ratio）。&#10;低いほど収益に対して割安とされる。&#10;赤字・無配企業は「–」と表示。" data-tip-pos="bottom">i</span> ↕</th>
+          <th onclick="_stocksSort('price')" style="cursor:pointer;padding:5px 8px;white-space:nowrap;text-align:right">
+            株価 <span class="info-icon" data-tip="直近スクリーニング時点の終値（円）。&#10;リアルタイム価格ではありません。" data-tip-pos="bottom">i</span> ↕</th>
+          <th onclick="_stocksSort('cap')" style="cursor:pointer;padding:5px 8px;white-space:nowrap;text-align:right">
+            時価(億) <span class="info-icon" data-tip="時価総額（億円）。&#10;基本条件（Step1）のしきい値は300億円以上。" data-tip-pos="bottom">i</span> ↕</th>
+          <th style="padding:5px 8px;white-space:nowrap;text-align:center">
+            ステップ通過 <span class="info-icon" data-tip="🔒 有償会員限定&#10;7段階スクリーニングの各通過状況。&#10;緑数字=通過 赤数字=非通過&#10;1:基本条件 2:配当利回り 3:配当持続性&#10;4:財務健全性 5:成長安定性&#10;6:バリュエーション 7:タイミング" data-tip-pos="bottom">i</span></th>
+        </tr>
+      </thead>
+      <tbody id="stocksTbody"></tbody>
+    </table>
+    <div id="stocksEmpty" style="display:none;padding:24px;text-align:center;color:var(--hint);font-size:12px">該当銘柄なし</div>
+  </div>
+</div>
+
 </div><!-- /content -->
 </main>
 </div>
@@ -836,6 +1037,7 @@
 <script src="./assets/jpx/features.js"></script>
 <script src="./assets/jpx/navigation.js"></script>
 <script src="./assets/jpx/cycle.js"></script>
+<script src="./assets/jpx/stocks.js"></script>
 
 
 <!-- B-4: セクター詳細ダイアログ -->

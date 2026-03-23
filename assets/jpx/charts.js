@@ -443,6 +443,94 @@ function renderPlotlyDecomp(){
     yaxis:{autorange:'reversed'}
   });
 }
+function renderPlotlyDecompCap(src){
+  const sorted=[...src].sort((a,b)=>(b.cap??0)-(a.cap??0));
+  renderPlotlyChart('decompCapC',[
+    {type:'bar',orientation:'h',name:'時価総額',
+      x:sorted.map(s=>s.cap??0),y:sorted.map(s=>s.n),
+      marker:{color:sorted.map(s=>CAT_COL[s.cat]||'#6b7491'),opacity:0.82},
+      hovertemplate:'%{y}<br>時価総額: %{x:.1f}兆円<extra></extra>'}
+  ],{margin:{l:100,r:24,t:24,b:44},showlegend:false,
+    xaxis:{title:'時価総額（兆円）'},yaxis:{autorange:'reversed'}});
+}
+function renderPlotlyDecompNav(src){
+  const _nav=s=>(s.cap&&s.pbr&&s.pbr>0)?+(s.cap/s.pbr).toFixed(2):null;
+  const sorted=[...src].filter(s=>_nav(s)!=null).sort((a,b)=>(_nav(b)??0)-(_nav(a)??0));
+  renderPlotlyChart('decompNavC',[
+    {type:'bar',orientation:'h',name:'純資産',
+      x:sorted.map(s=>_nav(s)),y:sorted.map(s=>s.n),
+      marker:{color:sorted.map(s=>CAT_COL[s.cat]||'#6b7491'),opacity:0.82},
+      hovertemplate:'%{y}<br>純資産: %{x:.1f}兆円<extra></extra>'}
+  ],{margin:{l:100,r:24,t:24,b:44},showlegend:false,
+    xaxis:{title:'純資産（兆円）'},yaxis:{autorange:'reversed'}});
+}
+// 業種別 時価総額/純資産 通期折れ線グラフ（遅延初期化）
+let _decompCapLineInited=false;
+let _decompNavLineInited=false;
+
+function _buildSectorTimeSeries(valueGetter){
+  const sh=DASHBOARD_DATA?.sectors_history||{};
+  const months=Object.keys(sh).sort();
+  const labels=months.map(m=>m.slice(0,4)+'/'+m.slice(4,6));
+  const latestKey=months[months.length-1];
+  const allSectors=(sh[latestKey]||[]).map(s=>({n:s.n,cat:s.cat||SECTORS.find(x=>x.n===s.n)?.cat||'V'}));
+  const datasets=allSectors.map(({n,cat})=>{
+    const color=CAT_COL[cat]||'#6b7491';
+    return{
+      label:n,
+      data:months.map(m=>{const e=sh[m]?.find(s=>s.n===n);const v=e?valueGetter(e):null;return v!=null?+v.toFixed(2):null;}),
+      borderColor:color,backgroundColor:color+'18',
+      fill:false,tension:.3,pointRadius:0,borderWidth:1.5,
+    };
+  });
+  return{labels,datasets};
+}
+function _lineChartOpts(){
+  return{
+    responsive:true,maintainAspectRatio:false,animation:false,spanGaps:true,
+    plugins:{
+      legend:{labels:{color:chartLabelColor(),font:{size:9},boxWidth:10,padding:6}},
+      tooltip:{callbacks:{label:ctx=>`${ctx.dataset.label}: ${ctx.parsed.y?.toFixed(1)}兆円`}}
+    },
+    scales:{
+      x:{ticks:{color:chartTickColor(),font:{size:9},maxTicksLimit:12},grid:{color:chartGridColor()}},
+      y:{ticks:{color:chartTickColor(),font:{size:10},callback:v=>v+'兆'},grid:{color:chartGridColor()}}
+    }
+  };
+}
+function renderDecompCapLine(){
+  if(_decompCapLineInited) return;
+  _decompCapLineInited=true;
+  const{labels,datasets}=_buildSectorTimeSeries(s=>s.cap);
+  const canvas=document.getElementById('decompCapLineC');
+  if(!canvas) return;
+  charts.decompCapLine=new Chart(canvas,{type:'line',data:{labels,datasets},options:_lineChartOpts()});
+  _renderPlotlyDecompLine('decompCapLineC',datasets,labels,'時価総額（兆円）');
+}
+function renderDecompNavLine(){
+  if(_decompNavLineInited) return;
+  _decompNavLineInited=true;
+  const _navGetter=s=>(s.cap&&s.pbr&&s.pbr>0)?s.cap/s.pbr:null;
+  const{labels,datasets}=_buildSectorTimeSeries(_navGetter);
+  const canvas=document.getElementById('decompNavLineC');
+  if(!canvas) return;
+  charts.decompNavLine=new Chart(canvas,{type:'line',data:{labels,datasets},options:_lineChartOpts()});
+  _renderPlotlyDecompLine('decompNavLineC',datasets,labels,'純資産（兆円）');
+}
+function _renderPlotlyDecompLine(canvasId,datasets,labels,yTitle){
+  renderPlotlyChart(canvasId,
+    datasets.map(ds=>({
+      type:'scatter',mode:'lines',name:ds.label,
+      x:labels,y:ds.data,
+      line:{color:ds.borderColor,width:1.5},
+      hovertemplate:`%{fullData.name}<br>${yTitle.split('（')[0]}: %{y:.1f}兆円<extra></extra>`
+    })),
+    {margin:{l:56,r:16,t:24,b:44},
+      xaxis:{tickangle:0,nticks:12},
+      yaxis:{title:yTitle},
+      legend:{font:{size:9},orientation:'v',x:1.01,y:1}}
+  );
+}
 function renderPlotlyEvent(ev){
   const pbr=[...ev.pbr].sort((a,b)=>b[1]-a[1]);
   const shr=[...ev.shr].sort((a,b)=>b[1]-a[1]);
@@ -501,6 +589,8 @@ function renderAllPlotly(){
   renderPlotlyHeatmap();
   renderPlotlyScatter();
   renderPlotlyDecomp();
+  renderPlotlyDecompCap(_curSectors());
+  renderPlotlyDecompNav(_curSectors());
   renderPlotlyCycle();
 }
 
@@ -625,6 +715,29 @@ function initCharts(){
     options:{indexAxis:'y',...GC,
       scales:{x:{stacked:true,ticks:{color:chartTickColor(),font:{size:10},callback:dcFmt},grid:{color:chartGridColor()}},
         y:{stacked:true,ticks:{color:chartLabelColor(),font:{size:9}},grid:{display:false}}}}});
+
+  // 業種別 時価総額
+  const capSrc=[...SECTORS].sort((a,b)=>(b.cap??0)-(a.cap??0));
+  charts.decompCap=mk('decompCapC',{type:'bar',
+    data:{labels:capSrc.map(s=>s.n),datasets:[{
+      label:'時価総額',data:capSrc.map(s=>s.cap??0),
+      backgroundColor:capSrc.map(s=>(CAT_COL[s.cat]||'#6b7491')+'cc'),borderRadius:2}]},
+    options:{indexAxis:'y',...GC,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>`${ctx.dataset.label}: ${ctx.parsed.x.toFixed(1)}兆円`}}},
+      scales:{x:{ticks:{color:chartTickColor(),font:{size:10},callback:v=>v+'兆'},grid:{color:chartGridColor()}},
+        y:{ticks:{color:chartLabelColor(),font:{size:9}},grid:{display:false}}}}});
+
+  // 業種別 純資産（時価総額 ÷ PBR）
+  const _nav=s=>(s.cap&&s.pbr&&s.pbr>0)?+(s.cap/s.pbr).toFixed(2):null;
+  const navSrc=[...SECTORS].filter(s=>_nav(s)!=null).sort((a,b)=>(_nav(b)??0)-(_nav(a)??0));
+  charts.decompNav=mk('decompNavC',{type:'bar',
+    data:{labels:navSrc.map(s=>s.n),datasets:[{
+      label:'純資産',data:navSrc.map(s=>_nav(s)),
+      backgroundColor:navSrc.map(s=>(CAT_COL[s.cat]||'#6b7491')+'cc'),borderRadius:2}]},
+    options:{indexAxis:'y',...GC,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>`${ctx.dataset.label}: ${ctx.parsed.x.toFixed(1)}兆円`}}},
+      scales:{x:{ticks:{color:chartTickColor(),font:{size:10},callback:v=>v+'兆'},grid:{color:chartGridColor()}},
+        y:{ticks:{color:chartLabelColor(),font:{size:9}},grid:{display:false}}}}});
 
   selEv(0, document.querySelector('.ev.act'));
   renderAllPlotly();

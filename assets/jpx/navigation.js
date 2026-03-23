@@ -17,6 +17,8 @@ function goto(id,el,silent){
     renderPlotlyCycle();
     applyChartMode();
   }
+  if(id==='eval') initStocks();
+  if(id==='stocks') initStockList();
 }
 function swTab(pg,id,el){
   document.querySelectorAll(`#pg-${pg} .tab`).forEach(t=>t.classList.remove('act'));
@@ -319,6 +321,29 @@ function _onYmScatter(yyyymm,ym){
       hovertemplate:'%{y}<br>スプレッド: %{x:.2f}x<extra></extra>'}
   ],{margin:{l:100,r:24,t:24,b:44},showlegend:false,
     xaxis:{title:'単純−加重 PBR スプレッド',ticksuffix:'x'},yaxis:{autorange:'reversed'}});
+
+  // 業種別 時価総額・純資産チャート（年月連動）
+  const _nav2=s=>(s.cap&&s.pbr&&s.pbr>0)?+(s.cap/s.pbr).toFixed(2):null;
+  const capSorted=[...src].sort((a,b)=>(b.cap??0)-(a.cap??0));
+  const navSorted=[...src].filter(s=>_nav2(s)!=null).sort((a,b)=>(_nav2(b)??0)-(_nav2(a)??0));
+  if(charts.decompCap){
+    charts.decompCap.data.labels=capSorted.map(s=>s.n);
+    charts.decompCap.data.datasets[0].data=capSorted.map(s=>s.cap??0);
+    charts.decompCap.data.datasets[0].backgroundColor=capSorted.map(s=>(CAT_COL[s.cat]||'#6b7491')+'cc');
+    charts.decompCap.update();
+  }
+  if(charts.decompNav){
+    charts.decompNav.data.labels=navSorted.map(s=>s.n);
+    charts.decompNav.data.datasets[0].data=navSorted.map(s=>_nav2(s));
+    charts.decompNav.data.datasets[0].backgroundColor=navSorted.map(s=>(CAT_COL[s.cat]||'#6b7491')+'cc');
+    charts.decompNav.update();
+  }
+  const capYmEl=document.getElementById('decompCapYm');
+  const navYmEl=document.getElementById('decompNavYm');
+  if(capYmEl) capYmEl.textContent=ym;
+  if(navYmEl) navYmEl.textContent=ym;
+  renderPlotlyDecompCap(capSorted);
+  renderPlotlyDecompNav(navSorted);
 
   // スクリーニングテーブル・業種リスト
   renderScreen();
