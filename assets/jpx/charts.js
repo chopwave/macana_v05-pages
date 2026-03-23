@@ -1,0 +1,635 @@
+// ────── charts ──────
+function mk(id,cfg){const c=document.getElementById(id);if(!c)return null;return new Chart(c,cfg);}
+function lineDs(label,data,color,yAxis){return{label,data,borderColor:color,backgroundColor:color+'18',fill:false,tension:.4,pointRadius:2,borderWidth:2,yAxisID:yAxis||'y'};}
+function fmtMonth(s){return s.replace('/','-');}
+function chartTickColor(){ return themeMode==='light' ? '#475467' : '#6b7491'; }
+function chartLabelColor(){ return themeMode==='light' ? '#162031' : '#dde2f0'; }
+function chartGridColor(){ return themeMode==='light' ? 'rgba(16,24,40,.08)' : 'rgba(255,255,255,.04)'; }
+function chartGridColorSoft(){ return themeMode==='light' ? 'rgba(16,24,40,.06)' : 'rgba(255,255,255,.03)'; }
+function accentBlue(){ return themeMode==='light' ? '#2563eb' : '#5b8df6'; }
+function accentAmber(){ return themeMode==='light' ? '#c98512' : '#f5a623'; }
+function dividerColor(){ return themeMode==='light' ? 'rgba(16,24,40,.08)' : 'rgba(255,255,255,.04)'; }
+function ensurePlotlyHost(canvasId){
+  const canvas=document.getElementById(canvasId);
+  if(!canvas || !canvas.parentElement) return null;
+  const hostId=`${canvasId}Plotly`;
+  let host=document.getElementById(hostId);
+  if(!host){
+    host=document.createElement('div');
+    host.id=hostId;
+    host.className='plotly-host';
+    canvas.parentElement.appendChild(host);
+  }
+  return host;
+}
+function plotlyTheme(layout){
+  const isLight=themeMode==='light';
+  const tickColor=isLight?'#344054':'#6b7491';
+  const gridColor=isLight?'rgba(16,24,40,.08)':'rgba(255,255,255,.04)';
+  const axDef={gridcolor:gridColor,tickfont:{color:isLight?'#162031':'#6b7491',size:10},zeroline:false};
+  const merged={
+    paper_bgcolor:'rgba(0,0,0,0)',
+    plot_bgcolor:'rgba(0,0,0,0)',
+    font:{family:"IBM Plex Sans, Noto Sans JP, sans-serif",color:isLight?'#162031':'#dde2f0',size:11},
+    margin:{l:56,r:24,t:24,b:44},
+    legend:{orientation:'h',yanchor:'bottom',y:1.02,xanchor:'left',x:0,font:{color:tickColor,size:11}},
+    ...layout,
+    xaxis:{...axDef,...(layout.xaxis||{})},
+    yaxis:{...axDef,...(layout.yaxis||{})},
+  };
+  if(layout.yaxis2) merged.yaxis2={...axDef,showgrid:false,...layout.yaxis2};
+  return merged;
+}
+function renderPlotlyChart(canvasId,traces,layout,config){
+  const host=ensurePlotlyHost(canvasId);
+  if(!host) return;
+  Plotly.react(host,traces,plotlyTheme(layout),{
+    displayModeBar:false,
+    responsive:true,
+    ...config
+  });
+}
+function applyChartMode(){
+  const usePlotly=chartMode==='plotly';
+  document.querySelectorAll('canvas[id]').forEach(canvas=>{
+    canvas.classList.toggle('chart-host-hide',usePlotly);
+    const host=document.getElementById(`${canvas.id}Plotly`);
+    if(host) host.classList.toggle('act',usePlotly);
+  });
+  applyHeatmapMode();
+  window.dispatchEvent(new Event('resize'));
+}
+function setChartMode(mode){
+  chartMode=mode;
+  applyChartMode();
+}
+function setTheme(mode){
+  themeMode=mode;
+  document.body.setAttribute('data-theme', mode);
+  try{ localStorage.setItem('jpxDashboardTheme', mode); }catch(_e){}
+  syncChartDefaults();
+  refreshChartColors();
+  renderHeatmap();
+  selEv(currentEv, document.querySelector('.ev.act'));
+  renderAllPlotly();
+  renderPlotlyEvent(EVENTS[currentEv] || EVENTS[0]);
+  renderPlotlyCycle();
+}
+function initTheme(){
+  const paramTheme=getUrlParam('theme');
+  let saved='dark';
+  try{ saved=localStorage.getItem('jpxDashboardTheme') || 'dark'; }catch(_e){}
+  const initial = paramTheme || saved;
+  themeMode=initial === 'light' ? 'light' : 'dark';
+  document.body.setAttribute('data-theme', themeMode);
+  syncChartDefaults();
+  updateThemePill();
+}
+function populateYmOptions(){
+  const sel=document.getElementById('ymSel');
+  if(!sel || !MONTHS.length) return;
+  const yyyymms = MONTHS.map(v=>v.replace('/','')).slice().reverse();
+  sel.innerHTML=yyyymms.map(v=>`<option value="${v}">${v.slice(0,4)}年${v.slice(4,6)}月</option>`).join('');
+  const latest = DASHBOARD_DATA?.latest_yyyymm || yyyymms[0];
+  if(latest) sel.value = latest;
+}
+function updateDataModePill(){
+  const el=document.getElementById('dataModePill');
+  if(!el) return;
+  el.classList.remove('pill-amber','pill-green');
+  if(DASHBOARD_DATA){
+    el.textContent='実データ ⇌';
+    el.classList.add('pill-green');
+    el.style.cursor='pointer';
+    el.title='クリックでサンプルデータに切り替え';
+  } else if(window.JPX_DASHBOARD_DATA){
+    el.textContent='サンプル ⇌';
+    el.classList.add('pill-amber');
+    el.style.cursor='pointer';
+    el.title='クリックで実データに切り替え';
+  } else {
+    el.textContent='サンプルデータ';
+    el.classList.add('pill-amber');
+    el.style.cursor='default';
+    el.title='';
+  }
+}
+function toggleDataMode(){
+  if(!window.JPX_DASHBOARD_DATA) return;
+  const url=new URL(location.href);
+  if(_forceSample) url.searchParams.delete('mode');
+  else url.searchParams.set('mode','sample');
+  location.href=url.toString();
+}
+// A-2: 最新月へ
+function goLatestYm(){
+  const sel=document.getElementById('ymSel');
+  if(!sel||!sel.options.length) return;
+  sel.selectedIndex=0;
+  onYm(sel.value);
+}
+// A-1: 生成日時表示
+function updateGeneratedAt(){
+  const el=document.getElementById('generatedAt');
+  if(!el) return;
+  const ga=DASHBOARD_DATA?.generated_at||(_forceSample?'2026-02-28T09:00:00':null);
+  if(!ga) return;
+  try{
+    const d=new Date(ga);
+    if(isNaN(d)) return;
+    el.textContent=`${d.getFullYear()}/${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getDate()).padStart(2,'0')} 更新`;
+    el.title='データ生成日時: '+ga;
+  }catch(_e){}
+}
+// A-6: テーマピル
+function toggleTheme(){
+  setTheme(themeMode==='dark'?'light':'dark');
+  updateThemePill();
+}
+function updateThemePill(){
+  const el=document.getElementById('themePill');
+  if(!el) return;
+  el.textContent=themeMode==='dark'?'Dark ⇌':'Light ⇌';
+  el.classList.toggle('pt-active',themeMode==='light');
+}
+// A-6: チャートモードピル
+function toggleChartModePill(){
+  const next=chartMode==='chartjs'?'plotly':'chartjs';
+  setChartMode(next);
+  try{const url=new URL(location.href);url.searchParams.set('chart',next);history.replaceState(null,'',url.toString());}catch(_e){}
+  updateChartModePill();
+}
+function updateChartModePill(){
+  const el=document.getElementById('chartModePill');
+  if(!el) return;
+  el.textContent=chartMode==='plotly'?'Plotly ⇌':'Chart.js ⇌';
+  el.classList.toggle('pt-active',chartMode==='plotly');
+}
+// A-3: フィルター URL 同期
+function _syncFilterUrl(){
+  try{
+    const url=new URL(location.href);
+    fCat!=='all'?url.searchParams.set('cat',fCat):url.searchParams.delete('cat');
+    fPbr!=='all'?url.searchParams.set('pbr',fPbr):url.searchParams.delete('pbr');
+    fChgMin!==-1?url.searchParams.set('chg',fChgMin):url.searchParams.delete('chg');
+    history.replaceState(null,'',url.toString());
+  }catch(_e){}
+}
+function _restoreFilterUrl(){
+  const cat=getUrlParam('cat');
+  const pbr=getUrlParam('pbr');
+  const chg=getUrlParam('chg');
+  if(cat){fCat=cat;document.querySelectorAll('#fg-cat .ftag').forEach(t=>t.classList.toggle('on',t.dataset.cat===cat));}
+  if(pbr){fPbr=pbr;document.querySelectorAll('#fg-pbr .ftag').forEach(t=>t.classList.toggle('on',t.dataset.pbr===pbr));}
+  if(chg!=null){const v=parseFloat(chg);if(!isNaN(v)){fChgMin=v;const sl=document.getElementById('sl-chg');const sv=document.getElementById('sl-val');if(sl)sl.value=v;if(sv)sv.textContent=v>=0?'+'+v.toFixed(1):v.toFixed(1);}}
+}
+
+// ─────────────────────────────────────────
+// B-1: PBR絶対値ラベル（Zスコアチャート用プラグイン）
+// ─────────────────────────────────────────
+Chart.register({
+  id:'zscorePbrLabel',
+  afterDraw(chart){
+    if(chart.canvas.id!=='zscoreC') return;
+    const {ctx,chartArea}=chart;
+    if(!chartArea) return;
+    const meta=chart.getDatasetMeta(0);
+    if(!meta||!meta.data) return;
+    const zd=chart._zPbrData||[];
+    ctx.save();
+    ctx.font='9px JetBrains Mono,monospace';
+    ctx.textAlign='left';
+    meta.data.forEach((bar,i)=>{
+      const pbr=zd[i]?.pbr;
+      if(pbr==null) return;
+      const z=chart.data.datasets[0].data[i];
+      ctx.fillStyle=z<-1?'rgba(91,141,246,.9)':z>1?'rgba(224,84,84,.8)':'rgba(107,116,145,.7)';
+      ctx.fillText(pbr.toFixed(1)+'x',chartArea.right+4,bar.y+3.5);
+    });
+    ctx.restore();
+  }
+});
+
+// ─────────────────────────────────────────
+// B-2: 比較モード（期間比較チャート）
+// ─────────────────────────────────────────
+let _compMode=false, _compChart=null;
+function toggleCompMode(){
+  _compMode=!_compMode;
+  const pill=document.getElementById('compModePill');
+  const sel=document.getElementById('compYmSel');
+  const card=document.getElementById('compCard');
+  if(pill) pill.classList.toggle('pt-active',_compMode);
+  if(sel) sel.style.display=_compMode?'':'none';
+  if(card) card.style.display=_compMode?'':'none';
+  if(_compMode){
+    _populateCompYmSel();
+    renderCompChart();
+  } else {
+    if(_compChart){_compChart.destroy();_compChart=null;}
+  }
+}
+function _populateCompYmSel(){
+  const sel=document.getElementById('compYmSel');
+  if(!sel||sel.options.length>1) return;
+  const yyyymms=MONTHS.map(v=>v.replace('/','')).slice().reverse();
+  yyyymms.forEach(v=>{
+    const o=document.createElement('option');
+    o.value=v;o.textContent=v.slice(0,4)+'年'+v.slice(4,6)+'月';
+    sel.appendChild(o);
+  });
+  if(yyyymms.length>1) sel.value=yyyymms[1];
+}
+function renderCompChart(){
+  const curYm=document.getElementById('ymSel')?.value;
+  const cmpYm=document.getElementById('compYmSel')?.value;
+  if(!curYm||!cmpYm) return;
+  const curSrc=DASHBOARD_DATA?.sectors_history?.[curYm]||SAMPLE_SECTORS_HISTORY[curYm]||SECTORS;
+  const cmpSrc=DASHBOARD_DATA?.sectors_history?.[cmpYm]||SAMPLE_SECTORS_HISTORY[cmpYm]||SECTORS;
+  const labels=curSrc.map(s=>s.n);
+  const curPbr=curSrc.map(s=>s.pbr??null);
+  const cmpPbr=labels.map(n=>cmpSrc.find(s=>s.n===n)?.pbr??null);
+  const meta=document.getElementById('compMeta');
+  const cy=curYm.slice(0,4)+'/'+curYm.slice(4,6);
+  const cm=cmpYm.slice(0,4)+'/'+cmpYm.slice(4,6);
+  if(meta) meta.textContent=`${cy} vs ${cm}`;
+  const el=document.getElementById('compC');
+  if(!el) return;
+  if(_compChart){_compChart.destroy();_compChart=null;}
+  _compChart=new Chart(el,{
+    type:'bar',
+    data:{labels,datasets:[
+      {label:cy,data:curPbr,backgroundColor:'rgba(91,141,246,.75)',borderRadius:3},
+      {label:cm,data:cmpPbr,backgroundColor:'rgba(245,166,35,.6)',borderRadius:3}
+    ]},
+    options:{...GC,indexAxis:'y',
+      plugins:{legend:{display:true,labels:{color:chartLabelColor(),font:{size:10}}},
+        tooltip:{callbacks:{label:c=>`${c.dataset.label}: ${c.parsed.x?.toFixed(2)||'–'}x`}}},
+      scales:{
+        x:{ticks:{color:chartTickColor(),font:{size:10},callback:v=>v+'x'},grid:{color:chartGridColor()},min:0},
+        y:{ticks:{color:chartLabelColor(),font:{size:9}},grid:{display:false}}
+      }}
+  });
+}
+
+// ─────────────────────────────────────────
+// B-3: C/D 上位業種内訳
+// ─────────────────────────────────────────
+function _renderCdTopSectors(src){
+  const el=document.getElementById('cdTopSectors');
+  if(!el||!src) return;
+  const cTop=[...src].filter(s=>s.cat==='C').sort((a,b)=>b.cap-a.cap).slice(0,3).map(s=>s.n).join('・');
+  const dTop=[...src].filter(s=>s.cat==='D').sort((a,b)=>b.cap-a.cap).slice(0,3).map(s=>s.n).join('・');
+  el.innerHTML=`<span style="color:var(--amber)">C: ${cTop||'–'}</span>　<span style="color:var(--green)">D: ${dTop||'–'}</span>`;
+}
+
+// ─────────────────────────────────────────
+// B-4: 散布図クリック → 詳細ダイアログ
+// ─────────────────────────────────────────
+let _dlgSector=null;
+function showSectorDetail(s){
+  if(!s) return;
+  _dlgSector=s;
+  const sig=signal(s);
+  document.getElementById('dlgTitle').innerHTML=`${s.n} <span class="chip" style="background:${CAT_COL[s.cat]}22;color:${CAT_COL[s.cat]};font-size:10px">${CAT_LBL[s.cat]}</span>`;
+  document.getElementById('dlgPbr').innerHTML=s.pbr!=null?`${s.pbr.toFixed(2)}<span style="font-size:11px;color:var(--muted)">x</span>`:'–';
+  document.getElementById('dlgPer').innerHTML=s.per!=null?`${s.per.toFixed(1)}<span style="font-size:11px;color:var(--muted)">x</span>`:'–';
+  document.getElementById('dlgCap').innerHTML=s.cap!=null?`${s.cap.toFixed(1)}<span style="font-size:11px;color:var(--muted)">兆</span>`:'–';
+  document.getElementById('dlgDy').innerHTML=s.dy!=null?`${s.dy.toFixed(1)}<span style="font-size:11px;color:var(--muted)">%</span>`:'–';
+  // PBR 推移スパークライン
+  const idx=SECTORS.findIndex(x=>x.n===s.n);
+  const pbrHistory=DASHBOARD_DATA?.pbr1?.matrix?.[idx]||null;
+  document.getElementById('dlgSparkline').innerHTML=pbrHistory
+    ?_sparkSvg(pbrHistory,'var(--accent)',180,24)
+    :'<span style="font-size:10px;color:var(--muted)">（実データ接続時に表示）</span>';
+  document.getElementById('dlgSignal').innerHTML=`<span class="chip ${sig.cls}">${sig.txt||'–'}</span>`;
+  document.getElementById('sectorDlg').showModal();
+}
+function dlgToNote(){
+  if(!_dlgSector) return;
+  document.getElementById('sectorDlg').close();
+  addToNote(_dlgSector.n,_dlgSector.pbr||0,_dlgSector.chg||0);
+}
+
+// ─────────────────────────────────────────
+// B-8: メモのピン留め
+// ─────────────────────────────────────────
+function pinNote(i){
+  notes[i]._pinned=!notes[i]._pinned;
+  persistNotes();
+  renderNotes();
+}
+
+// ─────────────────────────────────────────
+// B-9: PBR ミニヒートマップグリッド
+// ─────────────────────────────────────────
+function renderPbrHeatGrid(src){
+  const el=document.getElementById('pbrHeatGrid');
+  if(!el||!src||!src.length) return;
+  const pbrs=src.map(s=>s.pbr).filter(v=>v!=null);
+  if(!pbrs.length) return;
+  const mn=Math.min(...pbrs),mx=Math.max(...pbrs),rng=mx-mn||0.001;
+  el.innerHTML=src.map(s=>{
+    const t=s.pbr!=null?(s.pbr-mn)/rng:0.5;
+    const r=Math.round(t*224+(1-t)*91);
+    const g=Math.round(t*84+(1-t)*141);
+    const b2=Math.round(t*84+(1-t)*246);
+    const chgColor=s.chg>0?'var(--green)':s.chg<0?'var(--red)':'var(--muted)';
+    return `<div style="background:rgba(${r},${g},${b2},.18);border:1px solid rgba(${r},${g},${b2},.4);border-radius:5px;padding:5px 8px;cursor:pointer" onclick="showSectorDetail(SECTORS.find(x=>x.n==='${s.n}'))" title="${s.n}">
+      <div style="color:var(--muted);font-size:9px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${s.n}</div>
+      <div style="font-family:var(--mono);font-weight:500;font-size:11px;color:var(--text)">${s.pbr!=null?s.pbr.toFixed(1)+'x':'–'}</div>
+      <div style="font-size:9px;color:${chgColor}">${s.chg>0?'▲':s.chg<0?'▼':'±'}${Math.abs(s.chg).toFixed(1)}</div>
+    </div>`;
+  }).join('');
+}
+function renderPlotlyOverview(){
+  renderPlotlyChart('trendC',[
+    {type:'scatter',mode:'lines+markers',name:'加重PBR',x:MONTHS,y:PBR_TS,line:{color:'#5b8df6',width:2},marker:{size:5}}
+  ],{
+    xaxis:{title:''},
+    yaxis:{title:'加重PBR（倍）',ticksuffix:'x'}
+  });
+}
+function renderPlotlyValuation(){
+  renderPlotlyChart('valTrendC',[
+    {type:'scatter',mode:'lines+markers',name:'PBR',x:MONTHS,y:PBR_TS,line:{color:'#5b8df6',width:2},marker:{size:5},yaxis:'y'},
+    {type:'scatter',mode:'lines+markers',name:'PER',x:MONTHS,y:PER_TS,line:{color:'#f5a623',width:2},marker:{size:5},yaxis:'y2'}
+  ],{
+    yaxis:{title:'PBR（倍）',ticksuffix:'x'},
+    yaxis2:{title:'PER（倍）',ticksuffix:'x',overlaying:'y',side:'right',showgrid:false,tickfont:{color:'#f5a623',size:10}},
+    legend:{orientation:'h',yanchor:'bottom',y:1.02,x:0}
+  });
+
+  const byChg=[...SECTORS].sort((a,b)=>b.chg-a.chg);
+  renderPlotlyChart('indRankC',[
+    {type:'bar',orientation:'h',name:'PBR変化',x:byChg.map(s=>s.chg),y:byChg.map(s=>s.n),
+      marker:{color:byChg.map(s=>s.chg>=0?'rgba(91,141,246,.75)':'rgba(224,84,84,.75)')},hovertemplate:'%{y}<br>PBR変化: %{x:.1f}x<extra></extra>'}
+  ],{
+    margin:{l:92,r:24,t:24,b:44},
+    showlegend:false,
+    xaxis:{title:'PBR変化（倍）',ticksuffix:'x'},
+    yaxis:{autorange:'reversed'}
+  });
+
+  renderPlotlyChart('sizeC',[
+    {type:'scatter',mode:'lines+markers',name:'大型',x:MONTHS,y:LG,line:{color:'#5b8df6',width:2}},
+    {type:'scatter',mode:'lines+markers',name:'中型',x:MONTHS,y:MED,line:{color:'#29c99a',width:2}},
+    {type:'scatter',mode:'lines+markers',name:'小型',x:MONTHS,y:SM,line:{color:'#f5a623',width:2}}
+  ],{yaxis:{title:'PBR（倍）',ticksuffix:'x'}});
+
+  renderPlotlyChart('mfgC',[
+    {type:'scatter',mode:'lines+markers',name:'製造業',x:MONTHS,y:MFG,line:{color:'#5b8df6',width:2}},
+    {type:'scatter',mode:'lines+markers',name:'非製造業',x:MONTHS,y:NMFG,line:{color:'#29c99a',width:2}}
+  ],{
+    yaxis:{title:'PBR（倍）',ticksuffix:'x'},
+    shapes:[{type:'line',xref:'x',yref:'paper',x0:'2023/07',x1:'2023/07',y0:0,y1:1,line:{color:'#f5a623',width:1,dash:'dash'}}]
+  });
+
+  renderPlotlyChart('sprC',[
+    {type:'bar',orientation:'h',name:'単純−加重スプレッド',x:SPR_DATA.map(s=>s.v),y:SPR_DATA.map(s=>s.n),
+      marker:{color:SPR_DATA.map(s=>s.v>=0?'rgba(245,166,35,.75)':'rgba(91,141,246,.75)')},hovertemplate:'%{y}<br>スプレッド: %{x:.2f}x<extra></extra>'}
+  ],{
+    margin:{l:100,r:24,t:24,b:44},
+    showlegend:false,
+    xaxis:{title:'単純−加重 PBR スプレッド',ticksuffix:'x'},
+    yaxis:{autorange:'reversed'}
+  });
+}
+function renderPlotlyScatter(){
+  renderPlotlyChart('scatterC',[
+    {type:'scatter',mode:'markers',name:'業種',
+      x:SECTORS.map(s=>s.pbr),
+      y:SECTORS.map(s=>s.cap),
+      text:SECTORS.map(s=>s.n),
+      customdata:SECTORS.map(s=>[CAT_LBL[s.cat],s.cos,s.per]),
+      marker:{
+        size:SECTORS.map(s=>Math.max(12,Math.sqrt(s.cos)*3.8)),
+        color:SECTORS.map(s=>CAT_COL[s.cat]),
+        sizemode:'diameter',
+        opacity:0.78,
+        line:{width:1,color:'rgba(255,255,255,.18)'}
+      },
+      hovertemplate:'%{text}<br>PBR: %{x:.1f}x<br>時価総額: %{y:.1f}兆円<br>カテゴリ: %{customdata[0]}<br>上場社数: %{customdata[1]}<br>加重PER: %{customdata[2]}<extra></extra>'
+    }
+  ],{
+    showlegend:false,
+    xaxis:{title:'加重PBR（倍）',ticksuffix:'x',range:[0,4.5]},
+    yaxis:{title:'時価総額（兆円）'}
+  });
+}
+function renderPlotlyDecomp(){
+  const decomp=DASHBOARD_DATA?.decomp;
+  if(decomp&&decomp.length>0){
+    const top=decomp.slice(0,16);
+    renderPlotlyChart('decompC',[
+      {type:'bar',orientation:'h',name:'純資産（BPS）成長',x:top.map(d=>d.na),y:top.map(d=>d.n),marker:{color:'rgba(41,201,154,.7)'}},
+      {type:'bar',orientation:'h',name:'PBR倍率変化',x:top.map(d=>d.pbr),y:top.map(d=>d.n),marker:{color:'rgba(91,141,246,.7)'}}
+    ],{
+      barmode:'stack',
+      margin:{l:100,r:24,t:24,b:44},
+      xaxis:{title:'寄与度（率）',tickformat:'+.1%'},
+      yaxis:{autorange:'reversed'}
+    });
+    return;
+  }
+  const dcData=[...SECTORS].sort((a,b)=>b.cap-a.cap).slice(0,16);
+  renderPlotlyChart('decompC',[
+    {type:'bar',orientation:'h',name:'純資産（BPS）成長',x:dcData.map(s=>+(s.chg*.62).toFixed(2)),y:dcData.map(s=>s.n),marker:{color:'rgba(41,201,154,.7)'}},
+    {type:'bar',orientation:'h',name:'PBR倍率変化',x:dcData.map(s=>+(s.chg*.38).toFixed(2)),y:dcData.map(s=>s.n),marker:{color:'rgba(91,141,246,.7)'}}
+  ],{
+    barmode:'stack',
+    margin:{l:100,r:24,t:24,b:44},
+    xaxis:{title:'寄与度（倍）',ticksuffix:'x'},
+    yaxis:{autorange:'reversed'}
+  });
+}
+function renderPlotlyEvent(ev){
+  const pbr=[...ev.pbr].sort((a,b)=>b[1]-a[1]);
+  const shr=[...ev.shr].sort((a,b)=>b[1]-a[1]);
+  renderPlotlyChart('evBarC',[
+    {type:'bar',orientation:'h',name:'PBR変化',x:pbr.map(x=>x[1]),y:pbr.map(x=>x[0]),
+      marker:{color:pbr.map(x=>x[1]>=0?'rgba(91,141,246,.8)':'rgba(224,84,84,.8)')},hovertemplate:'%{y}<br>PBR変化: %{x:.1f}x<extra></extra>'}
+  ],{
+    margin:{l:88,r:24,t:24,b:44},
+    showlegend:false,
+    xaxis:{title:'PBR変化（倍）',ticksuffix:'x'},
+    yaxis:{autorange:'reversed'}
+  });
+  renderPlotlyChart('evShareC',[
+    {type:'bar',orientation:'h',name:'シェア変化',x:shr.map(x=>x[1]),y:shr.map(x=>x[0]),
+      marker:{color:shr.map(x=>x[1]>=0?'rgba(41,201,154,.8)':'rgba(224,84,84,.8)')},hovertemplate:'%{y}<br>シェア変化: %{x:.1f}pp<extra></extra>'}
+  ],{
+    margin:{l:88,r:24,t:24,b:44},
+    showlegend:false,
+    xaxis:{title:'シェア変化（pp）',ticksuffix:'pp'},
+    yaxis:{autorange:'reversed'}
+  });
+}
+function renderPlotlyCycle(){
+  renderPlotlyChart('cyclePhaseC',[
+    {type:'scatter',mode:'lines+markers',name:'CI一致指数',x:CYCLE_MONTHS,y:CI_COIN,line:{color:'#29c99a',width:2},yaxis:'y'},
+    {type:'scatter',mode:'lines+markers',name:'政策金利',x:CYCLE_MONTHS,y:POL_RATE,line:{color:'#f5a623',width:2,dash:'dash'},yaxis:'y2'},
+    {type:'scatter',mode:'lines+markers',name:'10年国債',x:CYCLE_MONTHS,y:JGB10Y,line:{color:'#9b7fe8',width:2,dash:'dot'},yaxis:'y2'}
+  ],{
+    yaxis:{title:'CI一致指数'},
+    yaxis2:{title:'金利（%）',overlaying:'y',side:'right',showgrid:false,ticksuffix:'%'}
+  });
+
+  renderPlotlyChart('zscoreC',[
+    {type:'bar',orientation:'h',name:'PBR乖離Zスコア',x:Z_SCORES.map(s=>s.z),y:Z_SCORES.map(s=>s.n),
+      marker:{color:Z_SCORES.map(s=>s.z<-1?'rgba(91,141,246,.8)':s.z>1?'rgba(224,84,84,.8)':'rgba(107,116,145,.4)')},
+      hovertemplate:'%{y}<br>Z=%{x:.2f}<extra></extra>'}
+  ],{
+    margin:{l:100,r:24,t:24,b:44},
+    showlegend:false,
+    xaxis:{title:'Zスコア',range:[-2.5,2.5]},
+    yaxis:{autorange:'reversed'}
+  });
+
+  renderPlotlyChart('cdRatioC',[
+    {type:'bar',name:'C/D相対強度',x:CYCLE_MONTHS,y:CD_RATIO,
+      marker:{color:CD_RATIO.map(v=>v>1.0?'rgba(245,166,35,.75)':v<0?'rgba(41,201,154,.75)':'rgba(107,116,145,.4)')},
+      hovertemplate:'%{x}<br>C/D比率: %{y:.1f}<extra></extra>'}
+  ],{
+    showlegend:false,
+    yaxis:{title:'C/D比率'}
+  });
+}
+function renderAllPlotly(){
+  renderPlotlyOverview();
+  renderPlotlyValuation();
+  renderPlotlyHeatmap();
+  renderPlotlyScatter();
+  renderPlotlyDecomp();
+  renderPlotlyCycle();
+}
+
+// A-7: イベント縦線プラグイン（Chart.js）
+Chart.register({
+  id:'evAnnotations',
+  afterDraw(chart){
+    if(chartMode==='plotly') return;
+    const evMonths=EVENTS.map(ev=>ev.period.split('→')[0]);
+    const evColors=['#e05454','#f5a623','#5b8df6','#9b7fe8','#29c99a'];
+    const {ctx,chartArea}=chart;
+    if(!chartArea) return;
+    const meta0=chart.getDatasetMeta(0);
+    if(!meta0||!meta0.data) return;
+    evMonths.forEach((ym,i)=>{
+      const idx=MONTHS.indexOf(ym);
+      if(idx<0||!meta0.data[idx]) return;
+      const x=meta0.data[idx].x;
+      ctx.save();
+      ctx.beginPath();
+      ctx.moveTo(x,chartArea.top);
+      ctx.lineTo(x,chartArea.bottom);
+      ctx.strokeStyle=(evColors[i]||'#888')+'88';
+      ctx.lineWidth=1;
+      ctx.setLineDash([4,3]);
+      ctx.stroke();
+      ctx.restore();
+    });
+  }
+});
+
+function initCharts(){
+  renderSectList();
+  // 初期ソートインジケーターを設定（業種コード昇順）
+  const initTh=document.querySelector('#screenThead th[data-skey="code"]');
+  if(initTh) initTh.textContent=initTh.textContent.replace(/ [▲▼]$/,'')+' ▲';
+  renderScreen();
+  renderHeatmap();
+
+  // trend (overview)
+  charts.trend=mk('trendC',{type:'line',data:{labels:MONTHS,datasets:[lineDs('加重PBR',PBR_TS,'#5b8df6')]},
+    options:{...GC,scales:{x:{ticks:{color:chartTickColor(),font:{size:10}},grid:{color:chartGridColor()}},
+      y:{ticks:{color:chartTickColor(),font:{size:10},callback:v=>v+'x'},grid:{color:chartGridColor()}}}}});
+
+  // val trend
+  charts.valTrend=mk('valTrendC',{type:'line',data:{labels:MONTHS,datasets:[
+    lineDs('PBR',PBR_TS,'#5b8df6','y'),lineDs('PER',PER_TS,'#f5a623','y2')]},
+    options:{...GC,scales:{
+      x:{ticks:{color:chartTickColor(),font:{size:10}},grid:{color:chartGridColor()}},
+      y:{ticks:{color:accentBlue(),font:{size:10},callback:v=>v+'x'},grid:{color:chartGridColor()},position:'left'},
+      y2:{ticks:{color:accentAmber(),font:{size:10},callback:v=>v+'x'},grid:{display:false},position:'right'}}}});
+
+  // ind rank
+  const byChg=[...SECTORS].sort((a,b)=>b.chg-a.chg);
+  charts.indRank=mk('indRankC',{type:'bar',
+    data:{labels:byChg.map(s=>s.n),datasets:[{label:'PBR変化',data:byChg.map(s=>s.chg),
+      backgroundColor:byChg.map(s=>s.chg>=0?'rgba(91,141,246,.75)':'rgba(224,84,84,.75)'),borderRadius:3}]},
+    options:{indexAxis:'y',...GC,plugins:{legend:{display:false}},
+      scales:{x:{ticks:{color:chartTickColor(),font:{size:10},callback:v=>v+'x'},grid:{color:chartGridColor()}},
+        y:{ticks:{color:chartLabelColor(),font:{size:9}},grid:{display:false}}}}});
+
+  // size
+  charts.size=mk('sizeC',{type:'line',data:{labels:MONTHS,datasets:[
+    lineDs('大型',LG,'#5b8df6'),lineDs('中型',MED,'#29c99a'),lineDs('小型',SM,'#f5a623')]},
+    options:{...GC,scales:{x:{ticks:{color:chartTickColor(),font:{size:10}},grid:{color:chartGridColor()}},
+      y:{ticks:{color:chartTickColor(),font:{size:10},callback:v=>v+'x'},grid:{color:chartGridColor()}}}}});
+
+  // mfg
+  charts.mfg=mk('mfgC',{type:'line',data:{labels:MONTHS,datasets:[
+    lineDs('製造業',MFG,'#5b8df6'),lineDs('非製造業',NMFG,'#29c99a')]},
+    options:{...GC,scales:{x:{ticks:{color:chartTickColor(),font:{size:10}},grid:{color:chartGridColor()}},
+      y:{ticks:{color:chartTickColor(),font:{size:10},callback:v=>v+'x'},grid:{color:chartGridColor()}}}}});
+
+  // spread — SPR_DATA（定数化済み、randomなし）
+  charts.spr=mk('sprC',{type:'bar',
+    data:{labels:SPR_DATA.map(s=>s.n),datasets:[{label:'単純−加重スプレッド',data:SPR_DATA.map(s=>s.v),
+      backgroundColor:SPR_DATA.map(s=>s.v>=0?'rgba(245,166,35,.7)':'rgba(91,141,246,.7)'),borderRadius:3}]},
+    options:{indexAxis:'y',...GC,plugins:{legend:{display:false}},
+      scales:{x:{ticks:{color:chartTickColor(),font:{size:10},callback:v=>v+'x'},grid:{color:chartGridColor()}},
+        y:{ticks:{color:chartLabelColor(),font:{size:9}},grid:{display:false}}}}});
+
+  // scatter (cap×pbr)
+  charts.scatter=mk('scatterC',{type:'bubble',
+    data:{datasets:[{label:'',data:SECTORS.map(s=>({x:s.pbr,y:s.cap,r:Math.sqrt(s.cos)*1.1,sector:s.n})),
+      backgroundColor:SECTORS.map(s=>CAT_COL[s.cat]+'bb'),borderColor:SECTORS.map(s=>CAT_COL[s.cat]),borderWidth:1}]},
+    options:{...GC,
+      onClick:(e,elements)=>{if(elements.length)showSectorDetail(_curSectors()[elements[0].index]);},
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`${c.raw.sector}  PBR:${c.raw.x}x  ${c.raw.y.toFixed(1)}兆円`}}},
+      scales:{x:{title:{display:true,text:'加重PBR（倍）',color:chartTickColor(),font:{size:10}},
+          ticks:{color:chartTickColor(),font:{size:10},callback:v=>v+'x'},grid:{color:chartGridColor()},min:0,max:4.5},
+        y:{title:{display:true,text:'時価総額（兆円）',color:chartTickColor(),font:{size:10}},
+          ticks:{color:chartTickColor(),font:{size:10}},grid:{color:chartGridColor()}}}}});
+
+  // C-1: scatter (roe×pbr)
+  const _roe=s=>s.roe!==undefined?s.roe:(s.per?+(s.pbr/s.per*100).toFixed(1):null);
+  window._roe=_roe;
+  const _roeData=src=>{const arr=src||_curSectors();return arr.filter(s=>_roe(s)!=null).map(s=>({x:_roe(s),y:s.pbr,r:Math.max(6,Math.sqrt((s.cap??1)*10)),sector:s.n}));};
+  window._roeData=_roeData;
+  charts.roe=mk('roeC',{type:'bubble',
+    data:{datasets:[{label:'',data:_roeData(),
+      backgroundColor:_curSectors().filter(s=>_roe(s)!=null).map(s=>CAT_COL[s.cat]+'bb'),
+      borderColor:_curSectors().filter(s=>_roe(s)!=null).map(s=>CAT_COL[s.cat]),borderWidth:1}]},
+    options:{...GC,
+      onClick:(e,elements)=>{if(elements.length){const d=_roeData();showSectorDetail(_curSectors().find(s=>s.n===d[elements[0].index]?.sector));}},
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`${c.raw.sector}  ROE:${c.raw.x?.toFixed(1)}%  PBR:${c.raw.y?.toFixed(1)}x`}}},
+      scales:{x:{title:{display:true,text:'ROE（%、理論値＝PBR÷PER×100）',color:chartTickColor(),font:{size:10}},
+          ticks:{color:chartTickColor(),font:{size:10},callback:v=>v+'%'},grid:{color:chartGridColor()},min:0},
+        y:{title:{display:true,text:'加重PBR（倍）',color:chartTickColor(),font:{size:10}},
+          ticks:{color:chartTickColor(),font:{size:10},callback:v=>v+'x'},grid:{color:chartGridColor()},min:0}}}});
+
+  // decompose — 実データ優先、なければサンプル係数
+  const dcSrc=DASHBOARD_DATA?.decomp?.slice(0,16)||[...SECTORS].sort((a,b)=>b.cap-a.cap).slice(0,16);
+  const dcReal=!!(DASHBOARD_DATA?.decomp?.length);
+  const dcLbl=dcSrc.map(d=>d.n);
+  const dcNA=dcReal?dcSrc.map(d=>d.na):dcSrc.map(s=>+(s.chg*.62).toFixed(2));
+  const dcPBR=dcReal?dcSrc.map(d=>d.pbr):dcSrc.map(s=>+(s.chg*.38).toFixed(2));
+  const dcFmt=dcReal?v=>Math.round(v*100)+'%':v=>v+'x';
+  charts.decomp=mk('decompC',{type:'bar',
+    data:{labels:dcLbl,datasets:[
+      {label:'純資産（BPS）成長',data:dcNA,backgroundColor:'rgba(41,201,154,.7)',borderRadius:2,stack:'s'},
+      {label:'PBR倍率変化',data:dcPBR,backgroundColor:'rgba(91,141,246,.7)',borderRadius:2,stack:'s'}]},
+    options:{indexAxis:'y',...GC,
+      scales:{x:{stacked:true,ticks:{color:chartTickColor(),font:{size:10},callback:dcFmt},grid:{color:chartGridColor()}},
+        y:{stacked:true,ticks:{color:chartLabelColor(),font:{size:9}},grid:{display:false}}}}});
+
+  selEv(0, document.querySelector('.ev.act'));
+  renderAllPlotly();
+  applyChartMode();
+  updateOverviewKPI();
+  if(DASHBOARD_DATA?.latest_yyyymm) _onYmDecomp(DASHBOARD_DATA.latest_yyyymm);
+}
+

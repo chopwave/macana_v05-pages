@@ -29,12 +29,19 @@
 body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13px;min-height:100vh}
 
 /* ── shell ── */
-.shell{display:grid;grid-template-columns:200px 1fr;grid-template-rows:48px 1fr;min-height:100vh}
+.shell{display:grid;grid-template-columns:200px 1fr;grid-template-rows:48px 1fr;min-height:100vh;transition:grid-template-columns .2s ease}
+.shell.sidebar-collapsed{grid-template-columns:0px 1fr}
 .topbar{grid-column:1/-1;display:flex;align-items:center;gap:10px;padding:0 16px;
   background:var(--bg2);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:200}
 .sidebar{background:var(--bg2);border-right:1px solid var(--border);padding:12px 0;
-  display:flex;flex-direction:column;overflow-y:auto}
+  display:flex;flex-direction:column;overflow-y:auto;overflow-x:hidden;transition:padding .2s ease}
+.shell.sidebar-collapsed .sidebar{padding:0;border-right:none}
 .main{display:flex;flex-direction:column;overflow:hidden;background:var(--bg)}
+/* ── sidebar toggle button ── */
+.sidebar-toggle{display:flex;align-items:center;justify-content:center;width:26px;height:26px;
+  border-radius:5px;border:1px solid var(--border2);background:var(--bg4);cursor:pointer;
+  color:var(--muted);flex-shrink:0;transition:.15s;font-size:13px;line-height:1;user-select:none}
+.sidebar-toggle:hover{color:var(--text);border-color:var(--border2)}
 
 /* ── topbar ── */
 .logo{font-family:var(--mono);font-size:12px;font-weight:500;color:var(--accent);letter-spacing:.5px;white-space:nowrap}
@@ -229,6 +236,26 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13
 ::-webkit-scrollbar-track{background:transparent}
 ::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:2px}
 
+/* ── C-4: 印刷対応 ── */
+@media print{
+  body{background:#fff;color:#000;font-size:11pt}
+  .shell{display:block}
+  .topbar{position:static;border-bottom:1px solid #ccc;padding:4px 12px;background:#fff}
+  .sidebar,.sidebar-toggle,.tb-btn,.pill-toggle,.ev-row,.filter-bar,
+  .note-area,.snote .del-btn,.snote .pin-btn{display:none!important}
+  .main{display:block;overflow:visible}
+  .content{overflow:visible;padding:8px}
+  .page{display:none!important}
+  .page.act{display:block!important}
+  .card{break-inside:avoid;border:1px solid #ddd;margin-bottom:8pt}
+  .kpi-row{grid-template-columns:repeat(5,1fr)}
+  canvas{max-width:100%;height:auto!important}
+  .kpi-val{color:#000!important}
+  .chip-g,.chip-b,.chip-a,.chip-r{border:1px solid #ccc;color:#000}
+  .logo::after{content:' — 印刷出力 ' attr(data-ym)}
+  @page{margin:15mm}
+}
+
 /* ── 景気循環フェーズ ── */
 .phase-badge{display:inline-flex;align-items:center;gap:8px;padding:8px 16px;border-radius:99px;font-size:13px;font-weight:500}
 .phase-recovery  {background:rgba(41,201,154,.14);color:var(--green);  border:1px solid rgba(41,201,154,.3)}
@@ -286,6 +313,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13
 
 <!-- topbar -->
 <header class="topbar">
+  <button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()" title="サイドバーを開閉 ( [ )">☰</button>
   <span style="width:6px;height:6px;border-radius:50%;background:var(--green);animation:blink 2s infinite"></span>
   <style>@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}</style>
   <span class="logo">JP Sector Analyze</span>
@@ -307,6 +335,8 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13
   <span class="pill-toggle" id="chartModePill" onclick="toggleChartModePill()" title="チャートモード切替（Chart.js / Plotly）">Chart.js ⇌</span>
   <div class="tb-right">
     <button class="tb-btn" onclick="exportCSV()">CSV出力</button>
+    <button class="tb-btn" onclick="window.print()" title="現在表示中のページを印刷">印刷</button>
+    <button class="tb-btn" onclick="showShortcutHelp&&showShortcutHelp()" title="キーボードショートカット一覧 (?)">?</button>
     <button class="tb-btn" onclick="goto('notes',null,true)">チームメモ</button>
   </div>
 </header>
@@ -381,11 +411,6 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13
 <div class="page" id="pg-readme">
   <div class="banner banner-blue" style="margin-bottom:18px">
     <strong>ReadMe First</strong> — このダッシュボードの機能・操作方法を確認できます。初めてご利用の方はここからお読みください。
-  </div>
-
-  <div class="card" style="margin-bottom:14px">
-    <div class="card-hd"><span class="card-title">画面イメージ</span></div>
-    <img src="./assets/readme_page.png" alt="JP Sector Analyze ReadMe page preview" style="display:block;width:100%;height:auto;border-radius:12px;border:1px solid var(--border)">
   </div>
 
   <!-- 操作の基本 -->
@@ -711,10 +736,19 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13
   </div>
 </div>
 
+<!-- C-3: PBR1倍割れ ドリルダウン dialog -->
+<dialog id="heatDrillDlg" class="sector-dlg">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+    <strong id="heatDlgTitle" style="font-size:13px"></strong>
+    <button onclick="document.getElementById('heatDrillDlg').close()" style="background:none;border:none;color:var(--muted);font-size:16px;cursor:pointer;line-height:1">×</button>
+  </div>
+  <div id="heatDlgBody"></div>
+</dialog>
+
 <!-- ═══ PBR 1倍割れ ═══ -->
 <div class="page" id="pg-pbr1">
   <div class="banner banner-blue">
-    <strong>PBR 1倍割れ追跡</strong>：緑=1倍超、黄=0.8〜1倍（改善途上）、赤=0.8倍未満。東証改革要請（2023/04）以降に改善した業種に注目。
+    <strong>PBR 1倍割れ追跡</strong>：緑=1倍超、黄=0.8〜1倍（改善途上）、赤=0.8倍未満。東証改革要請（2023/04）以降に改善した業種に注目。セルをクリックすると詳細を表示します。
   </div>
   <div class="card">
     <div class="card-hd"><span class="card-title">業種別 PBR水準ヒートマップ（月次）</span></div>
@@ -754,14 +788,40 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13
 
 <!-- ═══ 散布図 ═══ -->
 <div class="page" id="pg-scatter">
-  <div class="banner banner-blue">
-    <strong>散布図（時価総額 × PBR）</strong>：横軸=加重PBR、縦軸=時価総額（兆円）、バブルサイズ=上場会社数。<br>
-    <strong>左上（割安大型）</strong> = 政策変化・東証改革の最大受益候補。カテゴリ色：
-    <span style="color:var(--accent)">■グロース</span>　<span style="color:var(--purple)">■バリュー</span>　<span style="color:var(--amber)">■シクリカル</span>　<span style="color:var(--green)">■ディフェンシブ</span>
+  <div class="tabs">
+    <div class="tab act" onclick="swTab('scatter','cap',this)" title="横軸=加重PBR、縦軸=時価総額（兆円）、バブルサイズ=上場会社数">時価総額 × PBR<br><span style="font-size:9px;opacity:.65;font-weight:400">規模ポジショニング</span></div>
+    <div class="tab" onclick="swTab('scatter','roe',this)" title="横軸=ROE（理論値）、縦軸=PBR（倍）、バブルサイズ=時価総額。ROE低×PBR高＝過大評価、ROE高×PBR低＝割安候補">ROE × PBR<br><span style="font-size:9px;opacity:.65;font-weight:400">収益性ポジショニング</span></div>
   </div>
-  <div class="card">
-    <div class="card-hd"><span class="card-title">業種別 時価総額 × PBR バブルチャート<span class="ym-badge" title="年月連動">年月連動</span></span><span class="card-meta" id="scYm">2020/01</span></div>
-    <div class="ch ch-360"><canvas id="scatterC"></canvas></div>
+
+  <!-- タブ①: 時価総額×PBR（既存） -->
+  <div class="tp act" id="scatter-cap">
+    <div class="banner banner-blue">
+      <strong>散布図（時価総額 × PBR）</strong>：横軸=加重PBR、縦軸=時価総額（兆円）、バブルサイズ=上場会社数。<br>
+      <strong>左上（割安大型）</strong> = 政策変化・東証改革の最大受益候補。カテゴリ色：
+      <span style="color:var(--accent)">■グロース</span>　<span style="color:var(--purple)">■バリュー</span>　<span style="color:var(--amber)">■シクリカル</span>　<span style="color:var(--green)">■ディフェンシブ</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+      <button id="scatterPlayBtn" onclick="toggleScatterPlay()" style="background:var(--bg4);border:1px solid var(--border2);color:var(--muted);padding:4px 12px;border-radius:5px;font-size:11px;cursor:pointer">▶ 再生</button>
+      <span style="font-size:10px;color:var(--hint)" id="scatterPlayLabel">年月を自動コマ送りします</span>
+    </div>
+    <div class="card">
+      <div class="card-hd"><span class="card-title">業種別 時価総額 × PBR バブルチャート<span class="ym-badge" title="年月連動">年月連動</span></span><span class="card-meta" id="scYm">2020/01</span></div>
+      <div class="ch ch-360"><canvas id="scatterC"></canvas></div>
+    </div>
+  </div>
+
+  <!-- タブ②: ROE×PBR（C-1） -->
+  <div class="tp" id="scatter-roe">
+    <div class="banner banner-blue">
+      <strong>ROE × PBR 散布図</strong>：横軸=ROE（PBR/PER×100、理論値）、縦軸=PBR（倍）、バブルサイズ=時価総額。<br>
+      <strong>右下（高ROE × 低PBR）</strong> = 収益力に対して割安な候補。
+      <strong>左上（低ROE × 高PBR）</strong> = 期待先行・過大評価の可能性。カテゴリ色：
+      <span style="color:var(--accent)">■グロース</span>　<span style="color:var(--purple)">■バリュー</span>　<span style="color:var(--amber)">■シクリカル</span>　<span style="color:var(--green)">■ディフェンシブ</span>
+    </div>
+    <div class="card">
+      <div class="card-hd"><span class="card-title">業種別 ROE × PBR バブルチャート<span class="ym-badge" title="年月連動">年月連動</span></span><span class="card-meta" id="roeYm"></span></div>
+      <div class="ch ch-360"><canvas id="roeC"></canvas></div>
+    </div>
   </div>
 </div>
 
@@ -773,6 +833,8 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13
     <div>
       <div style="font-size:10px;color:var(--muted);margin-bottom:5px" id="phaseSrcLabel">現在の景気フェーズ</div>
       <span class="phase-badge phase-recovery" id="currentPhaseBadge">● 新サイクル回復期</span>
+      <!-- C-2: 信頼スコア -->
+      <div style="margin-top:6px;font-size:10px;color:var(--muted)" id="phaseScoreBadge">信頼スコア <span style="font-family:var(--mono)">–%</span></div>
     </div>
     <div style="flex:1;background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:10px 14px;font-size:11px;color:var(--muted);line-height:1.7" id="phaseDesc">
       CI一致指数が上昇傾向へ転換、政策金利は正常化済みで低位安定。
@@ -811,6 +873,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13
     <div class="tab" onclick="swTab('cycle','zscore',this)" title="Zスコア: 現PBR vs 同フェーズ過去平均。Z&lt;-1=割安強化、Z&gt;+1=割高警戒">PBR乖離Zスコア<br><span style="font-size:9px;opacity:.65;font-weight:400">同フェーズ比較</span></div>
     <div class="tab" onclick="swTab('cycle','cdrat',this)" title="シクリカル vs ディフェンシブの時価総額シェア比。比率&gt;1=拡張期シグナル">シクリカル/ディフェンシブ<br><span style="font-size:9px;opacity:.65;font-weight:400">C/D比率</span></div>
     <div class="tab" onclick="swTab('cycle','final',this)" title="総合スコア = フェーズ推奨(±2) + PBR乖離Zスコア符号(±1) + C/D強度ボーナス(±1)">総合シグナル<br><span style="font-size:9px;opacity:.65;font-weight:400">スコアランキング</span></div>
+    <div class="tab" onclick="swTab('cycle','history',this);renderPhaseHistory()" title="過去の景気フェーズ遷移を月次カラーバーで表示">フェーズ遷移履歴<br><span style="font-size:9px;opacity:.65;font-weight:400">月次タイムライン</span></div>
   </div>
 
   <!-- タブ①: フェーズ判定チャート -->
@@ -915,6 +978,22 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13
         <span class="card-meta" id="finalPhaseMeta">現フェーズ: –</span>
       </div>
       <div id="finalSignalList"></div>
+    </div>
+  </div>
+
+  <!-- C-6: タブ⑥: フェーズ遷移履歴 -->
+  <div class="tp" id="cycle-history">
+    <div class="banner banner-blue" style="margin-bottom:14px">
+      <strong>景気フェーズ遷移履歴</strong>：各月の景気フェーズをCI・金利・PBRトレンドから推定して可視化します。
+      <span style="color:var(--green)">■ 回復期</span>　<span style="color:var(--accent)">■ 拡張期</span>　<span style="color:var(--amber)">■ 後退前期</span>　<span style="color:var(--red)">■ 後退期</span>
+    </div>
+    <div class="card">
+      <div class="card-hd"><span class="card-title">月次フェーズ遷移タイムライン</span><span class="card-meta">推定値（CIトレンド・金利・PBR変化より）</span></div>
+      <div id="phaseHistoryBar" style="padding:6px 0"></div>
+    </div>
+    <div class="card" style="margin-top:12px">
+      <div class="card-hd"><span class="card-title">フェーズ別在籍期間</span></div>
+      <div id="phaseDurationBar"></div>
     </div>
   </div>
 
@@ -1118,6 +1197,33 @@ const SAMPLE_EVENTS=[
    pbr:[['銀行業',0.3],['電気機器',0.4],['情報・通信',0.4],['卸売業',0.2],['海運業',-1.2],['電気・ガス',0.3]],
    shr:[['情報・通信',0.8],['電気機器',0.5],['銀行業',0.6],['海運業',-0.5]]},
 ];
+// ─── サンプル: 月次業種履歴 ─── SAMPLE_MONTHSの各月に対応するセクターデータ（PBR_TSで按分）
+const _SAMPLE_PBR_LATEST=SAMPLE_PBR_TS[SAMPLE_PBR_TS.length-1];
+const _SAMPLE_YMS=SAMPLE_MONTHS.map(m=>m.replace('/',''));
+const SAMPLE_SECTORS_HISTORY=Object.fromEntries(
+  _SAMPLE_YMS.map((ym,i)=>{
+    const sc=SAMPLE_PBR_TS[i]/_SAMPLE_PBR_LATEST;
+    const prevSc=i>0?SAMPLE_PBR_TS[i-1]/_SAMPLE_PBR_LATEST:sc;
+    return [ym,SAMPLE_SECTORS.map(s=>({
+      ...s,
+      pbr:s.pbr!=null?+(s.pbr*sc).toFixed(2):null,
+      chg:s.pbr!=null?+(s.pbr*(sc-prevSc)).toFixed(2):s.chg,
+      cap:s.cap!=null?+(s.cap*(sc*0.8+0.2)).toFixed(1):null
+    }))];
+  })
+);
+// ─── サンプル: 月次成長要因分解 ───
+const SAMPLE_DECOMP_HISTORY=Object.fromEntries(
+  _SAMPLE_YMS.slice(1).map((ym,i)=>{
+    const sc=SAMPLE_PBR_TS[i+1]/_SAMPLE_PBR_LATEST;
+    const prevSc=SAMPLE_PBR_TS[i]/_SAMPLE_PBR_LATEST;
+    const sectors=[...SAMPLE_SECTORS].map(s=>{
+      const chg=s.pbr!=null?+(s.pbr*(sc-prevSc)).toFixed(3):0;
+      return {n:s.n,na:+(chg*0.62).toFixed(3),pbr:+(chg*0.38).toFixed(3)};
+    }).sort((a,b)=>Math.abs(b.na+b.pbr)-Math.abs(a.na+a.pbr));
+    return [ym,{start:SAMPLE_MONTHS[i],end:SAMPLE_MONTHS[i+1],sectors}];
+  })
+);
 const SECTORS=DASHBOARD_DATA?.sectors_latest || SAMPLE_SECTORS;
 const MONTHS=DASHBOARD_DATA?.months || SAMPLE_MONTHS;
 // 単純平均-加重平均スプレッド（avg_pbrが実データにあれば優先、なければ近似値）
@@ -1404,12 +1510,62 @@ function renderHeatmap(){
             : v>=0.8?['#3a2a00','#f5a623']
             : ['#3a0e0e','#e05454']
           );
-      h+=`<td style="background:${bg};color:${fg};text-align:center;padding:3px 6px;border:1px solid ${cellBorder};font-family:var(--mono)">${v.toFixed(1)}</td>`;
+      h+=`<td style="background:${bg};color:${fg};text-align:center;padding:3px 6px;border:1px solid ${cellBorder};font-family:var(--mono);cursor:pointer" onclick="showHeatDrilldown(this)"
+        data-sector="${name.replace(/'/g,'&#39;')}" data-months="${months6.join(',')}">${v.toFixed(1)}</td>`;
     });
     h+='</tr>';
   });
   wrap.innerHTML=h+'</table>';
 }
+// C-3: PBR1倍割れ ドリルダウン
+function showHeatDrilldown(td){
+  const name=td.dataset.sector;
+  const months=td.dataset.months.split(',');
+  const dlg=document.getElementById('heatDrillDlg');
+  const body=document.getElementById('heatDlgBody');
+  const title=document.getElementById('heatDlgTitle');
+  if(!dlg||!body) return;
+  const sect=SECTORS.find(s=>s.n===name)||{};
+  const matrix=DASHBOARD_DATA?.pbr1?.matrix;
+  const allSectors=DASHBOARD_DATA?.pbr1?.sectors||SECTORS.map(s=>s.n);
+  const rowIdx=allSectors.indexOf(name);
+  title.textContent=`${name}（${sect.cat?{G:'グロース',V:'バリュー',C:'シクリカル',D:'ディフェンシブ'}[sect.cat]:'–'}）`;
+  // PBR推移データ
+  const vals=months.map((_,i)=>{
+    if(matrix&&rowIdx>=0) return matrix[rowIdx]?.[i]??null;
+    const base=sect.pbr??1.0;
+    return Math.max(0.2,+(base+(i-Math.floor(months.length/2))*0.06).toFixed(2));
+  });
+  const latest=vals.filter(v=>v!=null).at(-1);
+  const signal=latest==null?'–':latest>=1.0?'<span style="color:var(--green)">1倍超 ✓</span>':latest>=0.8?'<span style="color:var(--amber)">改善途上</span>':'<span style="color:var(--red)">1倍割れ ✗</span>';
+  // バーチャート形式で推移表示
+  const maxV=Math.max(...vals.filter(v=>v!=null),1.5);
+  const bars=months.map((m,i)=>{
+    const v=vals[i];
+    if(v==null) return `<div style="display:flex;align-items:center;gap:6px;padding:2px 0"><span style="width:56px;font-size:10px;color:var(--hint)">${m}</span><span style="font-size:10px;color:var(--hint)">–</span></div>`;
+    const pct=Math.min(100,v/maxV*100);
+    const col=v>=1.5?'var(--green)':v>=1.0?'rgba(41,201,154,.7)':v>=0.8?'var(--amber)':'var(--red)';
+    return `<div style="display:flex;align-items:center;gap:6px;padding:2px 0">
+      <span style="width:56px;font-size:10px;color:var(--muted);flex-shrink:0">${m}</span>
+      <div style="flex:1;height:12px;background:rgba(255,255,255,.05);border-radius:3px;overflow:hidden">
+        <div style="width:${pct}%;height:100%;background:${col};border-radius:3px"></div>
+      </div>
+      <span style="width:30px;text-align:right;font-family:var(--mono);font-size:10px;color:${col}">${v.toFixed(1)}x</span>
+    </div>`;
+  }).join('');
+  body.innerHTML=`
+    <div style="margin-bottom:10px;font-size:11px;color:var(--muted)">
+      現在シグナル：${signal}　加重PBR最新：<span style="font-family:var(--mono);font-size:13px;color:var(--text)">${latest!=null?latest.toFixed(2)+'x':'–'}</span>
+    </div>
+    <div style="font-size:10px;color:var(--hint);margin-bottom:6px">月次PBR推移</div>
+    <div>${bars}</div>
+    <div style="margin-top:12px;border-top:1px solid var(--border);padding-top:10px;display:flex;justify-content:flex-end">
+      <button onclick="goto('screen',null);document.getElementById('heatDrillDlg').close();setTimeout(()=>{const el=document.getElementById('screenSearch');if(el){el.value='${name}';setSearch&&setSearch('${name}');}},100)"
+        style="background:var(--accent);color:#fff;border:none;padding:5px 12px;border-radius:5px;font-size:11px;cursor:pointer">スクリーニングで確認 →</button>
+    </div>`;
+  dlg.showModal();
+}
+
 function applyHeatmapMode(){
   const tableHost=document.getElementById('heatWrap');
   const plotlyHost=document.getElementById('heatWrapPlotly');
@@ -1594,7 +1750,7 @@ function goLatestYm(){
 function updateGeneratedAt(){
   const el=document.getElementById('generatedAt');
   if(!el) return;
-  const ga=DASHBOARD_DATA?.generated_at;
+  const ga=DASHBOARD_DATA?.generated_at||(_forceSample?'2026-02-28T09:00:00':null);
   if(!ga) return;
   try{
     const d=new Date(ga);
@@ -1706,8 +1862,8 @@ function renderCompChart(){
   const curYm=document.getElementById('ymSel')?.value;
   const cmpYm=document.getElementById('compYmSel')?.value;
   if(!curYm||!cmpYm) return;
-  const curSrc=DASHBOARD_DATA?.sectors_history?.[curYm]||SECTORS;
-  const cmpSrc=DASHBOARD_DATA?.sectors_history?.[cmpYm]||SECTORS;
+  const curSrc=DASHBOARD_DATA?.sectors_history?.[curYm]||SAMPLE_SECTORS_HISTORY[curYm]||SECTORS;
+  const cmpSrc=DASHBOARD_DATA?.sectors_history?.[cmpYm]||SAMPLE_SECTORS_HISTORY[cmpYm]||SECTORS;
   const labels=curSrc.map(s=>s.n);
   const curPbr=curSrc.map(s=>s.pbr??null);
   const cmpPbr=labels.map(n=>cmpSrc.find(s=>s.n===n)?.pbr??null);
@@ -2044,7 +2200,7 @@ function initCharts(){
       scales:{x:{ticks:{color:chartTickColor(),font:{size:10},callback:v=>v+'x'},grid:{color:chartGridColor()}},
         y:{ticks:{color:chartLabelColor(),font:{size:9}},grid:{display:false}}}}});
 
-  // scatter
+  // scatter (cap×pbr)
   charts.scatter=mk('scatterC',{type:'bubble',
     data:{datasets:[{label:'',data:SECTORS.map(s=>({x:s.pbr,y:s.cap,r:Math.sqrt(s.cos)*1.1,sector:s.n})),
       backgroundColor:SECTORS.map(s=>CAT_COL[s.cat]+'bb'),borderColor:SECTORS.map(s=>CAT_COL[s.cat]),borderWidth:1}]},
@@ -2055,6 +2211,23 @@ function initCharts(){
           ticks:{color:chartTickColor(),font:{size:10},callback:v=>v+'x'},grid:{color:chartGridColor()},min:0,max:4.5},
         y:{title:{display:true,text:'時価総額（兆円）',color:chartTickColor(),font:{size:10}},
           ticks:{color:chartTickColor(),font:{size:10}},grid:{color:chartGridColor()}}}}});
+
+  // C-1: scatter (roe×pbr)
+  const _roe=s=>s.roe!==undefined?s.roe:(s.per?+(s.pbr/s.per*100).toFixed(1):null);
+  window._roe=_roe;
+  const _roeData=src=>{const arr=src||_curSectors();return arr.filter(s=>_roe(s)!=null).map(s=>({x:_roe(s),y:s.pbr,r:Math.max(6,Math.sqrt((s.cap??1)*10)),sector:s.n}));};
+  window._roeData=_roeData;
+  charts.roe=mk('roeC',{type:'bubble',
+    data:{datasets:[{label:'',data:_roeData(),
+      backgroundColor:_curSectors().filter(s=>_roe(s)!=null).map(s=>CAT_COL[s.cat]+'bb'),
+      borderColor:_curSectors().filter(s=>_roe(s)!=null).map(s=>CAT_COL[s.cat]),borderWidth:1}]},
+    options:{...GC,
+      onClick:(e,elements)=>{if(elements.length){const d=_roeData();showSectorDetail(_curSectors().find(s=>s.n===d[elements[0].index]?.sector));}},
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`${c.raw.sector}  ROE:${c.raw.x?.toFixed(1)}%  PBR:${c.raw.y?.toFixed(1)}x`}}},
+      scales:{x:{title:{display:true,text:'ROE（%、理論値＝PBR÷PER×100）',color:chartTickColor(),font:{size:10}},
+          ticks:{color:chartTickColor(),font:{size:10},callback:v=>v+'%'},grid:{color:chartGridColor()},min:0},
+        y:{title:{display:true,text:'加重PBR（倍）',color:chartTickColor(),font:{size:10}},
+          ticks:{color:chartTickColor(),font:{size:10},callback:v=>v+'x'},grid:{color:chartGridColor()},min:0}}}});
 
   // decompose — 実データ優先、なければサンプル係数
   const dcSrc=DASHBOARD_DATA?.decomp?.slice(0,16)||[...SECTORS].sort((a,b)=>b.cap-a.cap).slice(0,16);
@@ -2243,6 +2416,172 @@ function exportCSV(){
   a.download='jpx_screening.csv';a.click();
 }
 
+// ────── C-7: 散布図アニメーション ──────
+let _scatterPlayTimer=null;
+function toggleScatterPlay(){
+  const btn=document.getElementById('scatterPlayBtn');
+  const lbl=document.getElementById('scatterPlayLabel');
+  if(_scatterPlayTimer){
+    clearInterval(_scatterPlayTimer);
+    _scatterPlayTimer=null;
+    if(btn){btn.textContent='▶ 再生';}
+    if(lbl) lbl.textContent='年月を自動コマ送りします';
+    return;
+  }
+  const sel=document.getElementById('ymSel');
+  if(!sel) return;
+  if(btn){btn.textContent='⏸ 停止';}
+  // 末尾から先頭に向かって（古い順）再生するため、まず最古月へ移動
+  sel.selectedIndex=sel.options.length-1;
+  onYm(sel.value);
+  _scatterPlayTimer=setInterval(()=>{
+    const idx=sel.selectedIndex;
+    if(idx<=0){
+      clearInterval(_scatterPlayTimer);
+      _scatterPlayTimer=null;
+      if(btn){btn.textContent='▶ 再生';}
+      if(lbl) lbl.textContent='再生完了';
+      return;
+    }
+    sel.selectedIndex=idx-1;
+    onYm(sel.value);
+    if(lbl) lbl.textContent=sel.options[sel.selectedIndex].text;
+  },900);
+}
+
+// ────── C-6: フェーズ遷移履歴 ──────
+function _inferPhase(ciVal,ciPrev,polRate,jgb){
+  const ciMom=ciVal-ciPrev;
+  if(ciMom<-0.5&&polRate>0.25) return '後退期';
+  if(ciMom<0&&polRate>=0.5) return '後退前期';
+  if(ciMom>0&&polRate<=0.5) return '回復期';
+  if(ciMom>0&&polRate>0.5) return '拡張期';
+  return '新サイクル回復期';
+}
+const _PHASE_COL_SOLID={'回復期':'var(--green)','拡張期':'var(--accent)','後退前期':'var(--amber)','後退期':'var(--red)','新サイクル回復期':'var(--green)'};
+function renderPhaseHistory(){
+  const wrap=document.getElementById('phaseHistoryBar');
+  const durWrap=document.getElementById('phaseDurationBar');
+  if(!wrap) return;
+  // phase_historyがあれば使用、なければCIから推定
+  const ph=_CYCLE_RAW.phase_history||[];
+  const months=CYCLE_MONTHS;
+  const phases=months.map((m,i)=>{
+    if(ph.length){
+      const phase = ph.find(p=>p.month===m)?.phase;
+      return phase || CURRENT_PHASE || '新サイクル回復期';
+    }
+    const ci=CI_COIN[i]??CI_COIN[CI_COIN.length-1];
+    const ciPrev=CI_COIN[Math.max(0,i-1)]??ci;
+    const pol=POL_RATE[i]??POL_RATE[POL_RATE.length-1];
+    const jgb=JGB10Y[i]??JGB10Y[JGB10Y.length-1];
+    return _inferPhase(ci,ciPrev,pol,jgb);
+  });
+  // タイムラインバー
+  wrap.innerHTML=`<div style="display:flex;gap:2px;flex-wrap:wrap;align-items:flex-end">
+    ${months.map((m,i)=>{
+      const phase=phases[i];
+      const col=_PHASE_COL_SOLID[phase]||'var(--muted)';
+      const isLast=(i===months.length-1);
+      return `<div style="display:flex;flex-direction:column;align-items:center;gap:3px;flex:1;min-width:40px">
+        <div title="${m}: ${phase}" style="width:100%;height:32px;background:${col};border-radius:3px;opacity:${isLast?1:.8};cursor:default"></div>
+        <span style="font-size:9px;color:var(--muted);writing-mode:vertical-rl;transform:rotate(180deg);height:36px;text-align:center;white-space:nowrap">${m}</span>
+      </div>`;
+    }).join('')}
+  </div>
+  <div style="display:flex;gap:12px;margin-top:14px;flex-wrap:wrap">
+    ${['回復期','拡張期','後退前期','後退期'].map(p=>`<span style="display:inline-flex;align-items:center;gap:4px;font-size:10px;color:var(--muted)"><span style="width:10px;height:10px;border-radius:2px;background:${_PHASE_COL_SOLID[p]};display:inline-block"></span>${p}</span>`).join('')}
+  </div>`;
+  // 在籍期間集計
+  if(durWrap){
+    const counts={};
+    phases.forEach(p=>{counts[p]=(counts[p]||0)+1;});
+    const total=phases.length;
+    durWrap.innerHTML=`<div style="display:flex;flex-direction:column;gap:6px;padding-top:4px">
+      ${Object.entries(counts).sort((a,b)=>b[1]-a[1]).map(([p,c])=>{
+        const pct=Math.round(c/total*100);
+        const col=_PHASE_COL_SOLID[p]||'var(--muted)';
+        return `<div style="display:flex;align-items:center;gap:8px">
+          <span style="width:72px;font-size:11px;color:var(--text);flex-shrink:0">${p}</span>
+          <div style="flex:1;height:10px;background:rgba(255,255,255,.05);border-radius:5px;overflow:hidden">
+            <div style="width:${pct}%;height:100%;background:${col};border-radius:5px"></div>
+          </div>
+          <span style="font-family:var(--mono);font-size:10px;color:${col};width:50px;text-align:right">${c}ヶ月 (${pct}%)</span>
+        </div>`;
+      }).join('')}
+    </div>`;
+  }
+}
+
+// ────── C-5: キーボードショートカット ──────
+(function(){
+  const PAGES=['overview','screen','val','pbr1','event','scatter','decomp','cycle','notes'];
+  const PAGE_LABELS=['1:全体サマリー','2:スクリーニング','3:バリュエーション','4:PBR1倍割れ','5:イベント','6:散布図','7:成長要因','8:景気循環','9:チームメモ'];
+  function advanceYm(dir){
+    const sel=document.getElementById('ymSel');
+    if(!sel) return;
+    const idx=sel.selectedIndex+dir;
+    if(idx>=0&&idx<sel.options.length){sel.selectedIndex=idx;onYm(sel.value);}
+  }
+  document.addEventListener('keydown',function(e){
+    const tag=document.activeElement?.tagName;
+    if(['INPUT','TEXTAREA','SELECT'].includes(tag)) return;
+    if(e.ctrlKey||e.metaKey||e.altKey) return;
+    if(e.key==='ArrowLeft') advanceYm(1);
+    else if(e.key==='ArrowRight') advanceYm(-1);
+    else if(e.key>='1'&&e.key<='9'){
+      const idx=parseInt(e.key)-1;
+      if(idx<PAGES.length) goto(PAGES[idx],null,false);
+    }
+    else if(e.key==='t'||e.key==='T') toggleTheme();
+    else if(e.key==='?') showShortcutHelp();
+    else if(e.key==='Escape'){
+      const dlg=document.querySelector('dialog[open]');
+      if(dlg) dlg.close();
+    }
+  });
+  window.showShortcutHelp=function(){
+    let dlg=document.getElementById('shortcutDlg');
+    if(!dlg){
+      dlg=document.createElement('dialog');
+      dlg.id='shortcutDlg';
+      dlg.className='sector-dlg';
+      dlg.style.maxWidth='360px';
+      dlg.innerHTML=`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+        <strong style="font-size:13px">キーボードショートカット</strong>
+        <button onclick="this.closest('dialog').close()" style="background:none;border:none;color:var(--muted);font-size:16px;cursor:pointer">×</button>
+      </div>
+      <div style="display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-size:11px;line-height:1.8">
+        <span style="font-family:var(--mono);color:var(--accent)">← / →</span><span style="color:var(--muted)">年月を前後に移動</span>
+        ${PAGE_LABELS.map(l=>`<span style="font-family:var(--mono);color:var(--accent)">${l.split(':')[0]}</span><span style="color:var(--muted)">${l.split(':')[1]}へ移動</span>`).join('')}
+        <span style="font-family:var(--mono);color:var(--accent)">T</span><span style="color:var(--muted)">テーマ切替（Dark/Light）</span>
+        <span style="font-family:var(--mono);color:var(--accent)">[</span><span style="color:var(--muted)">サイドバー開閉</span>
+        <span style="font-family:var(--mono);color:var(--accent)">?</span><span style="color:var(--muted)">このヘルプを表示</span>
+        <span style="font-family:var(--mono);color:var(--accent)">Esc</span><span style="color:var(--muted)">ダイアログを閉じる</span>
+      </div>`;
+      document.body.appendChild(dlg);
+    }
+    dlg.showModal();
+  };
+})();
+
+// ────── sidebar toggle ──────
+function toggleSidebar(){
+  const shell=document.querySelector('.shell');
+  const collapsed=shell.classList.toggle('sidebar-collapsed');
+  localStorage.setItem('sidebarCollapsed', collapsed?'1':'0');
+}
+(function(){
+  if(localStorage.getItem('sidebarCollapsed')==='1')
+    document.querySelector('.shell').classList.add('sidebar-collapsed');
+  document.addEventListener('keydown',function(e){
+    if((e.key==='['||e.key==='「')&&!e.ctrlKey&&!e.metaKey&&!e.altKey&&
+       !['INPUT','TEXTAREA','SELECT'].includes(document.activeElement.tagName)){
+      toggleSidebar();
+    }
+  });
+})();
+
 // ────── navigation ──────
 let _cycleInited=false;
 function goto(id,el,silent){
@@ -2280,7 +2619,7 @@ function onYm(v){
   _flashYmLinked();
 }
 function _onYmDecomp(yyyymm){
-  const dh=DASHBOARD_DATA?.decomp_history;
+  const dh=DASHBOARD_DATA?.decomp_history||SAMPLE_DECOMP_HISTORY;
   if(!dh) return;
   const entry=dh[yyyymm];
   if(!entry){
@@ -2319,7 +2658,7 @@ function _flashYmLinked(){
     document.getElementById('kpiRow'),
     document.getElementById('ov-trend-card'),
     screenCard,
-    ...document.querySelectorAll('.ym-badge').map(b=>b.closest('.card')).filter(Boolean)
+    ...[...document.querySelectorAll('.ym-badge')].map(b=>b.closest('.card')).filter(Boolean)
   ].filter((el,i,a)=>el&&a.indexOf(el)===i).forEach(el=>{
     el.classList.remove('ym-flash');
     void el.offsetWidth; // reflow to restart animation
@@ -2364,7 +2703,7 @@ function _onYmKpi(yyyymm,ym){
     const metaEl=document.querySelector('#pg-overview .g2 .card:first-child .card-meta');
     if(metaEl) metaEl.textContent=ym;
   }
-  const sh=DASHBOARD_DATA?.sectors_history?.[yyyymm];
+  const sh=DASHBOARD_DATA?.sectors_history?.[yyyymm]||SAMPLE_SECTORS_HISTORY[yyyymm]||null;
   if(!sh||!sh.length) return;
   const below1=sh.filter(s=>s.pbr!=null&&s.pbr<1.0).length;
   const totalCap=sh.reduce((a,s)=>a+(s.cap||0),0);
@@ -2485,7 +2824,7 @@ function _updateCdShareBar(share, ymKey){
   _renderCdTopSectors(_curSectors());
 }
 function _onYmScatter(yyyymm,ym){
-  const sh=DASHBOARD_DATA?.sectors_history?.[yyyymm];
+  const sh=DASHBOARD_DATA?.sectors_history?.[yyyymm]||SAMPLE_SECTORS_HISTORY[yyyymm]||null;
   _activeSectors=sh&&sh.length?sh:null;
   const src=_curSectors();
 
@@ -2520,6 +2859,17 @@ function _onYmScatter(yyyymm,ym){
   ],{showlegend:false,
     xaxis:{title:'加重PBR（倍）',ticksuffix:'x',range:[0,4.5]},
     yaxis:{title:'時価総額（兆円）'}});
+
+  // C-1: ROE×PBR chart update
+  if(charts.roe&&window._roeData&&window._roe){
+    const filtSrc=src.filter(s=>window._roe(s)!=null);
+    charts.roe.data.datasets[0].data=window._roeData(src);
+    charts.roe.data.datasets[0].backgroundColor=filtSrc.map(s=>CAT_COL[s.cat]+'bb');
+    charts.roe.data.datasets[0].borderColor=filtSrc.map(s=>CAT_COL[s.cat]);
+    charts.roe.update();
+  }
+  const roeYmEl=document.getElementById('roeYm');
+  if(roeYmEl) roeYmEl.textContent=ym;
 
   // 業種ランキング（Chart.js）
   if(charts.indRank){
@@ -2560,13 +2910,19 @@ function _onYmScatter(yyyymm,ym){
 }
 
 // ────── 景気循環データ（実データ優先、フォールバックはサンプル値）──────
-const _CYCLE_RAW=DASHBOARD_DATA?.cycle||{};
+const _CYCLE_RAW_BASE=DASHBOARD_DATA?.cycle||{};
+const _CYCLE_RAW=(!_CYCLE_RAW_BASE.latest_macro&&_forceSample)?{
+  latest_macro:{ci_coin:110.2,ci_coin_mom:1.2,ci_leading:113.2,ci_leading_mom:1.2,pol_rate:0.50,jgb_10y:1.50,as_of:'2026/02'},
+  cd_share:{c_pct:24.5,d_pct:23.5,as_of:'2026/02'},
+  current_phase:'新サイクル回復期',
+  ..._CYCLE_RAW_BASE
+}:_CYCLE_RAW_BASE;
 const CYCLE_MONTHS=_CYCLE_RAW.months?.length?_CYCLE_RAW.months:['2020/01','2020/07','2021/01','2021/07','2022/01','2022/07','2023/01','2023/07','2024/01','2024/07','2025/01','2025/07','2026/02'];
 const CI_COIN=_CYCLE_RAW.ci_coin?.length?_CYCLE_RAW.ci_coin:[98.2,97.1,99.4,101.8,103.2,104.1,102.8,104.5,105.9,107.2,108.1,109.0,110.2];
-const CI_LEADING=_CYCLE_RAW.ci_leading?.length?_CYCLE_RAW.ci_leading:CYCLE_MONTHS.map(()=>null);
+const CI_LEADING=_CYCLE_RAW.ci_leading?.length?_CYCLE_RAW.ci_leading:[99.8,97.5,101.2,103.5,104.8,103.2,102.0,105.5,107.5,109.8,111.0,112.0,113.2];
 const POL_RATE=_CYCLE_RAW.pol_rate?.length?_CYCLE_RAW.pol_rate:[-0.1,-0.1,-0.1,-0.1,-0.1,-0.1,-0.1,0.0,0.1,0.25,0.5,0.5,0.5];
 const JGB10Y=_CYCLE_RAW.jgb_10y?.length?_CYCLE_RAW.jgb_10y:[0.02,0.04,0.09,0.22,0.19,0.24,0.42,0.58,0.72,0.90,1.10,1.35,1.50];
-const CD_RATIO=(_CYCLE_RAW.cd_ratio?.some(v=>v!=null))?_CYCLE_RAW.cd_ratio:CYCLE_MONTHS.map(()=>null);
+const CD_RATIO=(_CYCLE_RAW.cd_ratio?.some(v=>v!=null))?_CYCLE_RAW.cd_ratio:[1.02,0.92,0.98,1.05,1.10,1.08,1.02,1.05,1.12,1.18,1.20,1.18,1.20];
 const CD_SHARE_HISTORY=_CYCLE_RAW.cd_share_history?.length?_CYCLE_RAW.cd_share_history:CYCLE_MONTHS.map(()=>null);
 // フェーズ帯: phase_history から動的生成（フォールバックは固定バンド）
 const _PHASE_COLORS={'回復期':'rgba(41,201,154,.10)','拡張期':'rgba(91,141,246,.10)','後退前期':'rgba(245,166,35,.10)','後退期':'rgba(224,84,84,.10)','新サイクル回復期':'rgba(41,201,154,.12)'};
@@ -2600,6 +2956,30 @@ function _initCycleDom(){
   const _cls={'回復期':'phase-recovery','拡張期':'phase-expansion','後退前期':'phase-inflation','後退期':'phase-recession','新サイクル回復期':'phase-recovery'};
   if(badge){badge.className='phase-badge '+(_cls[CURRENT_PHASE]||'phase-pending');badge.textContent='● '+CURRENT_PHASE;}
   if(srcLbl) srcLbl.textContent='現在の景気フェーズ（実データ）';
+
+  // C-2: 景気フェーズ信頼スコア
+  (function(){
+    const ciLast2=CI_COIN.slice(-3);
+    const ciTrend=ciLast2.length>=2?(ciLast2[ciLast2.length-1]-ciLast2[0]):0;
+    const polRateLast=POL_RATE[POL_RATE.length-1]??0;
+    const jgbLast=JGB10Y[JGB10Y.length-1]??0;
+    // 各フェーズで期待される指標状態とのマッチ数 / 総チェック数
+    const phaseChecks={
+      '回復期':        [(ciTrend>0),(polRateLast<0.5),(jgbLast<1.0)],
+      '拡張期':        [(ciTrend>0),(polRateLast>=0&&polRateLast<1.0),(jgbLast>=0.5)],
+      '後退前期':      [(ciTrend<=0||ciTrend<0.5),(polRateLast>=0.5),(jgbLast>=1.0)],
+      '後退期':        [(ciTrend<0),(polRateLast>0),(jgbLast>1.0)],
+      '新サイクル回復期':[(ciTrend>0),(polRateLast<=0.5),(jgbLast<1.5)],
+    };
+    const checks=phaseChecks[CURRENT_PHASE]||[];
+    const matched=checks.filter(Boolean).length;
+    const score=checks.length?Math.round(matched/checks.length*100):50;
+    const scoreColor=score>=70?'var(--green)':score>=40?'var(--amber)':'var(--red)';
+    const scoreEl=document.getElementById('phaseScoreBadge');
+    if(scoreEl){
+      scoreEl.innerHTML=`信頼スコア <span style="font-family:var(--mono);font-size:13px;font-weight:600;color:${scoreColor}">${score}%</span><span style="font-size:9px;color:var(--hint);margin-left:4px">(${matched}/${checks.length}指標一致)</span>`;
+    }
+  })();
 
   // フェーズ説明文
   const _phDesc={
