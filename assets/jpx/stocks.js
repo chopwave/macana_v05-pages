@@ -367,8 +367,14 @@ function _slRenderTable() {
     );
   }
 
+  const _slNumericKeys = new Set(['s17', 'mktcap']);
   const { key, asc } = _slSortState;
   rows.sort((a, b) => {
+    if (_slNumericKeys.has(key)) {
+      const av = a[key] ?? (asc ? Infinity : -Infinity);
+      const bv = b[key] ?? (asc ? Infinity : -Infinity);
+      return asc ? av - bv : bv - av;
+    }
     const av = (a[key] ?? '').toString();
     const bv = (b[key] ?? '').toString();
     return asc ? av.localeCompare(bv) : bv.localeCompare(av);
