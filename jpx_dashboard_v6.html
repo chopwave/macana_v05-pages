@@ -33,7 +33,7 @@
   </select>
   <button class="tb-btn" onclick="goLatestYm()" title="最新月を表示" style="padding:3px 8px;font-size:10px">↑最新</button>
   <span class="pill pill-amber" id="dataModePill" onclick="toggleDataMode()" style="cursor:default" title="">🔒 実データへ</span>
-  <span style="font-size:10px;color:var(--hint);white-space:nowrap">sample は代表銘柄、real は全銘柄と評価系に対応</span>
+  <span class="info-icon" tabindex="0" data-tip="sample は代表銘柄・参考表示です。&#10;real では全銘柄と評価系の実データを利用できます。&#10;有償会員ログイン後に切り替え可能です。" data-tip-pos="bottom">i</span>
   <span id="generatedAt" style="font-size:10px;color:var(--hint);font-family:var(--mono);white-space:nowrap"></span>
   <span class="pill-toggle" id="themePill" onclick="toggleTheme()" title="テーマ切替（Dark / Light）">Dark ⇌</span>
   <span class="pill-toggle" id="chartModePill" onclick="toggleChartModePill()" title="チャートモード切替（Chart.js / Plotly）">Chart.js ⇌</span>
@@ -528,10 +528,7 @@
   </div>
   <div class="tp act" id="pbr1-table">
     <div class="card">
-      <div class="card-hd"><span class="card-title">業種別 PBR水準ヒートマップ（月次）</span></div>
-      <div style="margin:0 0 8px 0;font-size:10px;color:var(--hint);line-height:1.6">
-        セルをクリックすると業種詳細を表示します。緑は 1.0 倍超、黄は 0.8〜1.0 倍、赤は 0.8 倍未満です。
-      </div>
+      <div class="card-hd"><span class="card-title">業種別 PBR水準ヒートマップ（月次）<span class="info-icon" tabindex="0" data-tip="セルをクリックすると業種詳細を表示します。&#10;緑は 1.0 倍超、黄は 0.8〜1.0 倍、赤は 0.8 倍未満です。" data-tip-pos="bottom">i</span></span></div>
       <div style="overflow-x:auto" id="heatWrap"></div>
     </div>
   </div>
@@ -568,10 +565,7 @@
   </div>
   <!-- investment memo for this event -->
   <div class="card">
-    <div class="card-hd"><span class="card-title">投資判断メモ（このイベント）</span><span class="card-meta">チーム共有</span></div>
-    <div style="margin:0 0 8px 0;font-size:10px;color:var(--hint);line-height:1.6">
-      イベント単位で保存する共有メモです。会員ログイン後に編集・再利用できます。
-    </div>
+    <div class="card-hd"><span class="card-title">投資判断メモ（このイベント）<span class="info-icon" tabindex="0" data-tip="イベント単位で保存する共有メモです。&#10;会員ログイン後に編集・再利用できます。" data-tip-pos="bottom">i</span></span><span class="card-meta">チーム共有</span></div>
     <textarea class="note-area" id="evNote" placeholder="このイベントから得られた仮説・投資シグナルを記録..."></textarea>
     <div style="display:flex;justify-content:flex-end;margin-top:6px">
       <button style="background:var(--accent);color:#fff;border:none;padding:5px 14px;border-radius:6px;font-size:11px;cursor:pointer" onclick="saveEvNote()">保存</button>
@@ -598,10 +592,7 @@
       <span style="font-size:10px;color:var(--hint)" id="scatterPlayLabel">年月を自動コマ送りします</span>
     </div>
     <div class="card">
-      <div class="card-hd"><span class="card-title">業種別 時価総額 × PBR バブルチャート<span class="ym-badge" title="年月連動">年月連動</span></span><span class="card-meta" id="scYm">2020/01</span></div>
-      <div style="margin:0 0 8px 0;font-size:10px;color:var(--hint);line-height:1.6">
-        バブルをクリックすると業種詳細を表示します。横軸は PBR、縦軸は時価総額、サイズは上場会社数です。
-      </div>
+      <div class="card-hd"><span class="card-title">業種別 時価総額 × PBR バブルチャート<span class="ym-badge" title="年月連動">年月連動</span><span class="info-icon" tabindex="0" data-tip="バブルをクリックすると業種詳細を表示します。&#10;横軸は PBR、縦軸は時価総額、サイズは上場会社数です。" data-tip-pos="bottom">i</span></span><span class="card-meta" id="scYm">2020/01</span></div>
       <div class="ch ch-360"><canvas id="scatterC"></canvas></div>
     </div>
   </div>
@@ -809,10 +800,7 @@
   </div>
   <div class="tp act" id="decomp-decomp">
     <div class="card">
-      <div class="card-hd"><span class="card-title">業種別 時価総額成長の要因分解<span class="ym-badge" title="年月連動">年月連動</span></span><span class="card-meta" id="decompPeriod">前年同月比</span></div>
-      <div style="margin:0 0 8px 0;font-size:10px;color:var(--hint);line-height:1.6">
-        時価総額の変化を、純資産の積み上がりと PBR 評価の変化に分けて見ます。純資産は `時価総額 ÷ PBR` の近似値です。
-      </div>
+      <div class="card-hd"><span class="card-title">業種別 時価総額成長の要因分解<span class="ym-badge" title="年月連動">年月連動</span><span class="info-icon" tabindex="0" data-tip="時価総額の変化を、純資産の積み上がりと PBR 評価の変化に分けて見ます。&#10;純資産は 時価総額 ÷ PBR の近似値です。" data-tip-pos="bottom">i</span></span><span class="card-meta" id="decompPeriod">前年同月比</span></div>
       <div class="ch" style="height:420px"><canvas id="decompC"></canvas></div>
     </div>
   </div>
@@ -1032,10 +1020,8 @@
         </select>
         <button id="stocksLockBtn" onclick="showMemberLogin()" class="tb-btn"
           title="スコア・ランク・ステップ通過は有償会員限定の情報です">🔒 会員ログイン</button>
+        <span class="info-icon" tabindex="0" data-tip="Step フィルタは、その段階まで連続通過した銘柄に絞り込みます。&#10;Step4以上 は Step1〜4 をすべて通過した銘柄です。" data-tip-pos="bottom">i</span>
       </div>
-    </div>
-    <div style="margin-top:8px;font-size:10px;color:var(--hint);line-height:1.6">
-      Step フィルタは、その段階まで連続通過した銘柄に絞り込みます。`Step4以上` は Step1〜4 をすべて通過した銘柄です。
     </div>
     <!-- 業種ピル -->
     <div id="stocksSectorPills" style="display:flex;flex-wrap:wrap;gap:5px;margin-top:10px"></div>
