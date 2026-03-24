@@ -131,7 +131,9 @@ function _onYmKpi(yyyymm,ym){
   const totalCap=sh.reduce((a,s)=>a+(s.cap||0),0);
   const maxS=sh.reduce((m,s)=>(s.pbr||0)>(m.pbr||0)?s:m,sh[0]||{n:'',pbr:0});
   const prevYyyyMm=prevIdx>=0?MONTHS[prevIdx].replace('/',''):null;
-  const prevSh=prevYyyyMm?(DASHBOARD_DATA?.sectors_history?.[prevYyyyMm]):null;
+  const prevSh=prevYyyyMm
+    ? (DASHBOARD_DATA?.sectors_history?.[prevYyyyMm] || SAMPLE_SECTORS_HISTORY[prevYyyyMm] || null)
+    : null;
   if(kv[2]){
     const prevBelow1=prevSh?prevSh.filter(s=>s.pbr!=null&&s.pbr<1.0).length:null;
     const belowDiff=prevBelow1!=null?below1-prevBelow1:null;

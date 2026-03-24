@@ -478,8 +478,9 @@ let _decompCapLineInited=false;
 let _decompNavLineInited=false;
 
 function _buildSectorTimeSeries(valueGetter){
-  const sh=DASHBOARD_DATA?.sectors_history||{};
+  const sh=DASHBOARD_DATA?.sectors_history||SAMPLE_SECTORS_HISTORY||{};
   const months=Object.keys(sh).sort();
+  if(!months.length) return {labels:[],datasets:[]};
   const labels=months.map(m=>m.slice(0,4)+'/'+m.slice(4,6));
   const latestKey=months[months.length-1];
   const allSectors=(sh[latestKey]||[]).map(s=>({n:s.n,cat:s.cat||SECTORS.find(x=>x.n===s.n)?.cat||'V'}));

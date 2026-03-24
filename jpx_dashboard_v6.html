@@ -894,7 +894,7 @@
   <div class="phase-card">
     <div class="phase-hd">
       <span class="phase-num" style="background:rgba(41,201,154,.15);color:var(--green)">Phase 1 ✓</span>
-      <span class="phase-title">HTML単体（現行）</span>
+      <span class="phase-title">HTML形式（現行）</span>
       <span class="pill pill-green" style="margin-left:auto">完了</span>
     </div>
     <div class="feat-list">
@@ -922,18 +922,6 @@
       <div class="feat"><div class="feat-head">チームメモDB永続化</div><div class="feat-sub">SQLiteでメモを保存・タグ・担当者フィルタ対応</div></div>
       <div class="feat"><div class="feat-head">アラート機能</div><div class="feat-sub">PBR閾値割れ・急変検知を毎月自動メール通知</div></div>
       <div class="feat"><div class="feat-head">景気指標 自動取得</div><div class="feat-sub">内閣府CI・日銀政策金利をAPIで自動取得しフェーズ判定をリアルタイム更新</div></div>
-    </div>
-    <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border)">
-      <div style="font-size:11px;color:var(--muted);margin-bottom:8px">移行時のコード変更ポイント</div>
-      <div style="background:var(--bg);border:1px solid var(--border);border-radius:var(--r);padding:10px 14px;font-family:var(--mono);font-size:10px;color:var(--muted);line-height:1.8">
-        # HTML版（data.js）のサンプルデータを<br>
-        # Pythonの load_all_perpbr() / load_all_sector_cap() に置き換えるだけ<br>
-        <br>
-        # st.sidebar.selectbox("年月", months)  → ymSel相当<br>
-        # st.plotly_chart(fig)                  → Chart.js相当<br>
-        # st.session_state.notes                → localStorageメモ相当<br>
-        # → ロジックの80%はHTML版と同じ構造で流用可
-      </div>
     </div>
   </div>
 </div>
