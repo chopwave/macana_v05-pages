@@ -75,6 +75,7 @@ function _doMemberLogin() {
     localStorage.setItem(_MEMBER_LS_KEY, MEMBER_KEY);
     document.getElementById('memberLoginDlg')?.close();
     _updateMemberUI();
+    if(typeof loadNotes==='function') loadNotes();
     _renderStocksTable();
   } else {
     if (msgEl) { msgEl.textContent = 'アクセスキーが正しくありません。'; msgEl.style.display = 'block'; }
@@ -86,6 +87,7 @@ function _doMemberLogout() {
   localStorage.removeItem(_MEMBER_LS_KEY);
   document.getElementById('memberLoginDlg')?.close();
   _updateMemberUI();
+  if(typeof loadNotes==='function') loadNotes();
   _renderStocksTable();
 }
 
@@ -100,6 +102,8 @@ function _updateMemberUI() {
       ? 'ログイン中。クリックでメニューを表示。'
       : 'スコア・ランク・ステップ通過は有償会員限定の情報です。';
   }
+  if(typeof updateDataModePill==='function') updateDataModePill();
+  if(typeof updateNotesAccessUI==='function') updateNotesAccessUI();
 }
 
 // ── 初期化 ─────────────────────────────────────────────
@@ -428,3 +432,5 @@ function _slRow(r) {
     </td>
   </tr>`;
 }
+
+_updateMemberUI();

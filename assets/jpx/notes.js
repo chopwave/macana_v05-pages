@@ -26,6 +26,7 @@ function selEv(idx,btn){
   applyChartMode();
 }
 function saveEvNote(){
+  if(!_requireMemberNotes('イベントメモ保存')) return;
   const t=document.getElementById('evNote').value.trim();
   if(!t) return;
   evNotes[currentEv]=t;
@@ -37,21 +38,53 @@ const _NOTES_KEY='jpxTeamNotes';
 let _noteFilterTeam='all', _noteFilterTag='all';
 
 function _noteKey(n){return `${n.ts}|${n.author}|${n.text}`;}
+function _notesMember(){
+  try{return localStorage.getItem('jpxMemberAuth')===MEMBER_KEY;}catch(_e){return false;}
+}
+function _requireMemberNotes(action){
+  if(_notesMember()) return true;
+  if(typeof showMemberLogin==='function') showMemberLogin();
+  return false;
+}
+function updateNotesAccessUI(){
+  const isMember=_notesMember();
+  const nb=document.getElementById('nb-notes');
+  if(nb) nb.textContent=isMember?notes.length:0;
+  const list=document.getElementById('noteList');
+  if(list && !isMember){
+    list.innerHTML=`<div style="color:var(--muted);font-size:11px;padding:14px 0;text-align:center">🔒 チームメモは有償会員限定です。会員ログイン後に利用できます。</div>`;
+  }
+  const text=document.getElementById('noteText');
+  if(text){
+    text.disabled=!isMember;
+    text.placeholder=isMember?'Markdownでメモを書く…':'🔒 有償会員ログインでチームメモを利用できます';
+  }
+  ['noteAuthor','noteTeam','noteTag','noteFilterTeam','noteFilterTag'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el) el.disabled=!isMember;
+  });
+}
 
 function persistNotes(){
   try{localStorage.setItem(_NOTES_KEY,JSON.stringify(notes));}catch(_e){}
 }
 function loadNotes(){
+  if(!_notesMember()){
+    notes=[];
+    updateNotesAccessUI();
+    return;
+  }
   let stored=[];
   try{stored=JSON.parse(localStorage.getItem(_NOTES_KEY)||'[]');}catch(_e){}
   // 共有メモ（DASHBOARD_DATA.team_notes）をマージ（重複除外）
   const shared=(DASHBOARD_DATA?.team_notes||[]).map(n=>({...n,_shared:true}));
   const storedKeys=new Set(stored.map(_noteKey));
   notes=[...stored,...shared.filter(n=>!storedKeys.has(_noteKey(n)))];
-  document.getElementById('nb-notes').textContent=notes.length;
+  updateNotesAccessUI();
   renderNotes();
 }
 function saveNote(){
+  if(!_requireMemberNotes('メモ保存')) return;
   const t=document.getElementById('noteText').value.trim();
   if(!t) return;
   addNote(t,null,
@@ -62,13 +95,15 @@ function saveNote(){
 }
 function clearNote(){document.getElementById('noteText').value='';}
 function addNote(text,context,tag,author,team){
+  if(!_notesMember()) return;
   const n={text,context,tag,author,team:team||'全員',ts:new Date().toLocaleString('ja')};
   notes.unshift(n);
   persistNotes();
-  document.getElementById('nb-notes').textContent=notes.length;
+  updateNotesAccessUI();
   renderNotes();
 }
 function addToNote(name,pbr,chg){
+  if(!_requireMemberNotes('メモ追加')) return;
   goto('notes',null,true);
   document.getElementById('noteText').value=`【${name}】PBR ${pbr.toFixed(1)}x　前期比 ${chg>=0?'+':''}${chg.toFixed(1)}x\n`;
   const tagEl=document.getElementById('noteTag');
@@ -76,12 +111,14 @@ function addToNote(name,pbr,chg){
   document.getElementById('noteText').focus();
 }
 function delNote(i){
+  if(!_requireMemberNotes('メモ削除')) return;
   notes.splice(i,1);
   persistNotes();
-  document.getElementById('nb-notes').textContent=notes.length;
+  updateNotesAccessUI();
   renderNotes();
 }
 function filterNotes(type,val){
+  if(!_notesMember()) return;
   if(type==='team') _noteFilterTeam=val;
   else _noteFilterTag=val;
   renderNotes();
@@ -89,6 +126,10 @@ function filterNotes(type,val){
 function renderNotes(){
   const el=document.getElementById('noteList');
   if(!el) return;
+  if(!_notesMember()){
+    updateNotesAccessUI();
+    return;
+  }
   const filtered=notes.filter(n=>{
     if(_noteFilterTeam!=='all'&&(n.team||'全員')!==_noteFilterTeam) return false;
     if(_noteFilterTag!=='all'&&n.tag!==_noteFilterTag) return false;
@@ -123,6 +164,7 @@ function renderNotes(){
   }).join('');
 }
 function exportNotes(){
+  if(!_requireMemberNotes('メモエクスポート')) return;
   const d=new Date();
   const fname=`team_notes_${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}.json`;
   const blob=new Blob([JSON.stringify(notes.map(n=>{const {_shared,...rest}=n;return rest;}),null,2)],{type:'application/json'});
@@ -133,6 +175,7 @@ function exportNotes(){
   URL.revokeObjectURL(a.href);
 }
 function importNotes(input){
+  if(!_requireMemberNotes('メモインポート')){ input.value=''; return; }
   const file=input.files[0];
   if(!file) return;
   const reader=new FileReader();
@@ -144,7 +187,7 @@ function importNotes(input){
       const newNotes=imported.filter(n=>!existingKeys.has(_noteKey(n)));
       notes=[...newNotes,...notes];
       persistNotes();
-      document.getElementById('nb-notes').textContent=notes.length;
+      updateNotesAccessUI();
       renderNotes();
       alert(`${newNotes.length}件のメモをインポートしました（重複${imported.length-newNotes.length}件除外）`);
     }catch(_e){alert('JSONファイルの読み込みに失敗しました');}

@@ -97,16 +97,18 @@ function updateDataModePill(){
   const el=document.getElementById('dataModePill');
   if(!el) return;
   el.classList.remove('pill-amber','pill-green');
+  let member=false;
+  try{ member=localStorage.getItem('jpxMemberAuth')===MEMBER_KEY; }catch(_e){}
   if(DASHBOARD_DATA){
     el.textContent='実データ ⇌';
     el.classList.add('pill-green');
     el.style.cursor='pointer';
     el.title='クリックでサンプルデータに切り替え';
   } else if(window.JPX_DASHBOARD_DATA){
-    el.textContent='サンプル ⇌';
+    el.textContent=member?'実データ ⇌':'🔒 実データへ';
     el.classList.add('pill-amber');
     el.style.cursor='pointer';
-    el.title='クリックで実データに切り替え';
+    el.title=member?'クリックで実データに切り替え':'有償会員ログインで実データに切り替え';
   } else {
     el.textContent='サンプルデータ';
     el.classList.add('pill-amber');
@@ -116,6 +118,10 @@ function updateDataModePill(){
 }
 function toggleDataMode(){
   if(!window.JPX_DASHBOARD_DATA) return;
+  if(_forceSample && typeof _isMember==='function' && !_isMember()){
+    if(typeof showMemberLogin==='function') showMemberLogin();
+    return;
+  }
   const url=new URL(location.href);
   if(_forceSample) url.searchParams.delete('mode');
   else url.searchParams.set('mode','sample');
@@ -308,6 +314,7 @@ function showSectorDetail(s){
 }
 function dlgToNote(){
   if(!_dlgSector) return;
+  if(typeof _requireMemberNotes==='function' && !_requireMemberNotes('メモ追加')) return;
   document.getElementById('sectorDlg').close();
   addToNote(_dlgSector.n,_dlgSector.pbr||0,_dlgSector.chg||0);
 }
@@ -316,6 +323,7 @@ function dlgToNote(){
 // B-8: メモのピン留め
 // ─────────────────────────────────────────
 function pinNote(i){
+  if(typeof _requireMemberNotes==='function' && !_requireMemberNotes('メモのピン留め')) return;
   notes[i]._pinned=!notes[i]._pinned;
   persistNotes();
   renderNotes();

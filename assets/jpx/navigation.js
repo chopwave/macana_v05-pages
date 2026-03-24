@@ -1,6 +1,10 @@
 // ────── navigation ──────
 let _cycleInited=false;
 function goto(id,el,silent){
+  if(id==='notes' && typeof _isMember==='function' && !_isMember()){
+    if(typeof showMemberLogin==='function') showMemberLogin();
+    return;
+  }
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('act'));
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('act'));
   document.getElementById('pg-'+id).classList.add('act');

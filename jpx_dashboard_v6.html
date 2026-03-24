@@ -19,7 +19,7 @@
   <button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()" title="サイドバーを開閉 ( [ )">☰</button>
   <span style="width:6px;height:6px;border-radius:50%;background:var(--green);animation:blink 2s infinite"></span>
   <style>@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}</style>
-  <span class="logo">JP Sector Analyze</span>
+  <span class="logo">JP Macro Analyzer</span>
   <span class="tb-sep"></span>
   <select class="tb-ym" id="ymSel" onchange="onYm(this.value)">
     <option value="202602">2026年02月</option>
@@ -32,7 +32,7 @@
     <option value="202001" selected>2020年01月</option>
   </select>
   <button class="tb-btn" onclick="goLatestYm()" title="最新月を表示" style="padding:3px 8px;font-size:10px">↑最新</button>
-  <span class="pill pill-amber" id="dataModePill" onclick="toggleDataMode()" style="cursor:default" title="">サンプルデータ</span>
+  <span class="pill pill-amber" id="dataModePill" onclick="toggleDataMode()" style="cursor:default" title="">🔒 実データへ</span>
   <span id="generatedAt" style="font-size:10px;color:var(--hint);font-family:var(--mono);white-space:nowrap"></span>
   <span class="pill-toggle" id="themePill" onclick="toggleTheme()" title="テーマ切替（Dark / Light）">Dark ⇌</span>
   <span class="pill-toggle" id="chartModePill" onclick="toggleChartModePill()" title="チャートモード切替（Chart.js / Plotly）">Chart.js ⇌</span>
@@ -40,7 +40,7 @@
     <button class="tb-btn" onclick="exportCSV()">CSV出力</button>
     <button class="tb-btn" onclick="window.print()" title="現在表示中のページを印刷">印刷</button>
     <button class="tb-btn" onclick="showShortcutHelp&&showShortcutHelp()" title="キーボードショートカット一覧 (?)">?</button>
-    <button class="tb-btn" onclick="goto('notes',null,true)">チームメモ</button>
+    <button class="tb-btn" onclick="goto('notes',null,true)" title="有償会員限定の機能です">🔒 チームメモ</button>
   </div>
 </header>
 
@@ -100,9 +100,10 @@
     銘柄一覧
     <span class="nav-badge" id="nb-stocklist"></span>
   </div>
-  <div class="nav-item" onclick="goto('eval',this)" style="display:none">
+  <div class="nav-item" onclick="goto('eval',this)">
     <svg class="nav-icon" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="2" width="12" height="10" rx="1"/><line x1="1" y1="5" x2="13" y2="5"/><line x1="4" y1="5" x2="4" y2="12"/><line x1="8" y1="5" x2="8" y2="12"/></svg>
     銘柄別評価
+    <span class="nav-badge" style="background:#7c3a0022;border:1px solid #c0562055;color:#c05620">🔒</span>
     <span class="nav-badge" id="nb-eval"></span>
   </div>
 
@@ -110,6 +111,7 @@
   <div class="nav-item" onclick="goto('notes',this)">
     <svg class="nav-icon" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="1" width="10" height="12" rx="1"/><line x1="4" y1="5" x2="10" y2="5"/><line x1="4" y1="8" x2="8" y2="8"/></svg>
     チームメモ
+    <span class="nav-badge" style="background:#7c3a0022;border:1px solid #c0562055;color:#c05620">🔒</span>
     <span class="nav-badge g" id="nb-notes">0</span>
   </div>
   <div class="nav-item" onclick="goto('roadmap',this)">

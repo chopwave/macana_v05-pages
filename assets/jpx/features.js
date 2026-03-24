@@ -97,8 +97,8 @@ function renderPhaseHistory(){
 
 // ────── C-5: キーボードショートカット ──────
 (function(){
-  const PAGES=['overview','screen','val','pbr1','event','scatter','decomp','cycle','notes'];
-  const PAGE_LABELS=['1:全体サマリー','2:スクリーニング','3:バリュエーション','4:PBR1倍割れ','5:イベント','6:散布図','7:成長要因','8:景気循環','9:チームメモ'];
+  const PAGES=['overview','screen','val','pbr1','event','scatter','decomp','cycle','eval'];
+  const PAGE_LABELS=['1:全体サマリー','2:スクリーニング','3:バリュエーション','4:PBR1倍割れ','5:イベント','6:散布図','7:成長要因','8:景気循環','9:銘柄別評価'];
   function advanceYm(dir){
     const sel=document.getElementById('ymSel');
     if(!sel) return;
