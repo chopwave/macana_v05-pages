@@ -128,6 +128,28 @@
     <strong>ReadMe First</strong> — このダッシュボードの機能・操作方法を確認できます。初めてご利用の方はここからお読みください。
   </div>
 
+  <!-- 無料 / 有償の区別 -->
+  <div class="card" style="margin-bottom:14px">
+    <div class="card-hd"><span class="card-title">無料 / 有償会員の違い</span></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;font-size:11px;line-height:1.8">
+      <div>
+        <div style="font-weight:500;color:var(--green);margin-bottom:4px">✓ 無料で利用できる機能</div>
+        <div style="color:var(--muted)">
+          業種別PBRヒートマップ・PER・時価総額・純資産グラフ（サンプルデータ）、銘柄一覧（J-Quants masterベース、代表銘柄）、景気循環分析、スクリーニング（業種ベース）、チームメモ、全グラフ・チャートの閲覧。
+        </div>
+      </div>
+      <div>
+        <div style="font-weight:500;color:var(--accent);margin-bottom:4px">🔒 有償会員（メンバーシップ）限定機能</div>
+        <div style="color:var(--muted)">
+          銘柄一覧の<strong>全上場銘柄</strong>表示（実データ）、銘柄別評価の<strong>スコア・ランク（S/A/B/C/D）</strong>・<strong>7ステップ通過状況</strong>の閲覧。右上の <strong>🔒 会員ログイン</strong> ボタンからパスキーを入力することでロックが解除されます。
+        </div>
+      </div>
+    </div>
+    <div style="margin-top:10px;padding:8px 12px;background:var(--bg3);border-radius:6px;font-size:10px;color:var(--hint);line-height:1.7">
+      ⓘ パスキーはブラウザのlocalStorageに保存されます。認証情報はサーバーに送信されません。ブラウザのデータを削除すると再ログインが必要です。
+    </div>
+  </div>
+
   <!-- 操作の基本 -->
   <div class="card" style="margin-bottom:14px">
     <div class="card-hd"><span class="card-title">基本操作</span></div>
@@ -147,6 +169,10 @@
       <div>
         <div style="font-weight:500;color:var(--text);margin-bottom:4px">CSV出力 / 印刷</div>
         <div style="color:var(--muted)">右上の <strong>CSV出力</strong> でスクリーニング結果をCSV保存。<strong>印刷</strong> ボタンでブラウザの印刷ダイアログを開きます（印刷用CSSで最適化済み）。</div>
+      </div>
+      <div>
+        <div style="font-weight:500;color:var(--text);margin-bottom:4px">列ヘッダーの ⓘ アイコン</div>
+        <div style="color:var(--muted)">テーブルの各列ヘッダーに表示される <span style="display:inline-block;width:14px;height:14px;border-radius:50%;background:var(--bg3);color:var(--hint);font-size:9px;text-align:center;line-height:14px;font-style:italic">i</span> アイコンにマウスを当てると、その列の指標説明がツールチップで表示されます。</div>
       </div>
       <div>
         <div style="font-weight:500;color:var(--text);margin-bottom:4px">キーボードショートカット</div>
@@ -206,7 +232,7 @@
           <div style="font-size:10px;color:var(--muted);margin-top:2px">分析② › マクロイベント影響</div>
         </div>
         <div style="font-size:11px;color:var(--muted);line-height:1.7">
-          コロナショック・金融緩和転換・ウクライナ侵攻・日銀YCC修正・東証改革要請の5マクロイベントに対する業種別PBR変化・時価総額シェア変化を比較分析します。
+          コロナショック・金融緩和転換・ウクライナ侵攻・日銀YCC修正・東証改革要請など、主要マクロイベントに対する業種別PBR変化・時価総額シェア変化を比較分析します。
         </div>
       </div>
 
@@ -226,7 +252,7 @@
           <div style="font-size:10px;color:var(--muted);margin-top:2px">分析③ › 規模・成長の内訳</div>
         </div>
         <div style="font-size:11px;color:var(--muted);line-height:1.7">
-          5タブ構成。①<strong>時価総額成長要因分解</strong>：PBR変化をBPS（純資産）成長とPBR倍率変化に分解し「実力改善 vs 期待先行」を判断。②<strong>業種別 時価総額</strong>・③<strong>業種別 純資産</strong>：選択年月時点の規模ランキング（横棒グラフ、年月連動）。④<strong>時価総額 推移</strong>・⑤<strong>純資産 推移</strong>：2020/01〜最新の月次トレンドを業種別折れ線グラフで表示（初回クリック時に描画）。
+          5タブ構成。①<strong>時価総額成長要因分解</strong>：PBR変化をBPS（純資産）成長とPBR倍率変化に分解し「実力改善 vs 期待先行」を判断。②<strong>業種別 時価総額</strong>・③<strong>業種別 純資産</strong>：選択年月時点の規模ランキング（横棒グラフ、年月連動）。④<strong>時価総額 推移</strong>・⑤<strong>純資産 推移</strong>：2020/01〜最新の月次トレンドを業種別折れ線グラフで表示。
         </div>
       </div>
 
@@ -243,10 +269,20 @@
       <div style="display:flex;gap:14px;padding:10px 0;border-bottom:1px solid var(--border)">
         <div style="width:140px;flex-shrink:0">
           <div style="font-weight:500;font-size:12px;color:var(--text)">銘柄一覧</div>
-          <div style="font-size:10px;color:var(--muted);margin-top:2px">銘柄 › 業種別銘柄テーブル</div>
+          <div style="font-size:10px;color:var(--muted);margin-top:2px">銘柄 › J-Quantsマスター</div>
         </div>
         <div style="font-size:11px;color:var(--muted);line-height:1.7">
-          業種ピルで対象業種を絞り込み、スクリーニングを通過した銘柄をテーブル表示します。コード・銘柄名・スコア・ランク・配当利回り・PBR・PER・株価・時価総額・ステップ通過状況を確認できます。ヘッダークリックで昇降順ソート、テキスト検索・ランクフィルターも利用可能です。
+          J-Quantsの上場銘柄マスターをベースに、東証33業種の全上場銘柄を一覧表示します。業種ピル（33種）・市場区分フィルター・規模区分フィルター・テキスト検索で絞り込み可能。コード・銘柄名・17業種コード/名・33業種コード/名・市場・規模区分・<strong>時価総額（億円）</strong>を表示し、<strong>↗ ボタンでYahoo Finance Japanを新しいタブで開く</strong>ことができます。サンプルモードでは代表銘柄のみ表示、実データは有償会員で確認できます。
+        </div>
+      </div>
+
+      <div style="display:flex;gap:14px;padding:10px 0;border-bottom:1px solid var(--border)">
+        <div style="width:140px;flex-shrink:0">
+          <div style="font-weight:500;font-size:12px;color:var(--text)">銘柄別評価 <span style="font-size:9px;padding:1px 5px;background:#7c3a0022;border:1px solid #c0562055;color:#c05620;border-radius:3px">🔒 有償</span></div>
+          <div style="font-size:10px;color:var(--muted);margin-top:2px">銘柄 › 高配当スクリーニング結果</div>
+        </div>
+        <div style="font-size:11px;color:var(--muted);line-height:1.7">
+          7段階スクリーニングを通過した銘柄の評価結果を業種別に表示します。コード・銘柄名・<strong>総合スコア（0〜100点）</strong>・<strong>ランク（S/A/B/C/D）</strong>・配当利回り・PBR・PER・株価・時価総額・<strong>Step1〜7の通過状況</strong>を確認できます。スコア・ランク・ステップ通過は有償会員のみ閲覧可能（🔒で表示）。ヘッダークリックで昇降順ソート、業種ピル・ステップフィルター・テキスト検索・ランクフィルターも利用可能。
         </div>
       </div>
 
@@ -268,19 +304,23 @@
     <div class="card-hd"><span class="card-title">データについて</span></div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;font-size:11px;line-height:1.8">
       <div>
-        <div style="font-weight:500;color:var(--text);margin-bottom:4px">サンプルデータ</div>
-        <div style="color:var(--muted)">初期状態では東証33業種の<span class="chip chip-a">サンプルデータ</span>を使用しています。画面上部に「サンプルデータ」バッジが表示されます。実運用では <code style="font-family:var(--mono);background:var(--bg3);padding:1px 4px;border-radius:3px">jpx_dashboard_data_latest.js</code> を実データに差し替えてください。</div>
+        <div style="font-weight:500;color:var(--text);margin-bottom:4px">サンプルデータ（無料）</div>
+        <div style="color:var(--muted)">初期状態では東証33業種の<span class="chip chip-a">サンプルデータ</span>を使用しています。画面上部に「サンプルデータ」バッジが表示されます。業種分析・グラフ・銘柄一覧（代表銘柄）はサンプルデータで無料で閲覧できます。</div>
+      </div>
+      <div>
+        <div style="font-weight:500;color:var(--text);margin-bottom:4px">実データ（有償会員）</div>
+        <div style="color:var(--muted)">スクリーニング結果（全銘柄・スコア・ランク・ステップ通過）は実データです。有償会員パスキーでログインすると閲覧できます。銘柄一覧も全上場銘柄が表示されます。</div>
       </div>
       <div>
         <div style="font-weight:500;color:var(--text);margin-bottom:4px">対象業種・指標</div>
-        <div style="color:var(--muted)">東証33業種の加重PBR・加重PER・時価総額・上場社数・配当利回りを月次で管理します。データの加重平均は時価総額ウェイトで計算します。</div>
+        <div style="color:var(--muted)">東証33業種の加重PBR・加重PER・時価総額・上場社数・配当利回りを月次で管理します。銘柄一覧はJ-Quantsマスターキャッシュから取得、時価総額はYahoo Japan Quoteデータを使用します。</div>
       </div>
       <div>
         <div style="font-weight:500;color:var(--text);margin-bottom:4px">景気指標（分析④）</div>
-        <div style="color:var(--muted)">景気循環分析では内閣府景気動向指数（CI）・日銀政策金利・CPI・PMIなどのマクロ指標を使用します。現バージョンはサンプル固定値です。</div>
+        <div style="color:var(--muted)">景気循環分析では内閣府景気動向指数（CI）・日銀政策金利などのマクロ指標を使用します。サンプルモードでは近似値を表示します。</div>
       </div>
-      <div>
-        <div style="font-weight:500;color:var(--text);margin-bottom:4px">注意事項</div>
+      <div style="grid-column:1/-1">
+        <div style="font-weight:500;color:var(--text);margin-bottom:4px">⚠ 注意事項</div>
         <div style="color:var(--muted)">本ダッシュボードは投資の意思決定補助ツールです。表示データは参考情報であり、投資成果を保証するものではありません。実際の投資判断はご自身の責任でお願いします。</div>
       </div>
     </div>
