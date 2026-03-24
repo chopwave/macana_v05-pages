@@ -2,9 +2,10 @@
 function renderHeatmap(){
   const wrap=document.getElementById('heatWrap');
   if(!wrap) return;
-  const months6=DASHBOARD_DATA?.pbr1?.months || ['2020/01','2020/07','2021/01','2021/07','2022/01','2022/07','2023/01','2023/07','2024/01','2024/07','2025/01','2025/07'];
-  const sectors=DASHBOARD_DATA?.pbr1?.sectors || SECTORS.map(s=>s.n);
-  const matrix=DASHBOARD_DATA?.pbr1?.matrix || null;
+  const _pbr1=DASHBOARD_DATA?.pbr1||SAMPLE_PBR1;
+  const months6=_pbr1.months||SAMPLE_PBR1.months;
+  const sectors=_pbr1.sectors||SAMPLE_PBR1.sectors;
+  const matrix=_pbr1.matrix||SAMPLE_PBR1.matrix||null;
   const isLight=themeMode==='light';
   const headerColor=isLight ? '#475467' : '#6b7491';
   const nameBorder=isLight ? 'rgba(16,24,40,.08)' : 'rgba(255,255,255,.05)';
@@ -52,8 +53,9 @@ function showHeatDrilldown(td){
   const title=document.getElementById('heatDlgTitle');
   if(!dlg||!body) return;
   const sect=SECTORS.find(s=>s.n===name)||{};
-  const matrix=DASHBOARD_DATA?.pbr1?.matrix;
-  const allSectors=DASHBOARD_DATA?.pbr1?.sectors||SECTORS.map(s=>s.n);
+  const _pbr1d=DASHBOARD_DATA?.pbr1||SAMPLE_PBR1;
+  const matrix=_pbr1d.matrix||SAMPLE_PBR1.matrix||null;
+  const allSectors=_pbr1d.sectors||SAMPLE_PBR1.sectors;
   const rowIdx=allSectors.indexOf(name);
   title.textContent=`${name}（${sect.cat?{G:'グロース',V:'バリュー',C:'シクリカル',D:'ディフェンシブ'}[sect.cat]:'–'}）`;
   // PBR推移データ
@@ -106,9 +108,10 @@ function toggleHeatLineFilter(){
 function renderHeatmapChart(force){
   if(_heatLineInited&&!force) return;
   _heatLineInited=true;
-  const months=DASHBOARD_DATA?.pbr1?.months||[];
-  const sectors=DASHBOARD_DATA?.pbr1?.sectors||[];
-  const matrix=DASHBOARD_DATA?.pbr1?.matrix||[];
+  const _pbr1l=DASHBOARD_DATA?.pbr1||SAMPLE_PBR1;
+  const months=_pbr1l.months||SAMPLE_PBR1.months||[];
+  const sectors=_pbr1l.sectors||SAMPLE_PBR1.sectors||[];
+  const matrix=_pbr1l.matrix||SAMPLE_PBR1.matrix||[];
   if(!months.length||!sectors.length||!matrix.length) return;
   const lastIdx=months.length-1;
   const filteredIdx=sectors.map((name,i)=>{

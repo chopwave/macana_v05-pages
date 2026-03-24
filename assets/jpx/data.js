@@ -97,6 +97,31 @@ const SAMPLE_DECOMP_HISTORY=Object.fromEntries(
     return [ym,{start:SAMPLE_MONTHS[i],end:SAMPLE_MONTHS[i+1],sectors}];
   })
 );
+// ─── サンプル: PBR1倍割れヒートマップ（月次マトリクス）───
+// matrix[i][j] = 業種i の j番目の月のPBR値
+const SAMPLE_PBR1=(()=>{
+  const sectorNames=SAMPLE_SECTORS.map(s=>s.n);
+  const matrix=SAMPLE_SECTORS.map(s=>{
+    const base=s.pbr!=null?s.pbr:1.0;
+    return SAMPLE_MONTHS.map((_,j)=>{
+      const sc=SAMPLE_PBR_TS[j]/_SAMPLE_PBR_LATEST;
+      return +(base*sc).toFixed(2);
+    });
+  });
+  return {months:SAMPLE_MONTHS,sectors:sectorNames,matrix};
+})();
+// ─── サンプル: 成長要因分解（最新月スナップショット）───
+// na=純資産寄与率(%)、pbr=PBR変化寄与率(%)、total=合計(%)
+const SAMPLE_DECOMP=(()=>{
+  const latestSc=1.0;
+  const prevSc=SAMPLE_PBR_TS[SAMPLE_PBR_TS.length-2]/_SAMPLE_PBR_LATEST;
+  return [...SAMPLE_SECTORS].map(s=>{
+    const chg=s.pbr!=null?+(s.pbr*(latestSc-prevSc)).toFixed(3):0;
+    const na=+(chg*0.62).toFixed(3);
+    const pbr=+(chg*0.38).toFixed(3);
+    return {n:s.n,na,pbr,total:+(na+pbr).toFixed(3)};
+  }).sort((a,b)=>Math.abs(b.total)-Math.abs(a.total));
+})();
 const SECTORS=DASHBOARD_DATA?.sectors_latest || SAMPLE_SECTORS;
 const MONTHS=DASHBOARD_DATA?.months || SAMPLE_MONTHS;
 // 単純平均-加重平均スプレッド（avg_pbrが実データにあれば優先、なければ近似値）

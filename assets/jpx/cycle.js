@@ -137,7 +137,7 @@ function _initCycleDom(){
 
 // 業種別PBR乖離Zスコア（pbr1実データから計算、フォールバックは推定値）
 const Z_SCORES=(()=>{
-  const pbr1=DASHBOARD_DATA?.pbr1;
+  const pbr1=DASHBOARD_DATA?.pbr1||SAMPLE_PBR1;
   if(pbr1?.sectors?.length&&pbr1?.matrix?.length){
     return pbr1.sectors.map((name,ri)=>{
       const s=SECTORS.find(x=>x.n===name)||{n:name,cat:'V',pbr:1.0};
@@ -177,8 +177,8 @@ function scoreLabel(v){
 
 // 選択月のPBRを使ってZスコアを再計算（正規化は全期間固定）
 function _zScoresFor(yyyymm){
-  const pbr1=DASHBOARD_DATA?.pbr1;
-  const sh=DASHBOARD_DATA?.sectors_history?.[yyyymm];
+  const pbr1=DASHBOARD_DATA?.pbr1||SAMPLE_PBR1;
+  const sh=DASHBOARD_DATA?.sectors_history?.[yyyymm]||SAMPLE_SECTORS_HISTORY[yyyymm.replace('/','')];
   if(!pbr1?.sectors?.length||!sh) return Z_SCORES;
   return pbr1.sectors.map((name,ri)=>{
     const s=sh.find(x=>x.n===name)||{n:name,cat:'V',pbr:1.0};

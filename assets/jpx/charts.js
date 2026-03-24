@@ -298,7 +298,8 @@ function showSectorDetail(s){
   document.getElementById('dlgDy').innerHTML=s.dy!=null?`${s.dy.toFixed(1)}<span style="font-size:11px;color:var(--muted)">%</span>`:'–';
   // PBR 推移スパークライン
   const idx=SECTORS.findIndex(x=>x.n===s.n);
-  const pbrHistory=DASHBOARD_DATA?.pbr1?.matrix?.[idx]||null;
+  const _pbr1m=DASHBOARD_DATA?.pbr1||SAMPLE_PBR1;
+  const pbrHistory=_pbr1m.matrix?.[idx]||null;
   document.getElementById('dlgSparkline').innerHTML=pbrHistory
     ?_sparkSvg(pbrHistory,'var(--accent)',180,24)
     :'<span style="font-size:10px;color:var(--muted)">（実データ接続時に表示）</span>';
@@ -701,13 +702,13 @@ function initCharts(){
         y:{title:{display:true,text:'加重PBR（倍）',color:chartTickColor(),font:{size:10}},
           ticks:{color:chartTickColor(),font:{size:10},callback:v=>v+'x'},grid:{color:chartGridColor()},min:0}}}});
 
-  // decompose — 実データ優先、なければサンプル係数
-  const dcSrc=DASHBOARD_DATA?.decomp?.slice(0,16)||[...SECTORS].sort((a,b)=>b.cap-a.cap).slice(0,16);
+  // decompose — 実データ優先、なければ SAMPLE_DECOMP
+  const dcSrc=(DASHBOARD_DATA?.decomp||SAMPLE_DECOMP).slice(0,16);
   const dcReal=!!(DASHBOARD_DATA?.decomp?.length);
   const dcLbl=dcSrc.map(d=>d.n);
-  const dcNA=dcReal?dcSrc.map(d=>d.na):dcSrc.map(s=>+(s.chg*.62).toFixed(2));
-  const dcPBR=dcReal?dcSrc.map(d=>d.pbr):dcSrc.map(s=>+(s.chg*.38).toFixed(2));
-  const dcFmt=dcReal?v=>Math.round(v*100)+'%':v=>v+'x';
+  const dcNA=dcSrc.map(d=>d.na);
+  const dcPBR=dcSrc.map(d=>d.pbr);
+  const dcFmt=v=>Math.round(v*100)+'%';
   charts.decomp=mk('decompC',{type:'bar',
     data:{labels:dcLbl,datasets:[
       {label:'純資産（BPS）成長',data:dcNA,backgroundColor:'rgba(41,201,154,.7)',borderRadius:2,stack:'s'},
