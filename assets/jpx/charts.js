@@ -774,7 +774,11 @@ function initCharts(){
   // val trend
   charts.valTrend=mk('valTrendC',{type:'line',data:{labels:MONTHS,datasets:[
     lineDs('PBR',PBR_TS,'#5b8df6','y'),lineDs('PER',PER_TS,'#f5a623','y2')]},
-    options:{...GC,plugins:{title:chartTitle('市場トレンド'),tooltip:{callbacks:{label:c=>ttLabel(c.dataset.label,c.parsed.y,'x',c.dataset.label==='PER'?1:2)}},emptyState:{display:true,text:'PBR/PER時系列データなし'}},scales:{
+    options:{...GC,plugins:{
+      legend:{display:true,labels:{color:chartLabelColor(),font:{size:10},boxWidth:10,padding:8}},
+      tooltip:{callbacks:{label:c=>ttLabel(c.dataset.label,c.parsed.y,'x',c.dataset.label==='PER'?1:2)}},
+      emptyState:{display:true,text:'PBR/PER時系列データなし'}
+    },scales:{
       x:{ticks:{color:chartTickColor(),font:{size:10}},grid:{color:chartGridColor()}},
       y:{title:{display:true,text:'PBR（倍）',color:accentBlue(),font:{size:10}},ticks:{color:accentBlue(),font:{size:10},callback:v=>v+'x'},grid:{color:chartGridColor()},position:'left'},
       y2:{title:{display:true,text:'PER（倍）',color:accentAmber(),font:{size:10}},ticks:{color:accentAmber(),font:{size:10},callback:v=>v+'x'},grid:{display:false},position:'right'}}}});
