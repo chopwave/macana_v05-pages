@@ -725,16 +725,16 @@
 
   <!-- タブ -->
   <div class="tabs">
-    <div class="tab act" onclick="swTab('cycle','phase',this)" title="CI一致指数・政策金利からフェーズ（回復→拡張→後退前→後退）を判定">フェーズ判定チャート<br><span style="font-size:9px;opacity:.65;font-weight:400">CI・金利推移</span></div>
-    <div class="tab" onclick="swTab('cycle','rec',this)" title="現フェーズに基づくBUY/HOLD/SELL推奨マップ。G・V・C・Dカテゴリ別に整理">BUY / HOLD / SELL 推奨<br><span style="font-size:9px;opacity:.65;font-weight:400">フェーズ別推奨</span></div>
-    <div class="tab" onclick="swTab('cycle','zscore',this)" title="Zスコア: 現PBR vs 同フェーズ過去平均。Z&lt;-1=割安強化、Z&gt;+1=割高警戒">PBR乖離Zスコア<br><span style="font-size:9px;opacity:.65;font-weight:400">同フェーズ比較</span></div>
-    <div class="tab" onclick="swTab('cycle','cdrat',this)" title="シクリカル vs ディフェンシブの時価総額シェア比。比率&gt;1=拡張期シグナル">シクリカル/ディフェンシブ<br><span style="font-size:9px;opacity:.65;font-weight:400">C/D比率</span></div>
-    <div class="tab" onclick="swTab('cycle','final',this)" title="総合スコア = フェーズ推奨(±2) + PBR乖離Zスコア符号(±1) + C/D強度ボーナス(±1)">総合シグナル<br><span style="font-size:9px;opacity:.65;font-weight:400">スコアランキング</span></div>
-    <div class="tab" onclick="swTab('cycle','history',this);renderPhaseHistory()" title="過去の景気フェーズ遷移を月次カラーバーで表示">フェーズ遷移履歴<br><span style="font-size:9px;opacity:.65;font-weight:400">月次タイムライン</span></div>
+    <div class="tab act" onclick="swTab('cycle','decision',this);renderPhaseHistory()" title="景気フェーズの判定と過去遷移をまとめて確認">判定<br><span style="font-size:9px;opacity:.65;font-weight:400">フェーズ・履歴</span></div>
+    <div class="tab" onclick="swTab('cycle','recommend',this)" title="現フェーズに基づくBUY/HOLD/SELL推奨と総合シグナルを確認">推奨<br><span style="font-size:9px;opacity:.65;font-weight:400">BUY/HOLD/SELL</span></div>
+    <div class="tab" onclick="swTab('cycle','detail',this)" title="PBR乖離Zスコアとシクリカル/ディフェンシブ比率の詳細指標を確認">詳細<br><span style="font-size:9px;opacity:.65;font-weight:400">Zスコア・C/D比率</span></div>
   </div>
 
-  <!-- タブ①: フェーズ判定チャート -->
-  <div class="tp act" id="cycle-phase">
+  <!-- タブ①: 判定 -->
+  <div class="tp act" id="cycle-decision">
+    <div class="banner banner-blue" style="margin-bottom:14px">
+      <strong>判定</strong>：現在のフェーズ判定と、過去の遷移履歴をまとめて確認します。
+    </div>
     <div class="card">
       <div class="card-hd">
         <span class="card-title">CI一致指数・政策金利 推移 ＋ フェーズ帯<span class="ym-badge" title="Plotlyモード時に選択月を縦線で表示">縦線マーカー</span></span>
@@ -749,10 +749,18 @@
         <span style="color:var(--muted)">※ 実運用時は内閣府CIを自動取得</span>
       </div>
     </div>
+    <div class="card">
+      <div class="card-hd"><span class="card-title">月次フェーズ遷移タイムライン</span><span class="card-meta">推定値（CIトレンド・金利・PBR変化より）</span></div>
+      <div id="phaseHistoryBar" style="padding:6px 0"></div>
+    </div>
+    <div class="card">
+      <div class="card-hd"><span class="card-title">フェーズ別在籍期間</span></div>
+      <div id="phaseDurationBar"></div>
+    </div>
   </div>
 
-  <!-- タブ②: BUY/HOLD/SELL推奨 -->
-  <div class="tp" id="cycle-rec">
+  <!-- タブ②: 推奨 -->
+  <div class="tp" id="cycle-recommend">
     <div class="banner banner-blue" style="margin-bottom:14px" id="recBanner">
       フェーズ別推奨マップを適用した結果。
       <strong id="recBannerPhase">現フェーズ</strong>に基づく BUY / HOLD / SELL 判定。
@@ -767,6 +775,10 @@
         <div id="recSellList"></div>
       </div>
     </div>
+    <div class="banner banner-green" style="margin-bottom:14px">
+      <strong>総合スコア</strong> = フェーズ推奨（±2）＋ PBR乖離Zスコア逆符号（±1）＋ C/D相対強度ボーナス（±1）<br>
+      ≥ +2 → Strong BUY　+1 → BUY　0 → HOLD　−1 → SELL　≤ −2 → Strong SELL
+    </div>
     <div class="card">
         <div class="card-hd"><span class="card-title">全業種 フェーズ推奨一覧<span class="ym-badge" title="年月連動">年月連動</span><span class="info-icon" tabindex="0" data-tip="各業種のカテゴリ特性と現在フェーズの相性で BUY / HOLD / SELL を判定します。カテゴリが同じでも、現在の PBR 水準は別途確認してください。" data-tip-pos="bottom">i</span></span></div>
         <div style="overflow-x:auto"><table class="sig-table" id="recTable">
@@ -776,10 +788,20 @@
         <tbody id="recBody"></tbody>
       </table></div>
     </div>
+    <div class="card">
+      <div class="card-hd">
+        <span class="card-title">業種別 総合スコアランキング<span class="ym-badge" title="年月連動">年月連動</span></span>
+        <span class="card-meta" id="finalPhaseMeta">現フェーズ: –</span>
+      </div>
+      <div id="finalSignalList"></div>
+    </div>
   </div>
 
-  <!-- タブ③: PBR乖離Zスコア -->
-  <div class="tp" id="cycle-zscore">
+  <!-- タブ③: 詳細 -->
+  <div class="tp" id="cycle-detail">
+    <div class="banner banner-blue" style="margin-bottom:14px">
+      <strong>詳細</strong>：推奨判定を補強するための Zスコアと C/D比率を確認します。
+    </div>
     <div class="banner banner-blue" style="margin-bottom:14px">
       現在PBRを同フェーズの過去平均と比較したZスコア。
       <strong>Z &lt; −1.0 = 同フェーズ比 割安（BUY強化）</strong>　Z &gt; +1.0 = 割高（SELL強化 / 利確検討）
@@ -791,10 +813,6 @@
       </div>
       <div class="ch" style="height:400px"><canvas id="zscoreC"></canvas></div>
     </div>
-  </div>
-
-  <!-- タブ④: シクリカル/ディフェンシブ相対強度 -->
-  <div class="tp" id="cycle-cdrat">
     <div class="banner banner-blue" style="margin-bottom:14px">
       シクリカル（C）とディフェンシブ（D）の時価総額シェア変化速度を比較。
       <strong>比率 &gt; 1.0 → 拡張期シグナル</strong>　比率 &lt; 0 → 後退期シグナル
@@ -820,37 +838,6 @@
         <div class="card-hd"><span class="card-title">フェーズシグナル判定</span></div>
         <div id="cdSignalList" style="padding:4px 0"></div>
       </div>
-    </div>
-  </div>
-
-  <!-- タブ⑤: 総合シグナル -->
-  <div class="tp" id="cycle-final">
-    <div class="banner banner-green" style="margin-bottom:14px">
-      <strong>総合スコア</strong> = フェーズ推奨（±2）＋ PBR乖離Zスコア逆符号（±1）＋ C/D相対強度ボーナス（±1）<br>
-      ≥ +2 → Strong BUY　+1 → BUY　0 → HOLD　−1 → SELL　≤ −2 → Strong SELL
-    </div>
-    <div class="card">
-      <div class="card-hd">
-        <span class="card-title">業種別 総合スコアランキング<span class="ym-badge" title="年月連動">年月連動</span></span>
-        <span class="card-meta" id="finalPhaseMeta">現フェーズ: –</span>
-      </div>
-      <div id="finalSignalList"></div>
-    </div>
-  </div>
-
-  <!-- C-6: タブ⑥: フェーズ遷移履歴 -->
-  <div class="tp" id="cycle-history">
-    <div class="banner banner-blue" style="margin-bottom:14px">
-      <strong>景気フェーズ遷移履歴</strong>：各月の景気フェーズをCI・金利・PBRトレンドから推定して可視化します。
-      <span style="color:var(--green)">■ 回復期</span>　<span style="color:var(--accent)">■ 拡張期</span>　<span style="color:var(--amber)">■ 後退前期</span>　<span style="color:var(--red)">■ 後退期</span>
-    </div>
-    <div class="card">
-      <div class="card-hd"><span class="card-title">月次フェーズ遷移タイムライン</span><span class="card-meta">推定値（CIトレンド・金利・PBR変化より）</span></div>
-      <div id="phaseHistoryBar" style="padding:6px 0"></div>
-    </div>
-    <div class="card" style="margin-top:12px">
-      <div class="card-hd"><span class="card-title">フェーズ別在籍期間</span></div>
-      <div id="phaseDurationBar"></div>
     </div>
   </div>
 

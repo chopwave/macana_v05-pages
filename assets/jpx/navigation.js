@@ -18,6 +18,7 @@ function goto(id,el,silent){
     _cycleInited=true;
     _initCycleDom();
     initCycleCharts();
+    if(typeof renderPhaseHistory==='function') renderPhaseHistory();
     renderPlotlyCycle();
     applyChartMode();
   }
