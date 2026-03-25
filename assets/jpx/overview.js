@@ -117,7 +117,10 @@ function renderScreen(){
       <td style="font-family:var(--mono)">${s.cos}</td>
       <td style="font-family:var(--mono)">${s.dy!=null?s.dy.toFixed(1)+'%':'–'}</td>
       <td>${sig.txt?`<span class="chip ${sig.cls}">${sig.txt}</span>`:''}</td>
-      <td><button onclick="addToNote('${s.n}',${s.pbr},${s.chg})" style="background:none;border:1px solid var(--border2);color:var(--muted);padding:2px 8px;border-radius:4px;font-size:10px;cursor:pointer">メモ</button></td>
+      <td style="white-space:nowrap">
+        <button onclick="showSectorDetail(_curSectors().find(x=>x.n==='${s.n.replace(/'/g,"\\'")}'))" title="詳細ダイアログを開く" style="background:none;border:1px solid var(--border2);color:var(--muted);padding:2px 8px;border-radius:4px;font-size:10px;cursor:pointer;margin-right:4px">🔍</button>
+        <button onclick="addToNote('${s.n}',${s.pbr},${s.chg})" title="この業種をメモへ追加" style="background:none;border:1px solid var(--border2);color:var(--muted);padding:2px 8px;border-radius:4px;font-size:10px;cursor:pointer">メモ</button>
+      </td>
     </tr>`;
   }).join('');
 }

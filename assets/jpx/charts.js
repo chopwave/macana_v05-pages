@@ -134,6 +134,7 @@ function setTheme(mode){
   syncChartDefaults();
   refreshChartColors();
   renderHeatmap();
+  if(typeof renderHeatmapChart==='function') renderHeatmapChart(true);
   selEv(currentEv, document.querySelector('.ev.act'));
   renderAllPlotly();
   renderPlotlyEvent(EVENTS[currentEv] || EVENTS[0]);
@@ -609,6 +610,7 @@ function toggleAllLines(chartKey, btnId){
   const allVisible=chart.data.datasets.every((_,i)=>chart.isDatasetVisible(i));
   chart.data.datasets.forEach((_,i)=>chart.setDatasetVisibility(i,!allVisible));
   chart.update();
+  if(chartKey==='heatLine' && typeof renderHeatLineLegend==='function') renderHeatLineLegend();
   const btn=document.getElementById(btnId);
   if(btn) btn.textContent=allVisible?'全て表示にする':'全て非表示にする';
 }

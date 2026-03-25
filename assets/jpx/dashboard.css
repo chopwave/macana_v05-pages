@@ -143,6 +143,20 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13
 .card-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
 .card-title{font-size:12px;font-weight:500;color:var(--text)}
 .card-meta{font-size:10px;color:var(--muted)}
+.chart-legend-grid{
+  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px 10px
+}
+.legend-chip{
+  display:flex;align-items:center;gap:6px;min-width:0;
+  padding:4px 8px;border-radius:8px;border:1px solid var(--border);
+  background:var(--bg3);color:var(--muted);font-size:10px;cursor:pointer;transition:.12s
+}
+.legend-chip:hover,.legend-chip:focus-visible{
+  color:var(--text);border-color:rgba(91,141,246,.35);outline:none
+}
+.legend-chip.off{opacity:.45;background:transparent}
+.legend-dot{width:10px;height:3px;border-radius:99px;flex-shrink:0}
+.legend-label{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .ch{position:relative}.ch-220{height:220px}.ch-300{height:300px}.ch-360{height:360px}.ch-160{height:160px}
 .plotly-host{width:100%;height:100%;display:none}
 .plotly-host.act{display:block}
@@ -300,6 +314,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13
   .shortcut-fab{right:12px;bottom:12px;width:42px;height:42px}
   #slMktSel,#slScaleSel,#slSearch,#stocksSearch,#stocksRankSel,#stocksStepSel{min-height:38px}
   .rec-name{width:auto;flex:1 1 auto}
+  .chart-legend-grid{grid-template-columns:1fr}
 }
 @media (max-width:480px){
   .topbar{padding:8px 8px;gap:6px}
@@ -318,6 +333,17 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13
   .card-hd[style*="flex-wrap:wrap"] > div[style*="margin-left:auto"]{width:100%;margin-left:0!important}
   #slMktSel,#slScaleSel,#slSearch,#stocksSearch,#stocksRankSel,#stocksStepSel{width:100%!important}
   [data-tip]::after{max-width:min(220px,calc(100vw - 32px))}
+  .tab{padding:6px 10px;font-size:10px}
+  .page-link{font-size:9px;padding:4px 8px}
+  .card-title{font-size:11px}
+  .sig-table th,.sig-table td{padding:6px 8px}
+}
+@media (max-width:400px){
+  .nav-group .flow{display:none}
+  .tb-btn,.pill-toggle,.pill{font-size:9px}
+  .tb-ym{min-width:108px}
+  .chart-legend-grid{gap:4px}
+  .legend-chip{padding:4px 6px;font-size:9px}
 }
 
 /* ── C-4: 印刷対応 ── */

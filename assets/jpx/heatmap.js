@@ -97,6 +97,26 @@ function showHeatDrilldown(td){
 // 折れ線グラフ（C-*追加: 業種別PBR推移）
 let _heatLineInited=false;
 let _heatLineAll=false;
+function renderHeatLineLegend(){
+  const host=document.getElementById('heatLineLegend');
+  const chart=charts.heatLine;
+  if(!host||!chart) return;
+  host.innerHTML=chart.data.datasets.map((ds,idx)=>{
+    if(ds.label==='1.0x') return '';
+    const visible=chart.isDatasetVisible(idx);
+    return `<button type="button" class="legend-chip ${visible?'':'off'}" title="${visible?'クリックで非表示':'クリックで再表示'}" onclick="toggleHeatLineSeries(${idx})">
+      <span class="legend-dot" style="background:${ds.borderColor}"></span>
+      <span class="legend-label">${ds.label}</span>
+    </button>`;
+  }).join('');
+}
+function toggleHeatLineSeries(idx){
+  const chart=charts.heatLine;
+  if(!chart) return;
+  chart.setDatasetVisibility(idx,!chart.isDatasetVisible(idx));
+  chart.update();
+  renderHeatLineLegend();
+}
 
 function toggleHeatLineFilter(){
   _heatLineAll=!_heatLineAll;
@@ -151,7 +171,7 @@ function renderHeatmapChart(force){
       plugins:{
         title:chartTitle('業種別 PBR推移（月次）'),
         legend:{
-          display:true,
+          display:false,
           labels:{
             color:chartLabelColor(),
             font:{size:10},
@@ -177,6 +197,7 @@ function renderHeatmapChart(force){
       }
     }
   });
+  renderHeatLineLegend();
 }
 
 function applyHeatmapMode(){
