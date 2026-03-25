@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>JPX セクター分析 / 投資作業台</title>
+<title>JP Macro Analyzer</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=JetBrains+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
 <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
@@ -321,6 +321,17 @@
       <div>
         <div style="font-weight:500;color:var(--text);margin-bottom:4px">景気指標（分析④）</div>
         <div style="color:var(--muted)">景気循環分析では内閣府景気動向指数（CI）・日銀政策金利などのマクロ指標を使用します。サンプルモードでは近似値を表示します。</div>
+      </div>
+      <div style="grid-column:1/-1">
+        <div style="font-weight:500;color:var(--text);margin-bottom:4px">使用データソース</div>
+        <div style="color:var(--muted);line-height:1.9">
+          ・<strong>業種別PBR / PER / 上場社数</strong>：
+          JPX 公表の業種別データを月次で整形した集計値。<br>
+          ・<strong>景気循環分析</strong>：
+          内閣府 景気動向指数（CI）、日本銀行の政策金利、10年国債利回りなどのマクロ系列。<br>
+          ・<strong>イベント別反応 / 成長要因分解</strong>：
+          上記の業種別月次データをもとに、月次差分・寄与分解として再計算しています。
+        </div>
       </div>
       <div style="grid-column:1/-1">
         <div style="font-weight:500;color:var(--text);margin-bottom:4px">⚠ 注意事項</div>
