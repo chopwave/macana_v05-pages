@@ -22,6 +22,10 @@ function goto(id,el,silent){
     renderPlotlyCycle();
     applyChartMode();
   }
+  if(id==='pbr1'){
+    if(typeof renderHeatmapChart==='function') renderHeatmapChart(true);
+    if(typeof applyHeatmapMode==='function') applyHeatmapMode();
+  }
   if(id==='eval') initStocks();
   if(id==='stocks') initStockList();
 }

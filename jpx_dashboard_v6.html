@@ -346,10 +346,12 @@
 
 <!-- ═══ スクリーニング ═══ -->
 <div class="page" id="pg-screen">
-  <div class="page-summary"><strong>概要：</strong>東証33業種を条件で絞り込み、注目業種を素早く洗い出します。</div>
-  <div class="page-links">
-    <button class="page-link" onclick="goto('pbr1')">次に見る: PBR 1倍割れ</button>
-    <button class="page-link" onclick="goto('scatter')">次に見る: 散布図</button>
+  <div class="page-head">
+    <div class="page-summary"><strong>概要：</strong>東証33業種を条件で絞り込み、注目業種を素早く洗い出します。</div>
+    <div class="page-links">
+      <button class="page-link" onclick="goto('pbr1')">次に見る: PBR 1倍割れ</button>
+      <button class="page-link" onclick="goto('scatter')">次に見る: 散布図</button>
+    </div>
   </div>
   <div class="filter-bar">
     <span class="filter-label">カテゴリ</span>
@@ -548,10 +550,12 @@
 
 <!-- ═══ PBR 1倍割れ ═══ -->
 <div class="page" id="pg-pbr1">
-  <div class="page-summary"><strong>概要：</strong>PBR 1倍割れ業種の改善状況を、時系列とヒートマップで追跡します。</div>
-  <div class="page-links">
-    <button class="page-link" onclick="goto('scatter')">関連: 散布図で規模確認</button>
-    <button class="page-link" onclick="goto('decomp')">関連: 成長要因分解へ</button>
+  <div class="page-head">
+    <div class="page-summary"><strong>概要：</strong>PBR 1倍割れ業種の改善状況を、時系列とヒートマップで追跡します。</div>
+    <div class="page-links">
+      <button class="page-link" onclick="goto('scatter')">関連: 散布図で規模確認</button>
+      <button class="page-link" onclick="goto('decomp')">関連: 成長要因分解へ</button>
+    </div>
   </div>
   <div class="banner banner-blue">
     <strong>PBR 1倍割れ追跡</strong>：緑=1倍超、黄=0.8〜1倍（改善途上）、赤=0.8倍未満。東証改革要請（2023/04）以降に改善した業種に注目。セルをクリックすると詳細を表示します。
@@ -621,10 +625,12 @@
 
 <!-- ═══ 散布図 ═══ -->
 <div class="page" id="pg-scatter">
-  <div class="page-summary"><strong>概要：</strong>規模・PBR・ROE の位置関係から、各業種の立ち位置を直感的に確認します。</div>
-  <div class="page-links">
-    <button class="page-link" onclick="goto('decomp')">関連: 成長要因分解へ</button>
-    <button class="page-link" onclick="goto('stocks')">関連: 銘柄一覧へ</button>
+  <div class="page-head">
+    <div class="page-summary"><strong>概要：</strong>規模・PBR・ROE の位置関係から、各業種の立ち位置を直感的に確認します。</div>
+    <div class="page-links">
+      <button class="page-link" onclick="goto('decomp')">関連: 成長要因分解へ</button>
+      <button class="page-link" onclick="goto('stocks')">関連: 銘柄一覧へ</button>
+    </div>
   </div>
   <div class="tabs">
     <div class="tab act" onclick="swTab('scatter','cap',this)" title="横軸=加重PBR、縦軸=時価総額（兆円）、バブルサイズ=上場会社数">時価総額 × PBR<br><span style="font-size:9px;opacity:.65;font-weight:400">規模ポジショニング</span></div>
@@ -679,10 +685,12 @@
 
 <!-- ═══ 景気循環分析 ═══ -->
 <div class="page" id="pg-cycle">
-  <div class="page-summary"><strong>概要：</strong>マクロ指標から景気フェーズを判定し、有利になりやすい業種群を確認します。</div>
-  <div class="page-links">
-    <button class="page-link" onclick="goto('screen')">関連: スクリーニングへ戻る</button>
-    <button class="page-link" onclick="goto('eval',null,true)">関連: 銘柄別評価へ</button>
+  <div class="page-head">
+    <div class="page-summary"><strong>概要：</strong>マクロ指標から景気フェーズを判定し、有利になりやすい業種群を確認します。</div>
+    <div class="page-links">
+      <button class="page-link" onclick="goto('screen')">関連: スクリーニングへ戻る</button>
+      <button class="page-link" onclick="goto('eval',null,true)">関連: 銘柄別評価へ</button>
+    </div>
   </div>
 
   <!-- フェーズバナー -->
@@ -847,10 +855,12 @@
 
 <!-- ═══ ロードマップ ═══ -->
 <div class="page" id="pg-decomp">
-  <div class="page-summary"><strong>概要：</strong>時価総額の変化を、純資産の積み上がりと評価倍率の変化に分けて見ます。</div>
-  <div class="page-links">
-    <button class="page-link" onclick="goto('event')">関連: イベント別反応へ</button>
-    <button class="page-link" onclick="goto('eval',null,true)">関連: 銘柄別評価へ</button>
+  <div class="page-head">
+    <div class="page-summary"><strong>概要：</strong>時価総額の変化を、純資産の積み上がりと評価倍率の変化に分けて見ます。</div>
+    <div class="page-links">
+      <button class="page-link" onclick="goto('event')">関連: イベント別反応へ</button>
+      <button class="page-link" onclick="goto('eval',null,true)">関連: 銘柄別評価へ</button>
+    </div>
   </div>
     <div class="banner banner-green">
     <strong>成長要因分析</strong>：①要因分解 = 時価総額成長 ≈ BPS成長寄与＋PBR変化寄与　②時価総額 / ③純資産（BPS）= 業種別の規模ランキング（年月連動）
@@ -1007,10 +1017,12 @@
 
 <!-- ═══ 銘柄一覧 ═══ -->
 <div class="page" id="pg-stocks">
-  <div class="page-summary"><strong>概要：</strong>業種内の代表銘柄を、市場区分や規模で絞り込んで確認します。</div>
-  <div class="page-links">
-    <button class="page-link" onclick="goto('scatter')">関連: 散布図へ戻る</button>
-    <button class="page-link" onclick="goto('eval',null,true)">関連: 銘柄別評価へ</button>
+  <div class="page-head">
+    <div class="page-summary"><strong>概要：</strong>業種内の代表銘柄を、市場区分や規模で絞り込んで確認します。</div>
+    <div class="page-links">
+      <button class="page-link" onclick="goto('scatter')">関連: 散布図へ戻る</button>
+      <button class="page-link" onclick="goto('eval',null,true)">関連: 銘柄別評価へ</button>
+    </div>
   </div>
   <div class="card" style="margin-bottom:12px">
     <div class="card-hd" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
@@ -1073,10 +1085,12 @@
 
 <!-- ═══ 銘柄別評価 ═══ -->
 <div class="page" id="pg-eval">
-  <div class="page-summary"><strong>概要：</strong>7ステップの条件で候補銘柄を絞り込み、スコアと通過状況を確認します。</div>
-  <div class="page-links">
-    <button class="page-link" onclick="goto('stocks')">関連: 銘柄一覧へ</button>
-    <button class="page-link" onclick="goto('notes',null,true)">関連: チームメモへ</button>
+  <div class="page-head">
+    <div class="page-summary"><strong>概要：</strong>7ステップの条件で候補銘柄を絞り込み、スコアと通過状況を確認します。</div>
+    <div class="page-links">
+      <button class="page-link" onclick="goto('stocks')">関連: 銘柄一覧へ</button>
+      <button class="page-link" onclick="goto('notes',null,true)">関連: チームメモへ</button>
+    </div>
   </div>
   <div class="card" style="margin-bottom:12px">
     <div class="card-hd" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
