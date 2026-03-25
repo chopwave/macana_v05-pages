@@ -80,6 +80,21 @@ function _initCycleDom(){
   };
   const phDesc=document.getElementById('phaseDesc');
   if(phDesc) phDesc.innerHTML=_phDesc[CURRENT_PHASE]||phDesc.innerHTML;
+  const ciLast2=CI_COIN.slice(-3);
+  const ciTrend=ciLast2.length>=2?(ciLast2[ciLast2.length-1]-ciLast2[0]):0;
+  const polRateLast=POL_RATE[POL_RATE.length-1]??0;
+  const jgbLast=JGB10Y[JGB10Y.length-1]??0;
+  const ciMsg=ciTrend>0.4?`CI一致指数が直近で ${ciTrend.toFixed(1)}pt 上昇`:
+    ciTrend<-0.2?`CI一致指数が直近で ${Math.abs(ciTrend).toFixed(1)}pt 低下`:
+    'CI一致指数は横ばい圏';
+  const polMsg=polRateLast>=0.5?`政策金利 ${polRateLast.toFixed(2)}% と引き締め寄り`:
+    `政策金利 ${polRateLast.toFixed(2)}% でまだ低位圏`;
+  const jgbMsg=jgbLast>=1.0?`10年国債 ${jgbLast.toFixed(2)}% と金利水準は高め`:
+    `10年国債 ${jgbLast.toFixed(2)}% で長期金利は抑制的`;
+  const phaseWhy=document.getElementById('phaseWhy');
+  if(phaseWhy){
+    phaseWhy.innerHTML=`<strong>判定根拠：</strong>${ciMsg}、${polMsg}、${jgbMsg}のため、現在は <strong>${CURRENT_PHASE}</strong> と判定しています。`;
+  }
 
   // BUY/SELL バナー
   const recBP=document.getElementById('recBannerPhase');

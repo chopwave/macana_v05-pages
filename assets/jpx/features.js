@@ -7,7 +7,7 @@ function _togglePlay(btnId,lblId,key){
     clearInterval(_playTimers[key]);
     _playTimers[key]=null;
     if(btn) btn.textContent='▶ 再生';
-    if(lbl) lbl.textContent='年月を自動コマ送りします';
+    if(lbl) lbl.textContent='再生すると 2020/01 から最新月まで自動表示します';
     return;
   }
   const sel=document.getElementById('ymSel');

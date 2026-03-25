@@ -37,8 +37,8 @@ function renderHeatmap(){
             : v>=0.8?['#3a2a00','#f5a623']
             : ['#3a0e0e','#e05454']
           );
-      h+=`<td style="background:${bg};color:${fg};text-align:center;padding:3px 6px;border:1px solid ${cellBorder};font-family:var(--mono);cursor:pointer" onclick="showHeatDrilldown(this)"
-        data-sector="${name.replace(/'/g,'&#39;')}" data-months="${months6.join(',')}">${v.toFixed(1)}</td>`;
+      h+=`<td class="heat-clickable" style="background:${bg};color:${fg};text-align:center;padding:3px 6px;border:1px solid ${cellBorder};font-family:var(--mono);cursor:pointer" onclick="showHeatDrilldown(this)"
+        title="クリックで詳細を表示" data-sector="${name.replace(/'/g,'&#39;')}" data-months="${months6.join(',')}">${v.toFixed(1)}</td>`;
     });
     h+='</tr>';
   });

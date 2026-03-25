@@ -116,6 +116,11 @@ function updateDataModePill(){
     el.title='';
   }
 }
+function updateSampleModeBanner(){
+  const el=document.getElementById('sampleModeBanner');
+  if(!el) return;
+  el.style.display=!DASHBOARD_DATA?'block':'none';
+}
 function toggleDataMode(){
   if(!window.JPX_DASHBOARD_DATA) return;
   if(_forceSample && typeof _isMember==='function' && !_isMember()){
@@ -502,7 +507,7 @@ function toggleAllLines(chartKey, btnId){
   chart.data.datasets.forEach((_,i)=>chart.setDatasetVisibility(i,!allVisible));
   chart.update();
   const btn=document.getElementById(btnId);
-  if(btn) btn.textContent=allVisible?'全て表示':'全て非表示';
+  if(btn) btn.textContent=allVisible?'全て表示にする':'全て非表示にする';
 }
 
 function _lineChartOpts(){
@@ -643,6 +648,7 @@ Chart.register({
 });
 
 function initCharts(){
+  updateSampleModeBanner();
   renderSectList();
   // 初期ソートインジケーターを設定（業種コード昇順）
   const initTh=document.querySelector('#screenThead th[data-skey="code"]');
@@ -695,10 +701,11 @@ function initCharts(){
   // scatter (cap×pbr)
   charts.scatter=mk('scatterC',{type:'bubble',
     data:{datasets:[{label:'',data:SECTORS.map(s=>({x:s.pbr,y:s.cap,r:Math.sqrt(s.cos)*1.1,sector:s.n})),
-      backgroundColor:SECTORS.map(s=>CAT_COL[s.cat]+'bb'),borderColor:SECTORS.map(s=>CAT_COL[s.cat]),borderWidth:1}]},
-    options:{...GC,
-      onClick:(e,elements)=>{if(elements.length)showSectorDetail(_curSectors()[elements[0].index]);},
-      plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`${c.raw.sector}  PBR:${c.raw.x}x  ${c.raw.y.toFixed(1)}兆円`}}},
+        backgroundColor:SECTORS.map(s=>CAT_COL[s.cat]+'bb'),borderColor:SECTORS.map(s=>CAT_COL[s.cat]),borderWidth:1}]},
+      options:{...GC,
+        onHover:(e,elements)=>{e.native.target.style.cursor=elements.length?'pointer':'default';},
+        onClick:(e,elements)=>{if(elements.length)showSectorDetail(_curSectors()[elements[0].index]);},
+        plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`${c.raw.sector}  PBR:${c.raw.x}x  ${c.raw.y.toFixed(1)}兆円`}}},
       scales:{x:{title:{display:true,text:'加重PBR（倍）',color:chartTickColor(),font:{size:10}},
           ticks:{color:chartTickColor(),font:{size:10},callback:v=>v+'x'},grid:{color:chartGridColor()},min:0,max:4.5},
         y:{title:{display:true,text:'時価総額（兆円）',color:chartTickColor(),font:{size:10}},
@@ -710,12 +717,13 @@ function initCharts(){
   const _roeData=src=>{const arr=src||_curSectors();return arr.filter(s=>_roe(s)!=null).map(s=>({x:_roe(s),y:s.pbr,r:Math.max(6,Math.sqrt((s.cap??1)*10)),sector:s.n}));};
   window._roeData=_roeData;
   charts.roe=mk('roeC',{type:'bubble',
-    data:{datasets:[{label:'',data:_roeData(),
-      backgroundColor:_curSectors().filter(s=>_roe(s)!=null).map(s=>CAT_COL[s.cat]+'bb'),
-      borderColor:_curSectors().filter(s=>_roe(s)!=null).map(s=>CAT_COL[s.cat]),borderWidth:1}]},
-    options:{...GC,
-      onClick:(e,elements)=>{if(elements.length){const d=_roeData();showSectorDetail(_curSectors().find(s=>s.n===d[elements[0].index]?.sector));}},
-      plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`${c.raw.sector}  ROE:${c.raw.x?.toFixed(1)}%  PBR:${c.raw.y?.toFixed(1)}x`}}},
+      data:{datasets:[{label:'',data:_roeData(),
+        backgroundColor:_curSectors().filter(s=>_roe(s)!=null).map(s=>CAT_COL[s.cat]+'bb'),
+        borderColor:_curSectors().filter(s=>_roe(s)!=null).map(s=>CAT_COL[s.cat]),borderWidth:1}]},
+      options:{...GC,
+        onHover:(e,elements)=>{e.native.target.style.cursor=elements.length?'pointer':'default';},
+        onClick:(e,elements)=>{if(elements.length){const d=_roeData();showSectorDetail(_curSectors().find(s=>s.n===d[elements[0].index]?.sector));}},
+        plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`${c.raw.sector}  ROE:${c.raw.x?.toFixed(1)}%  PBR:${c.raw.y?.toFixed(1)}x`}}},
       scales:{x:{title:{display:true,text:'ROE（%、理論値＝PBR÷PER×100）',color:chartTickColor(),font:{size:10}},
           ticks:{color:chartTickColor(),font:{size:10},callback:v=>v+'%'},grid:{color:chartGridColor()},min:0},
         y:{title:{display:true,text:'加重PBR（倍）',color:chartTickColor(),font:{size:10}},

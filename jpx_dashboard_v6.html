@@ -124,6 +124,9 @@
 <!-- main -->
 <main class="main">
 <div class="content" id="contentArea">
+<div id="sampleModeBanner" class="sample-mode-banner">
+  <strong>サンプルデータ表示中</strong>：いま表示しているのは代表値ベースの参考データです。実データへ切り替えると、全銘柄と評価系の詳細を利用できます。
+</div>
 
 <!-- ═══ ReadMe First ═══ -->
 <div class="page" id="pg-readme">
@@ -343,6 +346,7 @@
 
 <!-- ═══ スクリーニング ═══ -->
 <div class="page" id="pg-screen">
+  <div class="page-summary"><strong>概要：</strong>東証33業種を条件で絞り込み、注目業種を素早く洗い出します。</div>
   <div class="filter-bar">
     <span class="filter-label">カテゴリ</span>
     <div class="filter-group" id="fg-cat">
@@ -400,6 +404,7 @@
 
 <!-- ═══ 全体サマリー ═══ -->
 <div class="page act" id="pg-overview">
+  <div class="page-summary"><strong>概要：</strong>市場全体の割安感と、いま相対的に注目される業種を月次で俯瞰します。</div>
   <div style="display:flex;justify-content:flex-end;margin-bottom:6px">
     <span class="ym-badge" title="年月リストで選択した月のデータに連動します">年月連動</span>
   </div>
@@ -459,6 +464,7 @@
 
 <!-- ═══ バリュエーション ═══ -->
 <div class="page" id="pg-val">
+  <div class="page-summary"><strong>概要：</strong>PBR と PER の推移や業種差から、相対的な割安・割高を確認します。</div>
   <div class="tabs">
     <div class="tab act" onclick="swTab('val','mkt',this)" title="PBR・PER の時系列推移（市場全体）">市場トレンド<br><span style="font-size:9px;opacity:.65;font-weight:400">PBR・PER推移</span></div>
     <div class="tab" onclick="swTab('val','ind',this)" title="業種別PBR変化率ランキング（年月連動）">業種ランキング<br><span style="font-size:9px;opacity:.65;font-weight:400">変化率順</span></div>
@@ -538,6 +544,7 @@
 
 <!-- ═══ PBR 1倍割れ ═══ -->
 <div class="page" id="pg-pbr1">
+  <div class="page-summary"><strong>概要：</strong>PBR 1倍割れ業種の改善状況を、時系列とヒートマップで追跡します。</div>
   <div class="banner banner-blue">
     <strong>PBR 1倍割れ追跡</strong>：緑=1倍超、黄=0.8〜1倍（改善途上）、赤=0.8倍未満。東証改革要請（2023/04）以降に改善した業種に注目。セルをクリックすると詳細を表示します。
   </div>
@@ -551,7 +558,7 @@
         <span class="card-title">業種別 PBR推移（月次）</span>
         <div style="display:flex;gap:6px">
           <button id="heatLineFilterBtn" onclick="toggleHeatLineFilter()" style="background:var(--bg4);border:1px solid var(--border2);color:var(--muted);padding:3px 10px;border-radius:5px;font-size:11px;cursor:pointer">PBR &lt; 1.0 のみ</button>
-          <button id="heatLineAllBtn" onclick="toggleAllLines('heatLine','heatLineAllBtn')" style="background:var(--bg4);border:1px solid var(--border2);color:var(--muted);padding:3px 10px;border-radius:5px;font-size:11px;cursor:pointer">全て非表示</button>
+          <button id="heatLineAllBtn" onclick="toggleAllLines('heatLine','heatLineAllBtn')" style="background:var(--bg4);border:1px solid var(--border2);color:var(--muted);padding:3px 10px;border-radius:5px;font-size:11px;cursor:pointer">全て非表示にする</button>
         </div>
       </div>
       <div class="ch ch-360"><canvas id="heatLineC"></canvas></div>
@@ -567,6 +574,7 @@
 
 <!-- ═══ イベント別反応 ═══ -->
 <div class="page" id="pg-event">
+  <div class="page-summary"><strong>概要：</strong>主要イベントの前後で、どの業種の PBR とシェアが動いたかを比較します。</div>
   <div class="ev-row">
     <div class="ev ev1 act" onclick="selEv(0,this)">① コロナ底 2020/03</div>
     <div class="ev ev2"     onclick="selEv(1,this)">② コロナ回復 2021/06</div>
@@ -597,6 +605,7 @@
 
 <!-- ═══ 散布図 ═══ -->
 <div class="page" id="pg-scatter">
+  <div class="page-summary"><strong>概要：</strong>規模・PBR・ROE の位置関係から、各業種の立ち位置を直感的に確認します。</div>
   <div class="tabs">
     <div class="tab act" onclick="swTab('scatter','cap',this)" title="横軸=加重PBR、縦軸=時価総額（兆円）、バブルサイズ=上場会社数">時価総額 × PBR<br><span style="font-size:9px;opacity:.65;font-weight:400">規模ポジショニング</span></div>
     <div class="tab" onclick="swTab('scatter','roe',this)" title="横軸=ROE（理論値）、縦軸=PBR（倍）、バブルサイズ=時価総額。ROE低×PBR高＝過大評価、ROE高×PBR低＝割安候補">ROE × PBR<br><span style="font-size:9px;opacity:.65;font-weight:400">収益性ポジショニング</span></div>
@@ -610,7 +619,7 @@
     </div>
     <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
       <button id="scatterPlayBtn" onclick="toggleScatterPlay()" style="background:var(--bg4);border:1px solid var(--border2);color:var(--muted);padding:4px 12px;border-radius:5px;font-size:11px;cursor:pointer">▶ 再生</button>
-      <span style="font-size:10px;color:var(--hint)" id="scatterPlayLabel">年月を自動コマ送りします</span>
+      <span style="font-size:10px;color:var(--hint)" id="scatterPlayLabel">再生すると 2020/01 から最新月まで自動表示します</span>
     </div>
     <div class="card">
       <div class="card-hd"><span class="card-title">業種別 時価総額 × PBR バブルチャート<span class="ym-badge" title="年月連動">年月連動</span><span class="info-icon" tabindex="0" data-tip="バブルをクリックすると業種詳細を表示します。&#10;横軸は PBR、縦軸は時価総額、サイズは上場会社数です。" data-tip-pos="bottom">i</span></span><span class="card-meta" id="scYm">2020/01</span></div>
@@ -620,7 +629,7 @@
         <span><span style="color:var(--amber)">■</span> シクリカル</span>
         <span><span style="color:var(--green)">■</span> ディフェンシブ</span>
       </div>
-      <div class="ch ch-360"><canvas id="scatterC"></canvas></div>
+      <div class="ch ch-360"><canvas id="scatterC" class="chart-clickable"></canvas></div>
     </div>
   </div>
 
@@ -633,7 +642,7 @@
     </div>
     <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
       <button id="roePlayBtn" onclick="toggleRoePlay()" style="background:var(--bg4);border:1px solid var(--border2);color:var(--muted);padding:4px 12px;border-radius:5px;font-size:11px;cursor:pointer">▶ 再生</button>
-      <span style="font-size:10px;color:var(--hint)" id="roePlayLabel">年月を自動コマ送りします</span>
+      <span style="font-size:10px;color:var(--hint)" id="roePlayLabel">再生すると 2020/01 から最新月まで自動表示します</span>
     </div>
     <div class="card">
       <div class="card-hd"><span class="card-title">業種別 ROE × PBR バブルチャート<span class="ym-badge" title="年月連動">年月連動</span></span><span class="card-meta" id="roeYm"></span></div>
@@ -643,13 +652,14 @@
         <span><span style="color:var(--amber)">■</span> シクリカル</span>
         <span><span style="color:var(--green)">■</span> ディフェンシブ</span>
       </div>
-      <div class="ch ch-360"><canvas id="roeC"></canvas></div>
+      <div class="ch ch-360"><canvas id="roeC" class="chart-clickable"></canvas></div>
     </div>
   </div>
 </div>
 
 <!-- ═══ 景気循環分析 ═══ -->
 <div class="page" id="pg-cycle">
+  <div class="page-summary"><strong>概要：</strong>マクロ指標から景気フェーズを判定し、有利になりやすい業種群を確認します。</div>
 
   <!-- フェーズバナー -->
   <div style="display:flex;align-items:center;gap:14px;margin-bottom:16px;flex-wrap:wrap">
@@ -659,13 +669,14 @@
       <!-- C-2: 信頼スコア -->
       <div style="margin-top:6px;font-size:10px;color:var(--muted)" id="phaseScoreBadge">信頼スコア <span style="font-family:var(--mono)">–%</span></div>
     </div>
-    <div style="flex:1;background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:10px 14px;font-size:11px;color:var(--muted);line-height:1.7" id="phaseDesc">
-      CI一致指数が上昇傾向へ転換、政策金利は正常化済みで低位安定。
-      <strong style="color:var(--green)">グロース・バリュー系が有利</strong>なフェーズ。シクリカルは引き続き様子見。
+      <div style="flex:1;background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:10px 14px;font-size:11px;color:var(--muted);line-height:1.7" id="phaseDesc">
+        CI一致指数が上昇傾向へ転換、政策金利は正常化済みで低位安定。
+        <strong style="color:var(--green)">グロース・バリュー系が有利</strong>なフェーズ。シクリカルは引き続き様子見。
+      </div>
     </div>
-  </div>
+    <div class="phase-why" id="phaseWhy"><strong>判定根拠：</strong>主要指標の方向感を読み込み中です。</div>
 
-  <!-- マクロ指標カード -->
+    <!-- マクロ指標カード -->
   <div class="macro-row">
     <div class="macro-card" style="border-top:2px solid var(--green)">
       <div class="macro-label">CI 一致指数（前月比）<span class="info-icon" data-tip="内閣府 景気動向指数（CI一致指数）の前月比変化。&#10;+値 = 景気拡張方向。&#10;連続上昇 → 回復期・拡張期の判定に使用。&#10;出所：内閣府 景気動向指数" data-tip-pos="bottom">i</span></div>
@@ -824,7 +835,8 @@
 
 <!-- ═══ ロードマップ ═══ -->
 <div class="page" id="pg-decomp">
-  <div class="banner banner-green">
+  <div class="page-summary"><strong>概要：</strong>時価総額の変化を、純資産の積み上がりと評価倍率の変化に分けて見ます。</div>
+    <div class="banner banner-green">
     <strong>成長要因分析</strong>：①要因分解 = 時価総額成長 ≈ BPS成長寄与＋PBR変化寄与　②時価総額 / ③純資産（BPS）= 業種別の規模ランキング（年月連動）
   </div>
   <div class="tabs">
@@ -866,13 +878,13 @@
   </div>
   <div class="tp" id="decomp-capline">
     <div class="card">
-      <div class="card-hd"><span class="card-title">業種別 時価総額 月次推移</span><span class="card-meta">2020/01〜最新</span><button id="decompCapLineAllBtn" onclick="toggleAllLines('decompCapLine','decompCapLineAllBtn')" style="margin-left:8px;background:var(--bg4);border:1px solid var(--border2);color:var(--muted);padding:3px 10px;border-radius:5px;font-size:11px;cursor:pointer">全て非表示</button></div>
+      <div class="card-hd"><span class="card-title">業種別 時価総額 月次推移</span><span class="card-meta">2020/01〜最新</span><button id="decompCapLineAllBtn" onclick="toggleAllLines('decompCapLine','decompCapLineAllBtn')" style="margin-left:8px;background:var(--bg4);border:1px solid var(--border2);color:var(--muted);padding:3px 10px;border-radius:5px;font-size:11px;cursor:pointer">全て非表示にする</button></div>
       <div class="ch" style="height:420px"><canvas id="decompCapLineC"></canvas></div>
     </div>
   </div>
   <div class="tp" id="decomp-navline">
     <div class="card">
-      <div class="card-hd"><span class="card-title">業種別 純資産 月次推移（時価総額÷PBR）</span><span class="card-meta">2020/01〜最新</span><button id="decompNavLineAllBtn" onclick="toggleAllLines('decompNavLine','decompNavLineAllBtn')" style="margin-left:8px;background:var(--bg4);border:1px solid var(--border2);color:var(--muted);padding:3px 10px;border-radius:5px;font-size:11px;cursor:pointer">全て非表示</button></div>
+      <div class="card-hd"><span class="card-title">業種別 純資産 月次推移（時価総額÷PBR）</span><span class="card-meta">2020/01〜最新</span><button id="decompNavLineAllBtn" onclick="toggleAllLines('decompNavLine','decompNavLineAllBtn')" style="margin-left:8px;background:var(--bg4);border:1px solid var(--border2);color:var(--muted);padding:3px 10px;border-radius:5px;font-size:11px;cursor:pointer">全て非表示にする</button></div>
       <div class="ch" style="height:420px"><canvas id="decompNavLineC"></canvas></div>
     </div>
   </div>
@@ -880,7 +892,8 @@
 
 <!-- ═══ チームメモ ═══ -->
 <div class="page" id="pg-notes">
-  <div class="banner banner-blue">
+  <div class="page-summary"><strong>概要：</strong>分析から得た仮説や投資メモを、チーム単位で保存・再利用します。</div>
+    <div class="banner banner-blue">
     <strong>チームメモ</strong>：分析中の仮説・投資アイデア・レビューコメントを記録します。<br>
     ブラウザの localStorage に自動保存されます（リロード後も保持）。JSON エクスポート/インポートでメンバー間の共有が可能です。
   </div>
@@ -936,6 +949,7 @@
 
 <!-- ═══ Streamlit移行計画 ═══ -->
 <div class="page" id="pg-roadmap">
+  <div class="page-summary"><strong>概要：</strong>現行 HTML 版でできることと、次段階の Streamlit 移行計画を整理しています。</div>
   <div class="banner banner-blue">
     <strong>実装ロードマップ</strong>：フェーズ1（このHTMLファイル）→ フェーズ2（Streamlit）の機能追加・移行計画。
   </div>
@@ -977,6 +991,7 @@
 
 <!-- ═══ 銘柄一覧 ═══ -->
 <div class="page" id="pg-stocks">
+  <div class="page-summary"><strong>概要：</strong>業種内の代表銘柄を、市場区分や規模で絞り込んで確認します。</div>
   <div class="card" style="margin-bottom:12px">
     <div class="card-hd" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
       <span class="card-title">銘柄一覧</span>
@@ -1038,6 +1053,7 @@
 
 <!-- ═══ 銘柄別評価 ═══ -->
 <div class="page" id="pg-eval">
+  <div class="page-summary"><strong>概要：</strong>7ステップの条件で候補銘柄を絞り込み、スコアと通過状況を確認します。</div>
   <div class="card" style="margin-bottom:12px">
     <div class="card-hd" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
       <span class="card-title">銘柄一覧</span>
