@@ -175,6 +175,13 @@ function phaseRec(cat){
   if(r.SELL.includes(cat)) return 'SELL';
   return 'HOLD';
 }
+function phaseRecReason(cat){
+  const label=CAT_LBL[cat]||'このカテゴリ';
+  const rec=phaseRec(cat);
+  if(rec==='BUY') return `${label} は現在フェーズ ${_activePhase} と相性が良く、相対的に追い風です。`;
+  if(rec==='SELL') return `${label} は現在フェーズ ${_activePhase} では逆風になりやすく、慎重評価です。`;
+  return `${label} は現在フェーズ ${_activePhase} では中立圏で、個別材料の確認が必要です。`;
+}
 function finalScore(s){
   const phase={'BUY':2,'HOLD':0,'SELL':-2}[phaseRec(s.cat)];
   const z=s.z!=null?-Math.round(Math.max(-1,Math.min(1,s.z))):0;
@@ -216,7 +223,7 @@ function renderCycleSectors(zScores){
     const el=document.getElementById(elId);
     if(!el) return;
     el.innerHTML=list.map(s=>`
-      <div class="rec-row">
+      <div class="rec-row" title="${phaseRecReason(s.cat)}">
         <span class="rec-name">${s.n}</span>
         <span class="rec-cat"><span class="chip" style="background:${CAT_COL[s.cat]}22;color:${CAT_COL[s.cat]}">${CAT_LBL[s.cat]}</span></span>
         <span class="rec-pbr" style="color:${color}">${s.pbr!=null?s.pbr.toFixed(1)+'x':'–'}</span>
@@ -228,7 +235,7 @@ function renderCycleSectors(zScores){
   if(recBody) recBody.innerHTML=src.map(s=>{
     const r=phaseRec(s.cat);
     const col=r==='BUY'?'var(--green)':r==='SELL'?'var(--red)':'var(--muted)';
-    return `<tr>
+    return `<tr title="${phaseRecReason(s.cat)}">
       <td class="bold">${s.n}</td>
       <td><span class="chip" style="background:${CAT_COL[s.cat]}22;color:${CAT_COL[s.cat]}">${CAT_LBL[s.cat]}</span></td>
       <td style="font-family:var(--mono)">${s.pbr!=null?s.pbr.toFixed(1)+'x':'–'}</td>
@@ -303,7 +310,12 @@ function initCycleCharts(){
        fill:false,tension:.3,pointRadius:2,borderWidth:1.5,borderDash:[3,3],yAxisID:'y2'},
     ]},
     options:{responsive:true,maintainAspectRatio:false,
-      plugins:{legend:{labels:{color:chartTickColor(),font:{size:11},usePointStyle:true}}},
+      plugins:{
+        title:chartTitle('景気フェーズ判定チャート'),
+        legend:{labels:{color:chartTickColor(),font:{size:11},usePointStyle:true}},
+        tooltip:{callbacks:{label:c=>ttLabel(c.dataset.label,c.parsed.y,c.dataset.yAxisID==='y2'?'%':'',c.dataset.yAxisID==='y2'?2:1)}},
+        emptyState:{display:true,text:'景気循環データなし'}
+      },
       scales:{
         x:{ticks:{color:chartTickColor(),font:{size:10}},grid:{color:chartGridColorSoft()}},
         y:{position:'left',ticks:{color:themeMode==='light' ? '#0f9f6e' : '#29c99a',font:{size:10}},
@@ -325,8 +337,9 @@ function initCycleCharts(){
     }]},
     options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,
       layout:{padding:{right:36}},
-      plugins:{legend:{display:false},
-        tooltip:{callbacks:{label:c=>`Z=${c.parsed.x.toFixed(2)}　PBR:${Z_SCORES[c.dataIndex].pbr.toFixed(1)}x`}}},
+      plugins:{title:chartTitle('PBR乖離Zスコア'),legend:{display:false},
+        tooltip:{callbacks:{label:c=>`Z=${fmtNum(c.parsed.x,2)} / PBR ${fmtNum(Z_SCORES[c.dataIndex].pbr,1)}x`}},
+        emptyState:{display:true,text:'Zスコアデータなし'}},
       scales:{
         x:{ticks:{color:chartTickColor(),font:{size:10}},grid:{color:chartGridColor()},
           min:-2.5,max:2.5},
@@ -346,7 +359,7 @@ function initCycleCharts(){
       borderRadius:3
     }]},
     options:{responsive:true,maintainAspectRatio:false,
-      plugins:{legend:{display:false}},
+      plugins:{title:chartTitle('C/D相対強度'),legend:{display:false},tooltip:{callbacks:{label:c=>ttLabel('C/D比率',c.parsed.y,'',2)}},emptyState:{display:true,text:'C/D比率データなし'}},
       scales:{
         x:{ticks:{color:chartTickColor(),font:{size:9}},grid:{display:false}},
         y:{ticks:{color:chartTickColor(),font:{size:10}},grid:{color:chartGridColor()},

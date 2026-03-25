@@ -149,6 +149,7 @@ function renderHeatmapChart(force){
       animation:false,
       spanGaps:true,
       plugins:{
+        title:chartTitle('業種別 PBR推移（月次）'),
         legend:{
           display:true,
           labels:{
@@ -161,13 +162,15 @@ function renderHeatmapChart(force){
         },
         tooltip:{
           callbacks:{
-            label:ctx=>ctx.dataset.label==='1.0x'?null:`${ctx.dataset.label}: ${ctx.parsed.y?.toFixed(2)}x`
+            label:ctx=>ctx.dataset.label==='1.0x'?null:ttLabel(ctx.dataset.label,ctx.parsed.y,'x',2)
           }
-        }
+        },
+        emptyState:{display:true,text:'PBR推移データなし'}
       },
       scales:{
         x:{ticks:{color:chartTickColor(),font:{size:9},maxTicksLimit:12},grid:{color:chartGridColor()}},
         y:{
+          title:{display:true,text:'PBR（倍）',color:chartTickColor(),font:{size:10}},
           ticks:{color:chartTickColor(),font:{size:10},callback:v=>v.toFixed(1)+'x'},
           grid:{color:chartGridColor()}
         }

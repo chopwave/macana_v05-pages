@@ -147,6 +147,23 @@ function renderPhaseHistory(){
     }
     dlg.showModal();
   };
+  function ensureShortcutFab(){
+    if(document.getElementById('shortcutFab')) return;
+    const btn=document.createElement('button');
+    btn.id='shortcutFab';
+    btn.className='shortcut-fab';
+    btn.type='button';
+    btn.title='キーボードショートカット一覧を表示';
+    btn.setAttribute('aria-label','キーボードショートカット一覧を表示');
+    btn.textContent='?';
+    btn.onclick=()=>showShortcutHelp();
+    document.body.appendChild(btn);
+  }
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded',ensureShortcutFab,{once:true});
+  }else{
+    ensureShortcutFab();
+  }
 })();
 
 // ────── sidebar toggle ──────

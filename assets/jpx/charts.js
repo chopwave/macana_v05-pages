@@ -9,6 +9,45 @@ function chartGridColorSoft(){ return themeMode==='light' ? 'rgba(16,24,40,.06)'
 function accentBlue(){ return themeMode==='light' ? '#2563eb' : '#5b8df6'; }
 function accentAmber(){ return themeMode==='light' ? '#c98512' : '#f5a623'; }
 function dividerColor(){ return themeMode==='light' ? 'rgba(16,24,40,.08)' : 'rgba(255,255,255,.04)'; }
+function fmtNum(v,digits=1,fallback='–'){
+  const n=Number(v);
+  return Number.isFinite(n)?n.toFixed(digits):fallback;
+}
+function ttLabel(label,value,unit,digits=1){
+  const base=label?`${label}: `:'';
+  return `${base}${fmtNum(value,digits)}${unit||''}`;
+}
+function chartTitle(text){
+  return {
+    display:true,
+    text,
+    color:chartLabelColor(),
+    font:{size:10,weight:'500'},
+    padding:{bottom:8}
+  };
+}
+function traceHasVisibleData(trace){
+  const keys=['x','y','z'];
+  return keys.some(key=>{
+    const arr=trace?.[key];
+    return Array.isArray(arr) && arr.some(v=>Number.isFinite(v) || (Array.isArray(v) && v.some(Number.isFinite)));
+  });
+}
+function chartHasVisibleData(chart){
+  if(!chart?.data?.datasets?.length) return false;
+  return chart.data.datasets.some((ds,idx)=>{
+    if(typeof chart.isDatasetVisible==='function' && !chart.isDatasetVisible(idx)) return false;
+    const arr=Array.isArray(ds.data)?ds.data:[];
+    return arr.some(v=>{
+      if(v==null) return false;
+      if(typeof v==='number') return Number.isFinite(v);
+      if(typeof v==='object'){
+        if(Number.isFinite(v.x)||Number.isFinite(v.y)||Number.isFinite(v.r)) return true;
+      }
+      return false;
+    });
+  });
+}
 function ensurePlotlyHost(canvasId){
   const canvas=document.getElementById(canvasId);
   if(!canvas || !canvas.parentElement) return null;
@@ -21,6 +60,21 @@ function ensurePlotlyHost(canvasId){
     canvas.parentElement.appendChild(host);
   }
   return host;
+}
+let _themeMediaQuery=null;
+function isThemeExplicit(){
+  try{ return !!localStorage.getItem('jpxDashboardTheme'); }catch(_e){ return false; }
+}
+function initThemeAutoFollow(){
+  if(typeof window.matchMedia!=='function') return;
+  _themeMediaQuery=window.matchMedia('(prefers-color-scheme: dark)');
+  const applySystem=e=>{
+    if(isThemeExplicit()) return;
+    setTheme(e.matches?'dark':'light');
+    updateThemePill();
+  };
+  if(typeof _themeMediaQuery.addEventListener==='function') _themeMediaQuery.addEventListener('change',applySystem);
+  else if(typeof _themeMediaQuery.addListener==='function') _themeMediaQuery.addListener(applySystem);
 }
 function plotlyTheme(layout){
   const isLight=themeMode==='light';
@@ -43,7 +97,17 @@ function plotlyTheme(layout){
 function renderPlotlyChart(canvasId,traces,layout,config){
   const host=ensurePlotlyHost(canvasId);
   if(!host) return;
-  Plotly.react(host,traces,plotlyTheme(layout),{
+  const hasData=(traces||[]).some(traceHasVisibleData);
+  const annotations=[...(layout?.annotations||[])];
+  if(!hasData){
+    annotations.push({
+      text:'データなし',
+      x:0.5,y:0.5,xref:'paper',yref:'paper',
+      showarrow:false,
+      font:{size:12,color:themeMode==='light'?'rgba(22,32,49,.55)':'rgba(221,226,240,.55)'}
+    });
+  }
+  Plotly.react(host,traces,plotlyTheme({...layout,annotations}),{
     displayModeBar:false,
     responsive:true,
     ...config
@@ -77,13 +141,15 @@ function setTheme(mode){
 }
 function initTheme(){
   const paramTheme=getUrlParam('theme');
-  let saved='dark';
-  try{ saved=localStorage.getItem('jpxDashboardTheme') || 'dark'; }catch(_e){}
-  const initial = paramTheme || saved;
+  let saved=null;
+  try{ saved=localStorage.getItem('jpxDashboardTheme'); }catch(_e){}
+  const systemDark=typeof window.matchMedia==='function' && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  const initial = paramTheme || saved || (systemDark?'dark':'light');
   themeMode=initial === 'light' ? 'light' : 'dark';
   document.body.setAttribute('data-theme', themeMode);
   syncChartDefaults();
   updateThemePill();
+  initThemeAutoFollow();
 }
 function populateYmOptions(){
   const sel=document.getElementById('ymSel');
@@ -199,6 +265,22 @@ function _restoreFilterUrl(){
 // B-1: PBR絶対値ラベル（Zスコアチャート用プラグイン）
 // ─────────────────────────────────────────
 Chart.register({
+  id:'emptyStateOverlay',
+  afterDraw(chart){
+    const enabled=chart?.options?.plugins?.emptyState?.display;
+    if(!enabled || chartHasVisibleData(chart)) return;
+    const {ctx,chartArea}=chart;
+    if(!ctx || !chartArea) return;
+    ctx.save();
+    ctx.fillStyle=themeMode==='light'?'rgba(22,32,49,.55)':'rgba(221,226,240,.55)';
+    ctx.font='12px IBM Plex Sans, Noto Sans JP, sans-serif';
+    ctx.textAlign='center';
+    ctx.textBaseline='middle';
+    ctx.fillText(chart.options.plugins.emptyState.text||'データなし',(chartArea.left+chartArea.right)/2,(chartArea.top+chartArea.bottom)/2);
+    ctx.restore();
+  }
+});
+Chart.register({
   id:'zscorePbrLabel',
   afterDraw(chart){
     if(chart.canvas.id!=='zscoreC') return;
@@ -216,6 +298,26 @@ Chart.register({
       const z=chart.data.datasets[0].data[i];
       ctx.fillStyle=z<-1?'rgba(91,141,246,.9)':z>1?'rgba(224,84,84,.8)':'rgba(107,116,145,.7)';
       ctx.fillText(pbr.toFixed(1)+'x',chartArea.right+4,bar.y+3.5);
+    });
+    ctx.restore();
+  }
+});
+Chart.register({
+  id:'decompBarValueLabel',
+  afterDatasetsDraw(chart){
+    if(!['decompCapC','decompNavC'].includes(chart.canvas.id)) return;
+    const {ctx}=chart;
+    const meta=chart.getDatasetMeta(0);
+    if(!meta?.data?.length) return;
+    ctx.save();
+    ctx.font='10px JetBrains Mono,monospace';
+    ctx.textAlign='left';
+    ctx.textBaseline='middle';
+    ctx.fillStyle=chartLabelColor();
+    meta.data.forEach((bar,i)=>{
+      const raw=chart.data.datasets[0].data[i];
+      if(raw==null) return;
+      ctx.fillText(`${Number(raw).toFixed(1)}兆`, bar.x+6, bar.y);
     });
     ctx.restore();
   }
@@ -275,7 +377,8 @@ function renderCompChart(){
     ]},
     options:{...GC,indexAxis:'y',
       plugins:{legend:{display:true,labels:{color:chartLabelColor(),font:{size:10}}},
-        tooltip:{callbacks:{label:c=>`${c.dataset.label}: ${c.parsed.x?.toFixed(2)||'–'}x`}}},
+        tooltip:{callbacks:{label:c=>ttLabel(c.dataset.label,c.parsed.x,'x',2)}},
+        emptyState:{display:true,text:'比較対象データなし'}},
       scales:{
         x:{ticks:{color:chartTickColor(),font:{size:10},callback:v=>v+'x'},grid:{color:chartGridColor()},min:0},
         y:{ticks:{color:chartLabelColor(),font:{size:9}},grid:{display:false}}
@@ -514,8 +617,10 @@ function _lineChartOpts(){
   return{
     responsive:true,maintainAspectRatio:false,animation:false,spanGaps:true,
     plugins:{
+      title:chartTitle(yTitle.replace('（兆円）','')+' 推移'),
       legend:{labels:{color:chartLabelColor(),font:{size:9},boxWidth:10,padding:6}},
-      tooltip:{callbacks:{label:ctx=>`${ctx.dataset.label}: ${ctx.parsed.y?.toFixed(1)}兆円`}}
+      tooltip:{callbacks:{label:ctx=>ttLabel(ctx.dataset.label,ctx.parsed.y,'兆円',1)}},
+      emptyState:{display:true,text:'表示できる時系列データがありません'}
     },
     scales:{
       x:{ticks:{color:chartTickColor(),font:{size:9},maxTicksLimit:12},grid:{color:chartGridColor()}},
@@ -658,44 +763,46 @@ function initCharts(){
 
   // trend (overview)
   charts.trend=mk('trendC',{type:'line',data:{labels:MONTHS,datasets:[lineDs('加重PBR',PBR_TS,'#5b8df6')]},
-    options:{...GC,scales:{x:{ticks:{color:chartTickColor(),font:{size:10}},grid:{color:chartGridColor()}},
-      y:{ticks:{color:chartTickColor(),font:{size:10},callback:v=>v+'x'},grid:{color:chartGridColor()}}}}});
+    options:{...GC,
+      plugins:{title:chartTitle('市場全体 加重PBR推移'),legend:{display:false},tooltip:{callbacks:{label:c=>ttLabel('市場全体 加重PBR',c.parsed.y,'x',2)}},emptyState:{display:true,text:'市場全体PBRデータなし'}},
+      scales:{x:{ticks:{color:chartTickColor(),font:{size:10}},grid:{color:chartGridColor()}},
+      y:{title:{display:true,text:'加重PBR（倍）',color:chartTickColor(),font:{size:10}},ticks:{color:chartTickColor(),font:{size:10},callback:v=>v+'x'},grid:{color:chartGridColor()}}}}});
 
   // val trend
   charts.valTrend=mk('valTrendC',{type:'line',data:{labels:MONTHS,datasets:[
     lineDs('PBR',PBR_TS,'#5b8df6','y'),lineDs('PER',PER_TS,'#f5a623','y2')]},
-    options:{...GC,scales:{
+    options:{...GC,plugins:{title:chartTitle('市場トレンド'),tooltip:{callbacks:{label:c=>ttLabel(c.dataset.label,c.parsed.y,'x',c.dataset.label==='PER'?1:2)}},emptyState:{display:true,text:'PBR/PER時系列データなし'}},scales:{
       x:{ticks:{color:chartTickColor(),font:{size:10}},grid:{color:chartGridColor()}},
-      y:{ticks:{color:accentBlue(),font:{size:10},callback:v=>v+'x'},grid:{color:chartGridColor()},position:'left'},
-      y2:{ticks:{color:accentAmber(),font:{size:10},callback:v=>v+'x'},grid:{display:false},position:'right'}}}});
+      y:{title:{display:true,text:'PBR（倍）',color:accentBlue(),font:{size:10}},ticks:{color:accentBlue(),font:{size:10},callback:v=>v+'x'},grid:{color:chartGridColor()},position:'left'},
+      y2:{title:{display:true,text:'PER（倍）',color:accentAmber(),font:{size:10}},ticks:{color:accentAmber(),font:{size:10},callback:v=>v+'x'},grid:{display:false},position:'right'}}}});
 
   // ind rank
   const byChg=[...SECTORS].sort((a,b)=>b.chg-a.chg);
   charts.indRank=mk('indRankC',{type:'bar',
     data:{labels:byChg.map(s=>s.n),datasets:[{label:'PBR変化',data:byChg.map(s=>s.chg),
       backgroundColor:byChg.map(s=>s.chg>=0?'rgba(91,141,246,.75)':'rgba(224,84,84,.75)'),borderRadius:3}]},
-    options:{indexAxis:'y',...GC,plugins:{legend:{display:false}},
-      scales:{x:{ticks:{color:chartTickColor(),font:{size:10},callback:v=>v+'x'},grid:{color:chartGridColor()}},
+    options:{indexAxis:'y',...GC,plugins:{title:chartTitle('業種別 PBR変化率ランキング'),legend:{display:false},tooltip:{callbacks:{label:c=>ttLabel(c.label,c.parsed.x,'x',2)}},emptyState:{display:true,text:'ランキングデータなし'}},
+      scales:{x:{title:{display:true,text:'PBR変化（倍）',color:chartTickColor(),font:{size:10}},ticks:{color:chartTickColor(),font:{size:10},callback:v=>v+'x'},grid:{color:chartGridColor()}},
         y:{ticks:{color:chartLabelColor(),font:{size:9}},grid:{display:false}}}}});
 
   // size
   charts.size=mk('sizeC',{type:'line',data:{labels:MONTHS,datasets:[
     lineDs('大型',LG,'#5b8df6'),lineDs('中型',MED,'#29c99a'),lineDs('小型',SM,'#f5a623')]},
-    options:{...GC,scales:{x:{ticks:{color:chartTickColor(),font:{size:10}},grid:{color:chartGridColor()}},
-      y:{ticks:{color:chartTickColor(),font:{size:10},callback:v=>v+'x'},grid:{color:chartGridColor()}}}}});
+    options:{...GC,plugins:{title:chartTitle('規模別 PBR推移'),tooltip:{callbacks:{label:c=>ttLabel(c.dataset.label,c.parsed.y,'x',2)}},emptyState:{display:true,text:'規模別PBRデータなし'}},scales:{x:{ticks:{color:chartTickColor(),font:{size:10}},grid:{color:chartGridColor()}},
+      y:{title:{display:true,text:'PBR（倍）',color:chartTickColor(),font:{size:10}},ticks:{color:chartTickColor(),font:{size:10},callback:v=>v+'x'},grid:{color:chartGridColor()}}}}});
 
   // mfg
   charts.mfg=mk('mfgC',{type:'line',data:{labels:MONTHS,datasets:[
     lineDs('製造業',MFG,'#5b8df6'),lineDs('非製造業',NMFG,'#29c99a')]},
-    options:{...GC,scales:{x:{ticks:{color:chartTickColor(),font:{size:10}},grid:{color:chartGridColor()}},
-      y:{ticks:{color:chartTickColor(),font:{size:10},callback:v=>v+'x'},grid:{color:chartGridColor()}}}}});
+    options:{...GC,plugins:{title:chartTitle('製造業 / 非製造業 比較'),tooltip:{callbacks:{label:c=>ttLabel(c.dataset.label,c.parsed.y,'x',2)}},emptyState:{display:true,text:'製造業比較データなし'}},scales:{x:{ticks:{color:chartTickColor(),font:{size:10}},grid:{color:chartGridColor()}},
+      y:{title:{display:true,text:'PBR（倍）',color:chartTickColor(),font:{size:10}},ticks:{color:chartTickColor(),font:{size:10},callback:v=>v+'x'},grid:{color:chartGridColor()}}}}});
 
   // spread — SPR_DATA（定数化済み、randomなし）
   charts.spr=mk('sprC',{type:'bar',
     data:{labels:SPR_DATA.map(s=>s.n),datasets:[{label:'単純−加重スプレッド',data:SPR_DATA.map(s=>s.v),
       backgroundColor:SPR_DATA.map(s=>s.v>=0?'rgba(245,166,35,.7)':'rgba(91,141,246,.7)'),borderRadius:3}]},
-    options:{indexAxis:'y',...GC,plugins:{legend:{display:false}},
-      scales:{x:{ticks:{color:chartTickColor(),font:{size:10},callback:v=>v+'x'},grid:{color:chartGridColor()}},
+    options:{indexAxis:'y',...GC,plugins:{title:chartTitle('単純 / 加重 スプレッド'),legend:{display:false},tooltip:{callbacks:{label:c=>ttLabel(c.label,c.parsed.x,'x',2)}},emptyState:{display:true,text:'スプレッドデータなし'}},
+      scales:{x:{title:{display:true,text:'単純−加重 PBR スプレッド',color:chartTickColor(),font:{size:10}},ticks:{color:chartTickColor(),font:{size:10},callback:v=>v+'x'},grid:{color:chartGridColor()}},
         y:{ticks:{color:chartLabelColor(),font:{size:9}},grid:{display:false}}}}});
 
   // scatter (cap×pbr)
@@ -705,7 +812,7 @@ function initCharts(){
       options:{...GC,
         onHover:(e,elements)=>{e.native.target.style.cursor=elements.length?'pointer':'default';},
         onClick:(e,elements)=>{if(elements.length)showSectorDetail(_curSectors()[elements[0].index]);},
-        plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`${c.raw.sector}  PBR:${c.raw.x}x  ${c.raw.y.toFixed(1)}兆円`}}},
+        plugins:{title:chartTitle('時価総額 × PBR'),legend:{display:false},tooltip:{callbacks:{label:c=>`${c.raw.sector}: PBR ${fmtNum(c.raw.x,2)}x / 時価総額 ${fmtNum(c.raw.y,1)}兆円`}},emptyState:{display:true,text:'散布図データなし'}},
       scales:{x:{title:{display:true,text:'加重PBR（倍）',color:chartTickColor(),font:{size:10}},
           ticks:{color:chartTickColor(),font:{size:10},callback:v=>v+'x'},grid:{color:chartGridColor()},min:0,max:4.5},
         y:{title:{display:true,text:'時価総額（兆円）',color:chartTickColor(),font:{size:10}},
@@ -723,7 +830,7 @@ function initCharts(){
       options:{...GC,
         onHover:(e,elements)=>{e.native.target.style.cursor=elements.length?'pointer':'default';},
         onClick:(e,elements)=>{if(elements.length){const d=_roeData();showSectorDetail(_curSectors().find(s=>s.n===d[elements[0].index]?.sector));}},
-        plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`${c.raw.sector}  ROE:${c.raw.x?.toFixed(1)}%  PBR:${c.raw.y?.toFixed(1)}x`}}},
+        plugins:{title:chartTitle('ROE × PBR'),legend:{display:false},tooltip:{callbacks:{label:c=>`${c.raw.sector}: ROE ${fmtNum(c.raw.x,1)}% / PBR ${fmtNum(c.raw.y,1)}x`}},emptyState:{display:true,text:'ROE散布図データなし'}},
       scales:{x:{title:{display:true,text:'ROE（%、理論値＝PBR÷PER×100）',color:chartTickColor(),font:{size:10}},
           ticks:{color:chartTickColor(),font:{size:10},callback:v=>v+'%'},grid:{color:chartGridColor()},min:0},
         y:{title:{display:true,text:'加重PBR（倍）',color:chartTickColor(),font:{size:10}},
@@ -741,7 +848,8 @@ function initCharts(){
       {label:'純資産（BPS）成長',data:dcNA,backgroundColor:'rgba(41,201,154,.7)',borderRadius:2,stack:'s'},
       {label:'PBR倍率変化',data:dcPBR,backgroundColor:'rgba(91,141,246,.7)',borderRadius:2,stack:'s'}]},
     options:{indexAxis:'y',...GC,
-      scales:{x:{stacked:true,ticks:{color:chartTickColor(),font:{size:10},callback:dcFmt},grid:{color:chartGridColor()}},
+      plugins:{title:chartTitle('時価総額成長要因分解'),tooltip:{callbacks:{label:c=>ttLabel(c.dataset.label,c.parsed.x,dcReal?'%':'x',dcReal?0:2)}},emptyState:{display:true,text:'要因分解データなし'}},
+      scales:{x:{title:{display:true,text:dcReal?'寄与度（%）':'寄与度（倍）',color:chartTickColor(),font:{size:10}},stacked:true,ticks:{color:chartTickColor(),font:{size:10},callback:dcFmt},grid:{color:chartGridColor()}},
         y:{stacked:true,ticks:{color:chartLabelColor(),font:{size:9}},grid:{display:false}}}}});
 
   // 業種別 時価総額
@@ -751,8 +859,8 @@ function initCharts(){
       label:'時価総額',data:capSrc.map(s=>s.cap??0),
       backgroundColor:capSrc.map(s=>(CAT_COL[s.cat]||'#6b7491')+'cc'),borderRadius:2}]},
     options:{indexAxis:'y',...GC,
-      plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>`${ctx.dataset.label}: ${ctx.parsed.x.toFixed(1)}兆円`}}},
-      scales:{x:{ticks:{color:chartTickColor(),font:{size:10},callback:v=>v+'兆'},grid:{color:chartGridColor()}},
+      plugins:{title:chartTitle('業種別 時価総額'),legend:{display:false},tooltip:{callbacks:{label:ctx=>ttLabel(ctx.label,ctx.parsed.x,'兆円',1)}},emptyState:{display:true,text:'時価総額データなし'}},
+      scales:{x:{title:{display:true,text:'時価総額（兆円）',color:chartTickColor(),font:{size:10}},ticks:{color:chartTickColor(),font:{size:10},callback:v=>v+'兆'},grid:{color:chartGridColor()}},
         y:{ticks:{color:chartLabelColor(),font:{size:9}},grid:{display:false}}}}});
 
   // 業種別 純資産（時価総額 ÷ PBR）
@@ -763,8 +871,8 @@ function initCharts(){
       label:'純資産',data:navSrc.map(s=>_nav(s)),
       backgroundColor:navSrc.map(s=>(CAT_COL[s.cat]||'#6b7491')+'cc'),borderRadius:2}]},
     options:{indexAxis:'y',...GC,
-      plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>`${ctx.dataset.label}: ${ctx.parsed.x.toFixed(1)}兆円`}}},
-      scales:{x:{ticks:{color:chartTickColor(),font:{size:10},callback:v=>v+'兆'},grid:{color:chartGridColor()}},
+      plugins:{title:chartTitle('業種別 純資産'),legend:{display:false},tooltip:{callbacks:{label:ctx=>ttLabel(ctx.label,ctx.parsed.x,'兆円',1)}},emptyState:{display:true,text:'純資産データなし'}},
+      scales:{x:{title:{display:true,text:'純資産（兆円）',color:chartTickColor(),font:{size:10}},ticks:{color:chartTickColor(),font:{size:10},callback:v=>v+'兆'},grid:{color:chartGridColor()}},
         y:{ticks:{color:chartLabelColor(),font:{size:9}},grid:{display:false}}}}});
 
   selEv(0, document.querySelector('.ev.act'));

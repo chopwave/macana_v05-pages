@@ -230,26 +230,28 @@ function _stocksRow(r) {
   const member = _isMember();
 
   // 会員限定セル
-  const _lock = (content) => member
+  const _lock = (content, hint) => member
     ? content
-    : `<span style="color:var(--border2);font-size:10px" title="有償会員限定の情報です">🔒</span>`;
+    : `<span style="color:var(--border2);font-size:10px" title="${hint || '有償会員限定の情報です'}">🔒</span>`;
 
   // スコア
   const scoreCell = _lock(
-    `<span style="font-family:var(--mono);color:var(--accent)">${r.score ?? '–'}</span>`
+    `<span style="font-family:var(--mono);color:var(--accent)">${r.score ?? '–'}</span>`,
+    '総合スコアは有償会員限定です'
   );
 
   // ランク
   const rankColor = { S: '#f5a623', A: '#29c99a', B: '#5b8df6', C: '#9b7fe8', D: '#6b7491' }[r.rank] || '#6b7491';
   const rankCell = _lock(
-    `<span style="padding:1px 6px;border-radius:4px;font-size:10px;font-weight:600;background:${rankColor}22;color:${rankColor}">${r.rank ?? '–'}</span>`
+    `<span style="padding:1px 6px;border-radius:4px;font-size:10px;font-weight:600;background:${rankColor}22;color:${rankColor}">${r.rank ?? '–'}</span>`,
+    'ランク評価は有償会員限定です'
   );
 
   // ステップ通過
   const stepsHtml = (r.steps || []).map((v, i) =>
     `<span title="Step${i + 1}" style="display:inline-block;width:14px;height:14px;border-radius:2px;font-size:9px;line-height:14px;text-align:center;background:${v ? '#29c99a22' : '#ff000022'};color:${v ? '#29c99a' : '#f87171'}">${i + 1}</span>`
   ).join('');
-  const stepsCell = _lock(stepsHtml);
+  const stepsCell = _lock(stepsHtml,'ステップ通過状況は有償会員限定です');
 
   const dy = r.dy != null ? r.dy.toFixed(1) + '%' : '–';
   const pbr = r.pbr != null ? r.pbr.toFixed(2) + 'x' : '–';
