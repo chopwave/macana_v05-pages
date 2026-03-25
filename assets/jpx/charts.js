@@ -495,6 +495,16 @@ function _buildSectorTimeSeries(valueGetter){
   });
   return{labels,datasets};
 }
+function toggleAllLines(chartKey, btnId){
+  const chart=charts[chartKey];
+  if(!chart) return;
+  const allVisible=chart.data.datasets.every((_,i)=>chart.isDatasetVisible(i));
+  chart.data.datasets.forEach((_,i)=>chart.setDatasetVisibility(i,!allVisible));
+  chart.update();
+  const btn=document.getElementById(btnId);
+  if(btn) btn.textContent=allVisible?'全て表示':'全て非表示';
+}
+
 function _lineChartOpts(){
   return{
     responsive:true,maintainAspectRatio:false,animation:false,spanGaps:true,

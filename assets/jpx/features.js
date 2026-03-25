@@ -1,27 +1,27 @@
 // ────── C-7: 散布図アニメーション ──────
-let _scatterPlayTimer=null;
-function toggleScatterPlay(){
-  const btn=document.getElementById('scatterPlayBtn');
-  const lbl=document.getElementById('scatterPlayLabel');
-  if(_scatterPlayTimer){
-    clearInterval(_scatterPlayTimer);
-    _scatterPlayTimer=null;
-    if(btn){btn.textContent='▶ 再生';}
+const _playTimers={};
+function _togglePlay(btnId,lblId,key){
+  const btn=document.getElementById(btnId);
+  const lbl=document.getElementById(lblId);
+  if(_playTimers[key]){
+    clearInterval(_playTimers[key]);
+    _playTimers[key]=null;
+    if(btn) btn.textContent='▶ 再生';
     if(lbl) lbl.textContent='年月を自動コマ送りします';
     return;
   }
   const sel=document.getElementById('ymSel');
   if(!sel) return;
-  if(btn){btn.textContent='⏸ 停止';}
-  // 末尾から先頭に向かって（古い順）再生するため、まず最古月へ移動
+  if(btn) btn.textContent='⏸ 停止';
+  // 最古月から最新月へ向かって再生
   sel.selectedIndex=sel.options.length-1;
   onYm(sel.value);
-  _scatterPlayTimer=setInterval(()=>{
+  _playTimers[key]=setInterval(()=>{
     const idx=sel.selectedIndex;
     if(idx<=0){
-      clearInterval(_scatterPlayTimer);
-      _scatterPlayTimer=null;
-      if(btn){btn.textContent='▶ 再生';}
+      clearInterval(_playTimers[key]);
+      _playTimers[key]=null;
+      if(btn) btn.textContent='▶ 再生';
       if(lbl) lbl.textContent='再生完了';
       return;
     }
@@ -30,6 +30,8 @@ function toggleScatterPlay(){
     if(lbl) lbl.textContent=sel.options[sel.selectedIndex].text;
   },900);
 }
+function toggleScatterPlay(){ _togglePlay('scatterPlayBtn','scatterPlayLabel','scatter'); }
+function toggleRoePlay(){      _togglePlay('roePlayBtn','roePlayLabel','roe'); }
 
 // ────── C-6: フェーズ遷移履歴 ──────
 function _inferPhase(ciVal,ciPrev,polRate,jgb){

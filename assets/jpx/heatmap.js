@@ -150,11 +150,12 @@ function renderHeatmapChart(force){
       spanGaps:true,
       plugins:{
         legend:{
-          display:filteredIdx.length<=20,
+          display:true,
           labels:{
             color:chartLabelColor(),
             font:{size:10},
             boxWidth:10,
+            padding:6,
             filter:item=>item.label!=='1.0x',
           }
         },
