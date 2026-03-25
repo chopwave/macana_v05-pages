@@ -144,8 +144,7 @@ function initTheme(){
   const paramTheme=getUrlParam('theme');
   let saved=null;
   try{ saved=localStorage.getItem('jpxDashboardTheme'); }catch(_e){}
-  const systemDark=typeof window.matchMedia==='function' && window.matchMedia('(prefers-color-scheme: dark)').matches;
-  const initial = paramTheme || saved || (systemDark?'dark':'light');
+  const initial = paramTheme || saved || 'light';
   themeMode=initial === 'light' ? 'light' : 'dark';
   document.body.setAttribute('data-theme', themeMode);
   syncChartDefaults();
