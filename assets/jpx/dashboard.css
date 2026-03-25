@@ -344,6 +344,14 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13
   .tb-ym{min-width:108px}
   .chart-legend-grid{gap:4px}
   .legend-chip{padding:4px 6px;font-size:9px}
+  .sig-table td[style*="white-space:nowrap"] button{padding:2px 6px!important;font-size:9px!important}
+  #heatLineFilterBtn,#heatLineAllBtn,#decompCapLineAllBtn,#decompNavLineAllBtn{padding:3px 8px!important;font-size:10px!important}
+}
+@media (max-width:360px){
+  .tab{padding:6px 8px;font-size:9px}
+  .page-summary,.sample-mode-banner,.banner{font-size:9px}
+  .sig-table th,.sig-table td{padding:5px 6px}
+  .card{padding:10px}
 }
 
 /* ── C-4: 印刷対応 ── */

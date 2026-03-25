@@ -147,6 +147,9 @@ function _initCycleDom(){
         <span class="chip" style="background:${col}22;color:${col};border:1px solid ${col}44">${b.phase}</span>
       </div>`;
     }).join('');
+  }else{
+    const cdSig=document.getElementById('cdSignalList');
+    if(cdSig) cdSig.innerHTML=`<div style="padding:18px 12px;text-align:center;color:var(--hint);font-size:11px;border:1px dashed var(--border2);border-radius:8px">フェーズシグナル履歴なし</div>`;
   }
 }
 
@@ -393,11 +396,13 @@ function initCycleCharts(){
     {m:'2022/07〜2023/03',sig:'後退期シグナル',col:'var(--red)'},
     {m:'2023/04〜2025/07',sig:'ニュートラル→回復',col:'var(--green)'},
   ];
-  document.getElementById('cdSignalList').innerHTML=cdSignalData.map(d=>`
+  document.getElementById('cdSignalList').innerHTML=cdSignalData.length
+    ? cdSignalData.map(d=>`
     <div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid ${themeMode==='light' ? 'rgba(16,24,40,.06)' : 'rgba(255,255,255,.025)'}">
       <span style="font-family:var(--mono);font-size:10px;color:var(--muted);width:130px;flex-shrink:0">${d.m}</span>
       <span class="chip" style="background:${d.col}22;color:${d.col};border:1px solid ${d.col}44">${d.sig}</span>
-    </div>`).join('');
+    </div>`).join('')
+    : `<div style="padding:18px 12px;text-align:center;color:var(--hint);font-size:11px;border:1px dashed var(--border2);border-radius:8px">フェーズシグナル履歴なし</div>`;
 
   // ②③⑤ セクター依存レンダリング（年月連動対応）
   const initYm=document.getElementById('ymSel')?.value;

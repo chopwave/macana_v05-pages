@@ -43,6 +43,9 @@ function _inferPhase(ciVal,ciPrev,polRate,jgb){
   return '新サイクル回復期';
 }
 const _PHASE_COL_SOLID={'回復期':'var(--green)','拡張期':'var(--accent)','後退前期':'var(--amber)','後退期':'var(--red)','新サイクル回復期':'var(--green)'};
+function _miniEmptyState(text){
+  return `<div style="padding:18px 12px;text-align:center;color:var(--hint);font-size:11px;border:1px dashed var(--border2);border-radius:8px">${text}</div>`;
+}
 function renderPhaseHistory(){
   const wrap=document.getElementById('phaseHistoryBar');
   const durWrap=document.getElementById('phaseDurationBar');
@@ -61,6 +64,11 @@ function renderPhaseHistory(){
     const jgb=JGB10Y[i]??JGB10Y[JGB10Y.length-1];
     return _inferPhase(ci,ciPrev,pol,jgb);
   });
+  if(!months.length || !phases.length){
+    wrap.innerHTML=_miniEmptyState('フェーズ遷移データなし');
+    if(durWrap) durWrap.innerHTML=_miniEmptyState('在籍期間データなし');
+    return;
+  }
   // タイムラインバー
   wrap.innerHTML=`<div style="display:flex;gap:2px;flex-wrap:wrap;align-items:flex-end">
     ${months.map((m,i)=>{
@@ -81,6 +89,10 @@ function renderPhaseHistory(){
     const counts={};
     phases.forEach(p=>{counts[p]=(counts[p]||0)+1;});
     const total=phases.length;
+    if(!Object.keys(counts).length){
+      durWrap.innerHTML=_miniEmptyState('在籍期間データなし');
+      return;
+    }
     durWrap.innerHTML=`<div style="display:flex;flex-direction:column;gap:6px;padding-top:4px">
       ${Object.entries(counts).sort((a,b)=>b[1]-a[1]).map(([p,c])=>{
         const pct=Math.round(c/total*100);
