@@ -613,18 +613,18 @@ function toggleAllLines(chartKey, btnId){
   if(btn) btn.textContent=allVisible?'全て表示にする':'全て非表示にする';
 }
 
-function _lineChartOpts(){
+function _lineChartOpts(chartText,yTitle){
   return{
     responsive:true,maintainAspectRatio:false,animation:false,spanGaps:true,
     plugins:{
-      title:chartTitle(yTitle.replace('（兆円）','')+' 推移'),
+      title:chartTitle(chartText),
       legend:{labels:{color:chartLabelColor(),font:{size:9},boxWidth:10,padding:6}},
       tooltip:{callbacks:{label:ctx=>ttLabel(ctx.dataset.label,ctx.parsed.y,'兆円',1)}},
       emptyState:{display:true,text:'表示できる時系列データがありません'}
     },
     scales:{
       x:{ticks:{color:chartTickColor(),font:{size:9},maxTicksLimit:12},grid:{color:chartGridColor()}},
-      y:{ticks:{color:chartTickColor(),font:{size:10},callback:v=>v+'兆'},grid:{color:chartGridColor()}}
+      y:{title:{display:true,text:yTitle,color:chartTickColor(),font:{size:10}},ticks:{color:chartTickColor(),font:{size:10},callback:v=>v+'兆'},grid:{color:chartGridColor()}}
     }
   };
 }
@@ -634,7 +634,7 @@ function renderDecompCapLine(){
   const{labels,datasets}=_buildSectorTimeSeries(s=>s.cap);
   const canvas=document.getElementById('decompCapLineC');
   if(!canvas) return;
-  charts.decompCapLine=new Chart(canvas,{type:'line',data:{labels,datasets},options:_lineChartOpts()});
+  charts.decompCapLine=new Chart(canvas,{type:'line',data:{labels,datasets},options:_lineChartOpts('業種別 時価総額 推移','時価総額（兆円）')});
   _renderPlotlyDecompLine('decompCapLineC',datasets,labels,'時価総額（兆円）');
 }
 function renderDecompNavLine(){
@@ -644,7 +644,7 @@ function renderDecompNavLine(){
   const{labels,datasets}=_buildSectorTimeSeries(_navGetter);
   const canvas=document.getElementById('decompNavLineC');
   if(!canvas) return;
-  charts.decompNavLine=new Chart(canvas,{type:'line',data:{labels,datasets},options:_lineChartOpts()});
+  charts.decompNavLine=new Chart(canvas,{type:'line',data:{labels,datasets},options:_lineChartOpts('業種別 純資産 推移','純資産（兆円）')});
   _renderPlotlyDecompLine('decompNavLineC',datasets,labels,'純資産（兆円）');
 }
 function _renderPlotlyDecompLine(canvasId,datasets,labels,yTitle){
@@ -655,7 +655,8 @@ function _renderPlotlyDecompLine(canvasId,datasets,labels,yTitle){
       line:{color:ds.borderColor,width:1.5},
       hovertemplate:`%{fullData.name}<br>${yTitle.split('（')[0]}: %{y:.1f}兆円<extra></extra>`
     })),
-    {margin:{l:56,r:16,t:24,b:44},
+    {title:{text:yTitle.split('（')[0]+' 推移',font:{size:10}},
+      margin:{l:56,r:16,t:24,b:44},
       xaxis:{tickangle:0,nticks:12},
       yaxis:{title:yTitle},
       legend:{font:{size:9},orientation:'v',x:1.01,y:1}}

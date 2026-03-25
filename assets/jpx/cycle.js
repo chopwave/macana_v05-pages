@@ -182,6 +182,15 @@ function phaseRecReason(cat){
   if(rec==='SELL') return `${label} は現在フェーズ ${_activePhase} では逆風になりやすく、慎重評価です。`;
   return `${label} は現在フェーズ ${_activePhase} では中立圏で、個別材料の確認が必要です。`;
 }
+function phaseRecDetail(sector,z){
+  const catLabel=CAT_LBL[sector.cat]||'カテゴリ';
+  const phaseText=phaseRecReason(sector.cat);
+  const zText=z==null?'同フェーズ比較データは未取得です。':
+    z<=-1?`同フェーズ比では Z=${fmtNum(z,2)} と割安側です。`:
+    z>=1?`同フェーズ比では Z=${fmtNum(z,2)} と割高側です。`:
+    `同フェーズ比では Z=${fmtNum(z,2)} で中立圏です。`;
+  return `${catLabel}。${phaseText} ${zText}`;
+}
 function finalScore(s){
   const phase={'BUY':2,'HOLD':0,'SELL':-2}[phaseRec(s.cat)];
   const z=s.z!=null?-Math.round(Math.max(-1,Math.min(1,s.z))):0;
@@ -216,6 +225,14 @@ function _zScoresFor(yyyymm){
 // BUY/HOLD/SELL・Zスコア・総合スコアを再描画（_curSectors()と任意のzScoresで動作）
 function renderCycleSectors(zScores){
   const src=_curSectors();
+  const zMap=new Map((zScores||[]).map(s=>[s.n,s]));
+  const recWhy=document.getElementById('cycleRecWhy');
+  if(recWhy){
+    const phaseMap=PHASE_REC[_activePhase]||PHASE_REC[CURRENT_PHASE];
+    const buyCats=(phaseMap?.BUY||[]).map(c=>CAT_LBL[c]||c).join('・')||'–';
+    const sellCats=(phaseMap?.SELL||[]).map(c=>CAT_LBL[c]||c).join('・')||'–';
+    recWhy.innerHTML=`<strong>推奨の見方：</strong>${_activePhase} では <strong style="color:var(--green)">${buyCats}</strong> が追い風、<strong style="color:var(--red)">${sellCats}</strong> が逆風です。各行ではさらに同フェーズ比の Z スコアも加味しています。`;
+  }
   // ② BUY/HOLD/SELL推奨リスト
   const byRec={BUY:[],HOLD:[],SELL:[]};
   src.forEach(s=>{byRec[phaseRec(s.cat)].push(s);});
@@ -223,8 +240,8 @@ function renderCycleSectors(zScores){
     const el=document.getElementById(elId);
     if(!el) return;
     el.innerHTML=list.map(s=>`
-      <div class="rec-row" title="${phaseRecReason(s.cat)}">
-        <span class="rec-name">${s.n}</span>
+      <div class="rec-row" title="${phaseRecDetail(s,zMap.get(s.n)?.z)}">
+        <span class="rec-name">${s.n}<span style="display:block;font-size:10px;color:var(--muted);margin-top:2px">${phaseRecDetail(s,zMap.get(s.n)?.z)}</span></span>
         <span class="rec-cat"><span class="chip" style="background:${CAT_COL[s.cat]}22;color:${CAT_COL[s.cat]}">${CAT_LBL[s.cat]}</span></span>
         <span class="rec-pbr" style="color:${color}">${s.pbr!=null?s.pbr.toFixed(1)+'x':'–'}</span>
       </div>`).join('');
@@ -235,11 +252,14 @@ function renderCycleSectors(zScores){
   if(recBody) recBody.innerHTML=src.map(s=>{
     const r=phaseRec(s.cat);
     const col=r==='BUY'?'var(--green)':r==='SELL'?'var(--red)':'var(--muted)';
-    return `<tr title="${phaseRecReason(s.cat)}">
+    const z=zMap.get(s.n)?.z;
+    const reason=phaseRecDetail(s,z);
+    return `<tr title="${reason}">
       <td class="bold">${s.n}</td>
       <td><span class="chip" style="background:${CAT_COL[s.cat]}22;color:${CAT_COL[s.cat]}">${CAT_LBL[s.cat]}</span></td>
       <td style="font-family:var(--mono)">${s.pbr!=null?s.pbr.toFixed(1)+'x':'–'}</td>
       <td><span class="chip" style="font-size:10px;padding:1px 8px;border-radius:99px;${r==='BUY'?'background:rgba(41,201,154,.15);color:var(--green)':r==='SELL'?'background:rgba(224,84,84,.12);color:var(--red)':'background:rgba(107,116,145,.12);color:var(--muted)'}">${r}</span></td>
+      <td style="color:var(--muted);font-size:10px;line-height:1.6;min-width:220px">${reason}</td>
     </tr>`;
   }).join('');
   // ③ Zスコアチャート更新

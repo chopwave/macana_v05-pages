@@ -50,6 +50,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13
 .tb-btn{background:var(--bg4);border:1px solid var(--border2);color:var(--muted);
   font-size:11px;padding:4px 10px;border-radius:5px;cursor:pointer;transition:.15s}
 .tb-btn:hover{color:var(--text);border-color:var(--border2)}
+.tb-btn[data-tip]{overflow:visible}
 .shortcut-fab{
   position:fixed;right:16px;bottom:16px;z-index:260;
   width:38px;height:38px;border-radius:999px;border:1px solid var(--border2);
@@ -281,31 +282,42 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13
   .shell.sidebar-collapsed .sidebar{display:none}
   .content{padding:12px}
   .tb-right{width:100%;margin-left:0;justify-content:flex-end;flex-wrap:wrap}
+  .tb-right .tb-btn{flex:0 0 auto}
   .tb-ym{min-width:132px}
   .filter-bar,.tabs,.page-links{overflow-x:auto;flex-wrap:nowrap;padding-bottom:2px}
   .filter-group{flex-wrap:nowrap}
   .kpi-row,.macro-row,.g2,.g3,.g13,.feat-list{grid-template-columns:1fr}
   .card{padding:14px}
   .card-hd{gap:8px;align-items:flex-start}
+  .card-hd > *{min-width:0}
+  .card-title{line-height:1.5}
   .phase-badge{width:100%;justify-content:center}
   .tab,.ftag,.tb-btn,.pill-toggle,.sidebar-toggle,.page-link{min-height:38px;display:inline-flex;align-items:center}
-  .pill{min-height:34px;display:inline-flex;align-items:center}
+  .pill{min-height:38px;display:inline-flex;align-items:center}
   .info-icon{width:18px;height:18px;font-size:10px;margin-left:6px}
   .nav-item{padding:10px 14px}
   .card-meta{white-space:nowrap}
   .shortcut-fab{right:12px;bottom:12px;width:42px;height:42px}
+  #slMktSel,#slScaleSel,#slSearch,#stocksSearch,#stocksRankSel,#stocksStepSel{min-height:38px}
+  .rec-name{width:auto;flex:1 1 auto}
 }
 @media (max-width:480px){
   .topbar{padding:8px 8px;gap:6px}
   .logo{font-size:11px}
   #generatedAt{display:none}
   .tb-sep{display:none}
-  .tb-right{justify-content:space-between}
+  .tb-right{justify-content:space-between;gap:6px}
   .tb-btn{padding:4px 8px;font-size:10px}
   .tb-ym{min-width:118px;font-size:10px}
   .content{padding:10px}
   .card{padding:12px}
   .page-summary,.sample-mode-banner,.banner{font-size:10px}
+  .topbar > .pill,.topbar > .pill-toggle,.topbar > .tb-btn,.topbar > .tb-ym{flex:1 1 auto}
+  .topbar > .logo{flex:1 1 100%}
+  .topbar > .info-icon{order:20}
+  .card-hd[style*="flex-wrap:wrap"] > div[style*="margin-left:auto"]{width:100%;margin-left:0!important}
+  #slMktSel,#slScaleSel,#slSearch,#stocksSearch,#stocksRankSel,#stocksStepSel{width:100%!important}
+  [data-tip]::after{max-width:min(220px,calc(100vw - 32px))}
 }
 
 /* ── C-4: 印刷対応 ── */
@@ -336,7 +348,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13
 .phase-recession {background:rgba(224,84,84,.14); color:var(--red);    border:1px solid rgba(224,84,84,.3)}
 .phase-pending   {background:rgba(107,116,145,.14);color:var(--muted); border:1px solid rgba(107,116,145,.25)}
 .rec-row{display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.025)}
-.rec-name{width:120px;font-size:11px;flex-shrink:0}
+.rec-name{width:160px;font-size:11px;flex-shrink:0;line-height:1.45}
 .rec-cat{width:78px;flex-shrink:0;white-space:nowrap}
 .rec-pbr{width:44px;text-align:right;font-family:var(--mono);font-size:11px}
 .rec-z{width:44px;text-align:right;font-family:var(--mono);font-size:11px}
