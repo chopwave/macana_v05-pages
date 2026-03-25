@@ -138,7 +138,7 @@ function goLatestYm(){
 function updateGeneratedAt(){
   const el=document.getElementById('generatedAt');
   if(!el) return;
-  const ga=DASHBOARD_DATA?.generated_at||(_forceSample?'2026-02-28T09:00:00':null);
+  const ga=DASHBOARD_DATA?.generated_at||(_forceSample?'2025-07-31T09:00:00':null);
   if(!ga) return;
   try{
     const d=new Date(ga);

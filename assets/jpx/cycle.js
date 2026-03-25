@@ -1,17 +1,17 @@
 // ────── 景気循環データ（実データ優先、フォールバックはサンプル値）──────
 const _CYCLE_RAW_BASE=DASHBOARD_DATA?.cycle||{};
 const _CYCLE_RAW=(!_CYCLE_RAW_BASE.latest_macro&&_forceSample)?{
-  latest_macro:{ci_coin:110.2,ci_coin_mom:1.2,ci_leading:113.2,ci_leading_mom:1.2,pol_rate:0.50,jgb_10y:1.50,as_of:'2026/02'},
-  cd_share:{c_pct:24.5,d_pct:23.5,as_of:'2026/02'},
+  latest_macro:{ci_coin:109.0,ci_coin_mom:0.9,ci_leading:112.0,ci_leading_mom:1.0,pol_rate:0.50,jgb_10y:1.35,as_of:'2025/07'},
+  cd_share:{c_pct:24.1,d_pct:23.7,as_of:'2025/07'},
   current_phase:'新サイクル回復期',
   ..._CYCLE_RAW_BASE
 }:_CYCLE_RAW_BASE;
-const CYCLE_MONTHS=_CYCLE_RAW.months?.length?_CYCLE_RAW.months:['2020/01','2020/07','2021/01','2021/07','2022/01','2022/07','2023/01','2023/07','2024/01','2024/07','2025/01','2025/07','2026/02'];
-const CI_COIN=_CYCLE_RAW.ci_coin?.length?_CYCLE_RAW.ci_coin:[98.2,97.1,99.4,101.8,103.2,104.1,102.8,104.5,105.9,107.2,108.1,109.0,110.2];
-const CI_LEADING=_CYCLE_RAW.ci_leading?.length?_CYCLE_RAW.ci_leading:[99.8,97.5,101.2,103.5,104.8,103.2,102.0,105.5,107.5,109.8,111.0,112.0,113.2];
-const POL_RATE=_CYCLE_RAW.pol_rate?.length?_CYCLE_RAW.pol_rate:[-0.1,-0.1,-0.1,-0.1,-0.1,-0.1,-0.1,0.0,0.1,0.25,0.5,0.5,0.5];
-const JGB10Y=_CYCLE_RAW.jgb_10y?.length?_CYCLE_RAW.jgb_10y:[0.02,0.04,0.09,0.22,0.19,0.24,0.42,0.58,0.72,0.90,1.10,1.35,1.50];
-const CD_RATIO=(_CYCLE_RAW.cd_ratio?.some(v=>v!=null))?_CYCLE_RAW.cd_ratio:[1.02,0.92,0.98,1.05,1.10,1.08,1.02,1.05,1.12,1.18,1.20,1.18,1.20];
+const CYCLE_MONTHS=_CYCLE_RAW.months?.length?_CYCLE_RAW.months:['2020/01','2020/07','2021/01','2021/07','2022/01','2022/07','2023/01','2023/07','2024/01','2024/07','2025/01','2025/07'];
+const CI_COIN=_CYCLE_RAW.ci_coin?.length?_CYCLE_RAW.ci_coin:[98.2,97.1,99.4,101.8,103.2,104.1,102.8,104.5,105.9,107.2,108.1,109.0];
+const CI_LEADING=_CYCLE_RAW.ci_leading?.length?_CYCLE_RAW.ci_leading:[99.8,97.5,101.2,103.5,104.8,103.2,102.0,105.5,107.5,109.8,111.0,112.0];
+const POL_RATE=_CYCLE_RAW.pol_rate?.length?_CYCLE_RAW.pol_rate:[-0.1,-0.1,-0.1,-0.1,-0.1,-0.1,-0.1,0.0,0.1,0.25,0.5,0.5];
+const JGB10Y=_CYCLE_RAW.jgb_10y?.length?_CYCLE_RAW.jgb_10y:[0.02,0.04,0.09,0.22,0.19,0.24,0.42,0.58,0.72,0.90,1.10,1.35];
+const CD_RATIO=(_CYCLE_RAW.cd_ratio?.some(v=>v!=null))?_CYCLE_RAW.cd_ratio:[1.02,0.92,0.98,1.05,1.10,1.08,1.02,1.05,1.12,1.18,1.20,1.18];
 const CD_SHARE_HISTORY=_CYCLE_RAW.cd_share_history?.length?_CYCLE_RAW.cd_share_history:CYCLE_MONTHS.map(()=>null);
 // フェーズ帯: phase_history から動的生成（フォールバックは固定バンド）
 const _PHASE_COLORS={'回復期':'rgba(41,201,154,.10)','拡張期':'rgba(91,141,246,.10)','後退前期':'rgba(245,166,35,.10)','後退期':'rgba(224,84,84,.10)','新サイクル回復期':'rgba(41,201,154,.12)'};
@@ -343,7 +343,7 @@ function initCycleCharts(){
     {m:'2020/01〜2021/06',sig:'回復→拡張',col:'var(--accent)'},
     {m:'2021/07〜2022/06',sig:'拡張期シグナル',col:'var(--amber)'},
     {m:'2022/07〜2023/03',sig:'後退期シグナル',col:'var(--red)'},
-    {m:'2023/04〜2026/02',sig:'ニュートラル→回復',col:'var(--green)'},
+    {m:'2023/04〜2025/07',sig:'ニュートラル→回復',col:'var(--green)'},
   ];
   document.getElementById('cdSignalList').innerHTML=cdSignalData.map(d=>`
     <div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid ${themeMode==='light' ? 'rgba(16,24,40,.06)' : 'rgba(255,255,255,.025)'}">
