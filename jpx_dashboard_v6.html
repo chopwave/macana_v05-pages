@@ -735,8 +735,8 @@
   <!-- タブ -->
   <div class="tabs">
     <div class="tab act" onclick="swTab('cycle','decision',this);renderPhaseHistory()" title="景気フェーズの判定と過去遷移をまとめて確認">判定<br><span style="font-size:9px;opacity:.65;font-weight:400">フェーズ・履歴</span></div>
-    <div class="tab" onclick="swTab('cycle','detail',this)" title="PBR乖離Zスコアとシクリカル/ディフェンシブ比率の詳細指標を確認">詳細<br><span style="font-size:9px;opacity:.65;font-weight:400">Zスコア・C/D比率</span></div>
     <div class="tab" onclick="swTab('cycle','recommend',this)" title="景気サイクル4象限マップ・推奨業種・波動理論・セクターローテーション早見表">推奨<br><span style="font-size:9px;opacity:.65;font-weight:400">4象限・理論</span></div>
+    <div class="tab" onclick="swTab('cycle','detail',this)" title="PBR乖離Zスコアとシクリカル/ディフェンシブ比率の詳細指標を確認">詳細<br><span style="font-size:9px;opacity:.65;font-weight:400">Zスコア・C/D比率</span></div>
   </div>
 
   <!-- タブ①: 判定 -->
@@ -816,48 +816,6 @@
   <div class="tp" id="cycle-recommend">
     <div class="banner banner-blue" style="margin-bottom:14px">
       <strong>推奨</strong>：景気サイクルの4象限マップ・BUY/HOLD/SELL推奨・波動理論・セクターローテーション早見表をまとめて確認します。
-    </div>
-    <div class="banner banner-blue" style="margin-bottom:14px" id="recBanner">
-      フェーズ別推奨マップを適用した結果。
-      <strong id="recBannerPhase">現フェーズ</strong>に基づく BUY / HOLD / SELL 判定。
-    </div>
-    <div class="phase-why" id="cycleRecWhy" style="margin-bottom:10px"><strong>推奨の見方：</strong>カテゴリ相性、現在フェーズ、同フェーズ比の割高/割安を組み合わせて判断します。</div>
-    <div id="recPhaseEnv" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:14px;padding:9px 14px;border-radius:8px;background:rgba(107,116,145,.08)"></div>
-    <div class="g2">
-      <div class="card">
-        <div class="card-hd"><span class="card-title">BUY 推奨業種<span class="ym-badge" title="年月連動">年月連動</span></span><span class="card-meta" id="recBuyMeta" style="color:var(--green)">–</span></div>
-        <div id="recBuyList"></div>
-      </div>
-      <div class="card">
-        <div class="card-hd"><span class="card-title">SELL 寄り業種<span class="ym-badge" title="年月連動">年月連動</span></span><span class="card-meta" id="recSellMeta" style="color:var(--red)">–</span></div>
-        <div id="recSellList"></div>
-      </div>
-    </div>
-    <div class="banner banner-green" style="margin-bottom:14px">
-      <strong>総合スコア</strong> = フェーズ推奨（±2）＋ PBR乖離Zスコア逆符号（±1）＋ C/D相対強度ボーナス（±1）<br>
-      <span style="display:inline-flex;gap:6px;flex-wrap:wrap;margin-top:6px;align-items:center">
-        <span class="chip" style="background:rgba(41,201,154,.2);color:var(--green);font-size:10px">≥ +2　Strong BUY</span>
-        <span class="chip" style="background:rgba(41,201,154,.12);color:var(--green);font-size:10px">+1　BUY</span>
-        <span class="chip" style="background:rgba(107,116,145,.12);color:var(--muted);font-size:10px">0　HOLD</span>
-        <span class="chip" style="background:rgba(224,84,84,.12);color:var(--red);font-size:10px">−1　SELL</span>
-        <span class="chip" style="background:rgba(224,84,84,.2);color:var(--red);font-size:10px">≤ −2　Strong SELL</span>
-      </span>
-    </div>
-    <div class="card">
-        <div class="card-hd"><span class="card-title">全業種 フェーズ推奨一覧<span class="ym-badge" title="年月連動">年月連動</span><span class="info-icon" tabindex="0" data-tip="各業種のカテゴリ特性と現在フェーズの相性で BUY / HOLD / SELL を判定します。カテゴリが同じでも、現在の PBR 水準は別途確認してください。" data-tip-pos="bottom">i</span></span></div>
-        <div style="overflow-x:auto"><table class="sig-table" id="recTable">
-          <thead><tr>
-            <th>業種</th><th>カテゴリ</th><th>加重PBR</th><th>フェーズ推奨</th><th>根拠</th>
-          </tr></thead>
-        <tbody id="recBody"></tbody>
-      </table></div>
-    </div>
-    <div class="card">
-      <div class="card-hd">
-        <span class="card-title">業種別 総合スコアランキング<span class="ym-badge" title="年月連動">年月連動</span></span>
-        <span class="card-meta" id="finalPhaseMeta">現フェーズ: –</span>
-      </div>
-      <div id="finalSignalList"></div>
     </div>
 
     <!-- 4象限グリッド -->
@@ -1040,6 +998,49 @@
         </table>
       </div>
       <div style="font-size:10px;color:var(--hint);margin-top:8px;padding:0 4px">REIT は金利低下局面（回復期〜拡張期初期）で有利。景気後退期は債券・現金への分散が有効。</div>
+    </div>
+
+    <div class="banner banner-blue" style="margin-bottom:14px" id="recBanner">
+      フェーズ別推奨マップを適用した結果。
+      <strong id="recBannerPhase">現フェーズ</strong>に基づく BUY / HOLD / SELL 判定。
+    </div>
+    <div class="phase-why" id="cycleRecWhy" style="margin-bottom:10px"><strong>推奨の見方：</strong>カテゴリ相性、現在フェーズ、同フェーズ比の割高/割安を組み合わせて判断します。</div>
+    <div id="recPhaseEnv" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:14px;padding:9px 14px;border-radius:8px;background:rgba(107,116,145,.08)"></div>
+    <div class="g2">
+      <div class="card">
+        <div class="card-hd"><span class="card-title">BUY 推奨業種<span class="ym-badge" title="年月連動">年月連動</span></span><span class="card-meta" id="recBuyMeta" style="color:var(--green)">–</span></div>
+        <div id="recBuyList"></div>
+      </div>
+      <div class="card">
+        <div class="card-hd"><span class="card-title">SELL 寄り業種<span class="ym-badge" title="年月連動">年月連動</span></span><span class="card-meta" id="recSellMeta" style="color:var(--red)">–</span></div>
+        <div id="recSellList"></div>
+      </div>
+    </div>
+    <div class="banner banner-green" style="margin-bottom:14px">
+      <strong>総合スコア</strong> = フェーズ推奨（±2）＋ PBR乖離Zスコア逆符号（±1）＋ C/D相対強度ボーナス（±1）<br>
+      <span style="display:inline-flex;gap:6px;flex-wrap:wrap;margin-top:6px;align-items:center">
+        <span class="chip" style="background:rgba(41,201,154,.2);color:var(--green);font-size:10px">≥ +2　Strong BUY</span>
+        <span class="chip" style="background:rgba(41,201,154,.12);color:var(--green);font-size:10px">+1　BUY</span>
+        <span class="chip" style="background:rgba(107,116,145,.12);color:var(--muted);font-size:10px">0　HOLD</span>
+        <span class="chip" style="background:rgba(224,84,84,.12);color:var(--red);font-size:10px">−1　SELL</span>
+        <span class="chip" style="background:rgba(224,84,84,.2);color:var(--red);font-size:10px">≤ −2　Strong SELL</span>
+      </span>
+    </div>
+    <div class="card">
+        <div class="card-hd"><span class="card-title">全業種 フェーズ推奨一覧<span class="ym-badge" title="年月連動">年月連動</span><span class="info-icon" tabindex="0" data-tip="各業種のカテゴリ特性と現在フェーズの相性で BUY / HOLD / SELL を判定します。カテゴリが同じでも、現在の PBR 水準は別途確認してください。" data-tip-pos="bottom">i</span></span></div>
+        <div style="overflow-x:auto"><table class="sig-table" id="recTable">
+          <thead><tr>
+            <th>業種</th><th>カテゴリ</th><th>加重PBR</th><th>フェーズ推奨</th><th>根拠</th>
+          </tr></thead>
+        <tbody id="recBody"></tbody>
+      </table></div>
+    </div>
+    <div class="card">
+      <div class="card-hd">
+        <span class="card-title">業種別 総合スコアランキング<span class="ym-badge" title="年月連動">年月連動</span></span>
+        <span class="card-meta" id="finalPhaseMeta">現フェーズ: –</span>
+      </div>
+      <div id="finalSignalList"></div>
     </div>
   </div>
 

@@ -260,9 +260,11 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13
 /* ── tabs ── */
 .tabs{display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:14px}
 .tab{padding:6px 14px;font-size:11px;cursor:pointer;color:var(--muted);
-  border-bottom:2px solid transparent;transition:.12s;white-space:nowrap;text-align:center}
-.tab:hover{color:var(--text)}
-.tab.act{color:var(--accent);border-bottom-color:var(--accent)}
+  border:1px solid var(--border2);border-bottom:2px solid transparent;
+  border-radius:8px 8px 0 0;background:var(--bg2);transition:.12s;
+  white-space:nowrap;text-align:center;margin-right:4px}
+.tab:hover{color:var(--text);border-color:rgba(91,141,246,.28);background:rgba(91,141,246,.04)}
+.tab.act{color:var(--accent);border-color:rgba(91,141,246,.32);border-bottom-color:var(--bg);background:var(--bg)}
 .tp{display:none}.tp.act{display:block}
 
 /* ── sector bars ── */
