@@ -508,7 +508,7 @@ function renderPlotlyValuation(){
   ],{
     margin:{l:100,r:24,t:24,b:44},
     showlegend:false,
-    xaxis:{title:'単純−加重 PBR スプレッド',ticksuffix:'x'},
+    xaxis:{title:'単純−加重 PBR スプレッド',ticksuffix:'x',tickformat:'.1f'},
     yaxis:{autorange:'reversed'}
   });
 }
@@ -808,7 +808,7 @@ function initCharts(){
     data:{labels:SPR_DATA.map(s=>s.n),datasets:[{label:'単純−加重スプレッド',data:SPR_DATA.map(s=>s.v),
       backgroundColor:SPR_DATA.map(s=>s.v>=0?'rgba(245,166,35,.7)':'rgba(91,141,246,.7)'),borderRadius:3}]},
     options:{indexAxis:'y',...GC,plugins:{title:chartTitle('単純 / 加重 スプレッド'),legend:{display:false},tooltip:{callbacks:{label:c=>ttLabel(c.label,c.parsed.x,'x',2)}},emptyState:{display:true,text:'スプレッドデータなし'}},
-      scales:{x:{title:{display:true,text:'単純−加重 PBR スプレッド',color:chartTickColor(),font:{size:10}},ticks:{color:chartTickColor(),font:{size:10},callback:v=>v+'x'},grid:{color:chartGridColor()}},
+      scales:{x:{title:{display:true,text:'単純−加重 PBR スプレッド',color:chartTickColor(),font:{size:10}},ticks:{color:chartTickColor(),font:{size:10},callback:v=>Number(v).toFixed(1)+'x'},grid:{color:chartGridColor()}},
         y:{ticks:{color:chartLabelColor(),font:{size:9}},grid:{display:false}}}}});
 
   // scatter (cap×pbr)

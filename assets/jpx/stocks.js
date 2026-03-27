@@ -104,6 +104,7 @@ function _updateMemberUI() {
   }
   if(typeof updateDataModePill==='function') updateDataModePill();
   if(typeof updateNotesAccessUI==='function') updateNotesAccessUI();
+  if(typeof updateCsvExportUI==='function') updateCsvExportUI();
 }
 
 // ── 初期化 ─────────────────────────────────────────────

@@ -331,7 +331,7 @@ function _onYmScatter(yyyymm,ym){
       marker:{color:sprD.map(s=>s.v>=0?'rgba(245,166,35,.75)':'rgba(91,141,246,.75)')},
       hovertemplate:'%{y}<br>スプレッド: %{x:.2f}x<extra></extra>'}
   ],{margin:{l:100,r:24,t:24,b:44},showlegend:false,
-    xaxis:{title:'単純−加重 PBR スプレッド',ticksuffix:'x'},yaxis:{autorange:'reversed'}});
+    xaxis:{title:'単純−加重 PBR スプレッド',ticksuffix:'x',tickformat:'.1f'},yaxis:{autorange:'reversed'}});
 
   // 業種別 時価総額・純資産チャート（年月連動）
   const _nav2=s=>(s.cap&&s.pbr&&s.pbr>0)?+(s.cap/s.pbr).toFixed(2):null;

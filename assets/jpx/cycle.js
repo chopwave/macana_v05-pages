@@ -242,12 +242,16 @@ function renderCycleSectors(zScores){
   const renderRecList=(elId,list,color)=>{
     const el=document.getElementById(elId);
     if(!el) return;
-    el.innerHTML=list.map(s=>`
-      <div class="rec-row" title="${phaseRecDetail(s,zMap.get(s.n)?.z)}">
-        <span class="rec-name">${s.n}<span style="display:block;font-size:10px;color:var(--muted);margin-top:2px">${phaseRecDetail(s,zMap.get(s.n)?.z)}</span></span>
+    el.innerHTML=list.map(s=>{
+      const detail=phaseRecDetail(s,zMap.get(s.n)?.z);
+      return `
+      <div class="rec-row" title="${detail}">
+        <span class="rec-name">${s.n}</span>
         <span class="rec-cat"><span class="chip" style="background:${CAT_COL[s.cat]}22;color:${CAT_COL[s.cat]}">${CAT_LBL[s.cat]}</span></span>
         <span class="rec-pbr" style="color:${color}">${s.pbr!=null?s.pbr.toFixed(1)+'x':'–'}</span>
-      </div>`).join('');
+        <span class="rec-detail">${detail}</span>
+      </div>`;
+    }).join('');
   };
   renderRecList('recBuyList',byRec.BUY,'var(--green)');
   renderRecList('recSellList',byRec.SELL,'var(--red)');

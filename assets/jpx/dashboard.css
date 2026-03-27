@@ -322,6 +322,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13
   .shortcut-fab{right:12px;bottom:12px;width:42px;height:42px}
   #slMktSel,#slScaleSel,#slSearch,#stocksSearch,#stocksRankSel,#stocksStepSel{min-height:38px}
   .rec-name{width:auto;flex:1 1 auto}
+  .rec-detail{display:none}
   .chart-legend-grid{grid-template-columns:1fr}
 }
 @media (max-width:480px){
@@ -390,9 +391,10 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13
 .phase-recession {background:rgba(224,84,84,.14); color:var(--red);    border:1px solid rgba(224,84,84,.3)}
 .phase-pending   {background:rgba(107,116,145,.14);color:var(--muted); border:1px solid rgba(107,116,145,.25)}
 .rec-row{display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.025)}
-.rec-name{width:160px;font-size:11px;flex-shrink:0;line-height:1.45}
-.rec-cat{width:78px;flex-shrink:0;white-space:nowrap}
-.rec-pbr{width:44px;text-align:right;font-family:var(--mono);font-size:11px}
+.rec-name{width:148px;font-size:11px;flex-shrink:0;line-height:1.45}
+.rec-cat{width:92px;flex-shrink:0;white-space:nowrap}
+.rec-pbr{width:40px;text-align:right;font-family:var(--mono);font-size:11px}
+.rec-detail{flex:1;min-width:0;font-size:10px;color:var(--muted);line-height:1.5}
 .rec-z{width:44px;text-align:right;font-family:var(--mono);font-size:11px}
 .rec-sig{width:90px;flex-shrink:0}
 .zscore-bar{flex:1;height:4px;background:rgba(255,255,255,.06);border-radius:2px;overflow:hidden;position:relative}

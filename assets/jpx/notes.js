@@ -197,7 +197,21 @@ function importNotes(input){
 }
 
 // ────── export ──────
+function updateCsvExportUI(){
+  const btn=document.getElementById('csvExportBtn');
+  if(!btn) return;
+  const member=typeof _isMember==='function' && _isMember();
+  btn.textContent=member?'CSV出力':'🔒 CSV出力';
+  btn.title=member?'スクリーニング結果をCSV保存':'CSV出力は有償会員向けです';
+  btn.setAttribute('data-tip',member
+    ? 'スクリーニング結果をCSV保存できます。'
+    : 'CSV出力は有償会員向けです。&#10;会員ログイン後に利用できます。');
+}
 function exportCSV(){
+  if(typeof _isMember==='function' && !_isMember()){
+    if(typeof showMemberLogin==='function') showMemberLogin();
+    return;
+  }
   const rows=[['業種','カテゴリ','加重PBR','PBR前期比','加重PER','時価総額(兆円)','上場社数','シグナル']];
   _curSectors().forEach(s=>rows.push([s.n,CAT_LBL[s.cat],s.pbr,s.chg,s.per??'',s.cap,s.cos,signal(s).txt]));
   const csv=rows.map(r=>r.join(',')).join('\n');
@@ -205,4 +219,10 @@ function exportCSV(){
   a.href='data:text/csv;charset=utf-8,\uFEFF'+encodeURIComponent(csv);
   a.download='jpx_screening.csv';a.click();
 }
+
+(function initCsvExportUI(){
+  const run=()=>updateCsvExportUI();
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',run,{once:true});
+  else run();
+})();
 

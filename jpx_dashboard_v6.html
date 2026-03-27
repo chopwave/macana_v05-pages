@@ -38,7 +38,7 @@
   <span class="pill-toggle" id="themePill" onclick="toggleTheme()" title="テーマ切替（Dark / Light）">Dark ⇌</span>
   <span class="pill-toggle" id="chartModePill" onclick="toggleChartModePill()" title="チャートモード切替（Chart.js / Plotly）">Chart.js ⇌</span>
   <div class="tb-right">
-    <button class="tb-btn" onclick="exportCSV()">CSV出力</button>
+    <button class="tb-btn" id="csvExportBtn" onclick="exportCSV()" title="CSV出力は有償会員向けです" data-tip="CSV出力は有償会員向けです。&#10;会員ログイン後に利用できます。" data-tip-pos="bottom">🔒 CSV出力</button>
     <button class="tb-btn" onclick="window.print()" title="現在表示中のページを印刷">印刷</button>
     <button class="tb-btn" onclick="showShortcutHelp&&showShortcutHelp()" title="キーボードショートカット一覧 (?)">?</button>
     <button class="tb-btn" onclick="goto('notes',null,true)" title="有償会員限定の機能です" data-tip="チームメモは有償会員向けです。&#10;イベント別メモと横断メモを保存できます。" data-tip-pos="bottom">🔒 チームメモ</button>
@@ -141,13 +141,13 @@
       <div>
         <div style="font-weight:500;color:var(--green);margin-bottom:4px">✓ 無料で利用できる機能</div>
         <div style="color:var(--muted)">
-          業種別PBRヒートマップ・PER・時価総額・純資産グラフ（サンプルデータ）、銘柄一覧（J-Quants masterベース、代表銘柄）、景気循環分析、スクリーニング（業種ベース）、チームメモ、全グラフ・チャートの閲覧。
+          業種別PBRヒートマップ・PER・時価総額・純資産グラフ（サンプルデータ）、銘柄一覧（J-Quants masterベース、代表銘柄）、景気循環分析、スクリーニング（業種ベース）、全グラフ・チャートの閲覧。
         </div>
       </div>
       <div>
         <div style="font-weight:500;color:var(--accent);margin-bottom:4px">🔒 有償会員（メンバーシップ）限定機能</div>
         <div style="color:var(--muted)">
-          銘柄一覧の<strong>全上場銘柄</strong>表示（実データ）、銘柄別評価の<strong>スコア・ランク（S/A/B/C/D）</strong>・<strong>7ステップ通過状況</strong>の閲覧。右上の <strong>🔒 会員ログイン</strong> ボタンからパスキーを入力することでロックが解除されます。
+          銘柄一覧の<strong>全上場銘柄</strong>表示（実データ）、銘柄別評価の<strong>スコア・ランク（S/A/B/C/D）</strong>・<strong>7ステップ通過状況</strong>の閲覧、<strong>CSV出力</strong>、<strong>チームメモ</strong>。右上の <strong>🔒 会員ログイン</strong> ボタンからパスキーを入力することでロックが解除されます。
         </div>
       </div>
     </div>
@@ -174,7 +174,7 @@
       </div>
       <div>
         <div style="font-weight:500;color:var(--text);margin-bottom:4px">CSV出力 / 印刷</div>
-        <div style="color:var(--muted)">右上の <strong>CSV出力</strong> でスクリーニング結果をCSV保存。<strong>印刷</strong> ボタンでブラウザの印刷ダイアログを開きます（印刷用CSSで最適化済み）。</div>
+        <div style="color:var(--muted)">右上の <strong>CSV出力</strong> は有償会員向けで、スクリーニング結果をCSV保存できます。<strong>印刷</strong> ボタンは無料で利用でき、ブラウザの印刷ダイアログを開きます（印刷用CSSで最適化済み）。</div>
       </div>
       <div>
         <div style="font-weight:500;color:var(--text);margin-bottom:4px">列ヘッダーの ⓘ アイコン</div>
@@ -992,7 +992,7 @@
       <div class="feat"><div class="feat-head">イベント別反応</div><div class="feat-sub">5マクロイベント × PBR変化・シェア変化</div></div>
       <div class="feat"><div class="feat-head">散布図・要因分解</div><div class="feat-sub">時価総額×PBRバブル／BPS成長・PBR膨張分解</div></div>
       <div class="feat"><div class="feat-head">チームメモ</div><div class="feat-sub">セッション内の仮説・シグナル記録（揮発性）</div></div>
-      <div class="feat"><div class="feat-head">CSV出力</div><div class="feat-sub">スクリーニング結果のCSVエクスポート</div></div>
+      <div class="feat"><div class="feat-head">CSV出力（有償）</div><div class="feat-sub">スクリーニング結果のCSVエクスポート</div></div>
       <div class="feat"><div class="feat-head">景気循環分析（④）</div><div class="feat-sub">フェーズ判定・BUY/HOLD/SELL推奨・Zスコア・C/D強度・総合シグナル</div></div>
     </div>
   </div>
