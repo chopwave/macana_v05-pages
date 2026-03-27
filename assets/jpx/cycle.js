@@ -248,10 +248,19 @@ function _zScoresFor(yyyymm){
   }).sort((a,b)=>a.z-b.z);
 }
 
+function _zAxisBounds(zScores){
+  const vals=(zScores||[]).map(s=>Math.abs(s?.z)).filter(Number.isFinite);
+  const maxAbs=vals.length?Math.max(2.5,...vals):2.5;
+  const pad=maxAbs<3?0.25:0.4;
+  const bound=Math.ceil((maxAbs+pad)*2)/2;
+  return [-bound,bound];
+}
+
 // BUY/HOLD/SELL・Zスコア・総合スコアを再描画（_curSectors()と任意のzScoresで動作）
 function renderCycleSectors(zScores){
   const src=_curSectors();
   const zMap=new Map((zScores||[]).map(s=>[s.n,s]));
+  const zBounds=_zAxisBounds(zScores);
   const recWhy=document.getElementById('cycleRecWhy');
   const phaseMap=PHASE_REC[_activePhase]||PHASE_REC[CURRENT_PHASE];
   if(recWhy){
@@ -303,6 +312,8 @@ function renderCycleSectors(zScores){
     charts.zscore.data.datasets[0].data=zScores.map(s=>s.z);
     charts.zscore.data.datasets[0].backgroundColor=zScores.map(s=>s.z<-1?'rgba(91,141,246,.8)':s.z>1?'rgba(224,84,84,.8)':'rgba(107,116,145,.4)');
     charts.zscore.options.plugins.tooltip.callbacks.label=c=>`Z=${c.parsed.x.toFixed(2)}　PBR:${zScores[c.dataIndex]?.pbr?.toFixed(1)||'?'}x`;
+    charts.zscore.options.scales.x.min=zBounds[0];
+    charts.zscore.options.scales.x.max=zBounds[1];
     charts.zscore.update();
     charts.zscore._zPbrData=zScores;
   }
@@ -311,8 +322,8 @@ function renderCycleSectors(zScores){
       x:zScores.map(s=>s.z),y:zScores.map(s=>s.n),
       marker:{color:zScores.map(s=>s.z<-1?'rgba(91,141,246,.8)':s.z>1?'rgba(224,84,84,.8)':'rgba(107,116,145,.4)')},
       hovertemplate:'%{y}<br>Z=%{x:.2f}<extra></extra>'}
-  ],{margin:{l:100,r:24,t:24,b:44},showlegend:false,
-    xaxis:{title:'Zスコア',range:[-2.5,2.5]},yaxis:{autorange:'reversed'}});
+  ],{margin:{l:100,r:52,t:24,b:44},showlegend:false,
+    xaxis:{title:'Zスコア',range:zBounds},yaxis:{autorange:'reversed'}});
   // ⑤ 総合スコアランキング
   const scored=src.map(s=>{
     const ze=zScores.find(z=>z.n===s.n);
@@ -391,13 +402,13 @@ function initCycleCharts(){
       borderRadius:3
     }]},
     options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,
-      layout:{padding:{right:36}},
+      layout:{padding:{right:52}},
       plugins:{title:chartTitle('PBR乖離Zスコア'),legend:{display:false},
         tooltip:{callbacks:{label:c=>`Z=${fmtNum(c.parsed.x,2)} / PBR ${fmtNum(Z_SCORES[c.dataIndex].pbr,1)}x`}},
         emptyState:{display:true,text:'Zスコアデータなし'}},
       scales:{
         x:{ticks:{color:chartTickColor(),font:{size:10}},grid:{color:chartGridColor()},
-          min:-2.5,max:2.5},
+          min:_zAxisBounds(Z_SCORES)[0],max:_zAxisBounds(Z_SCORES)[1]},
         y:{ticks:{color:chartLabelColor(),font:{size:9}},grid:{display:false}}
       }
     }

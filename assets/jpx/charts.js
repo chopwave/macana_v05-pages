@@ -291,13 +291,13 @@ Chart.register({
     const zd=chart._zPbrData||[];
     ctx.save();
     ctx.font='9px JetBrains Mono,monospace';
-    ctx.textAlign='left';
-    meta.data.forEach((bar,i)=>{
+    ctx.textAlign='right';
+    meta.data.forEach((bar,i)=>{ 
       const pbr=zd[i]?.pbr;
       if(pbr==null) return;
       const z=chart.data.datasets[0].data[i];
       ctx.fillStyle=z<-1?'rgba(91,141,246,.9)':z>1?'rgba(224,84,84,.8)':'rgba(107,116,145,.7)';
-      ctx.fillText(pbr.toFixed(1)+'x',chartArea.right+4,bar.y+3.5);
+      ctx.fillText(pbr.toFixed(1)+'x',chart.width-8,bar.y+3.5);
     });
     ctx.restore();
   }
@@ -686,6 +686,7 @@ function renderPlotlyEvent(ev){
   });
 }
 function renderPlotlyCycle(){
+  const zBounds=typeof _zAxisBounds==='function' ? _zAxisBounds(Z_SCORES) : [-2.5,2.5];
   renderPlotlyChart('cyclePhaseC',[
     {type:'scatter',mode:'lines+markers',name:'CI一致指数',x:CYCLE_MONTHS,y:CI_COIN,line:{color:'#29c99a',width:2},yaxis:'y'},
     {type:'scatter',mode:'lines+markers',name:'政策金利',x:CYCLE_MONTHS,y:POL_RATE,line:{color:'#f5a623',width:2,dash:'dash'},yaxis:'y2'},
@@ -700,9 +701,9 @@ function renderPlotlyCycle(){
       marker:{color:Z_SCORES.map(s=>s.z<-1?'rgba(91,141,246,.8)':s.z>1?'rgba(224,84,84,.8)':'rgba(107,116,145,.4)')},
       hovertemplate:'%{y}<br>Z=%{x:.2f}<extra></extra>'}
   ],{
-    margin:{l:100,r:24,t:24,b:44},
+    margin:{l:100,r:52,t:24,b:44},
     showlegend:false,
-    xaxis:{title:'Zスコア',range:[-2.5,2.5]},
+    xaxis:{title:'Zスコア',range:zBounds},
     yaxis:{autorange:'reversed'}
   });
 
