@@ -47,12 +47,12 @@
 
 <!-- sidebar -->
 <nav class="sidebar">
-  <div class="nav-group">ガイド<span class="flow">入口</span></div>
+  <div class="nav-group">ガイド：入口</div>
   <div class="nav-item" onclick="goto('readme',this)">
     <svg class="nav-icon" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="7" cy="7" r="5.5"/><line x1="7" y1="5" x2="7" y2="5.1"/><line x1="7" y1="7" x2="7" y2="10"/></svg>
     ReadMe First
   </div>
-  <div class="nav-group">Step 0<span class="flow">全体把握 → 業種絞り込み</span></div>
+  <div class="nav-group">Step 0：全体把握 → 業種絞り込み</div>
   <div class="nav-item act" onclick="goto('overview',this)">
     <svg class="nav-icon" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="1" width="5" height="5" rx="1"/><rect x="8" y="1" width="5" height="5" rx="1"/><rect x="1" y="8" width="5" height="5" rx="1"/><rect x="8" y="8" width="5" height="5" rx="1"/></svg>
     全体サマリー
@@ -63,7 +63,7 @@
     <span class="nav-badge g" id="nb-screen">0</span>
   </div>
 
-  <div class="nav-group">Step 1<span class="flow">割安度の確認</span></div>
+  <div class="nav-group">Step 1：割安度の確認</div>
   <div class="nav-item" onclick="goto('val',this)">
     <svg class="nav-icon" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="1,11 4,6 8,8 13,2"/></svg>
     バリュエーション
@@ -74,7 +74,7 @@
     <span class="nav-badge" id="nb-below">13</span>
   </div>
 
-  <div class="nav-group">Step 2-3<span class="flow">位置取り → 要因分解</span></div>
+  <div class="nav-group">Step 2-3：位置取り → 要因分解</div>
   <div class="nav-item" onclick="goto('scatter',this)">
     <svg class="nav-icon" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="4" cy="10" r="1.5"/><circle cx="10" cy="4" r="1.5"/><circle cx="11" cy="10" r="1.2"/><circle cx="6" cy="6" r="1.2"/></svg>
     散布図（規模×PBR）
@@ -88,14 +88,14 @@
     イベント別反応
   </div>
 
-  <div class="nav-group">Step 4<span class="flow">景気局面の確認</span></div>
+  <div class="nav-group">Step 4：景気局面の確認</div>
   <div class="nav-item" onclick="goto('cycle',this)">
     <svg class="nav-icon" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="7" cy="7" r="5"/><polyline points="7,4 7,7 9,9"/><line x1="7" y1="2" x2="7" y2="1"/></svg>
     景気循環分析
     <span class="nav-badge g" id="nb-cycle">④</span>
   </div>
 
-  <div class="nav-group">Step 5<span class="flow">銘柄候補へ落とし込む</span></div>
+  <div class="nav-group">Step 5：銘柄候補へ落とし込む</div>
   <div class="nav-item" onclick="goto('stocks',this)">
     <svg class="nav-icon" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="1" y1="3" x2="13" y2="3"/><line x1="1" y1="7" x2="13" y2="7"/><line x1="1" y1="11" x2="8" y2="11"/></svg>
     銘柄一覧
@@ -108,7 +108,7 @@
     <span class="nav-badge" id="nb-eval"></span>
   </div>
 
-  <div class="nav-group">チーム<span class="flow">共有・次段階</span></div>
+  <div class="nav-group">チーム：共有・次段階</div>
   <div class="nav-item" onclick="goto('notes',this)">
     <svg class="nav-icon" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="1" width="10" height="12" rx="1"/><line x1="4" y1="5" x2="10" y2="5"/><line x1="4" y1="8" x2="8" y2="8"/></svg>
     チームメモ
@@ -268,7 +268,7 @@
           <div style="font-size:10px;color:var(--muted);margin-top:2px">分析④ › サイクル判定</div>
         </div>
         <div style="font-size:11px;color:var(--muted);line-height:1.7">
-          6タブ構成。<strong>フェーズ判定チャート</strong>・<strong>BUY/HOLD/SELL推奨</strong>・<strong>PBR乖離Zスコア</strong>（同フェーズ比較）・<strong>シクリカル/ディフェンシブ比率</strong>・<strong>総合シグナル</strong>・<strong>フェーズ遷移履歴</strong>（月次タイムラインバー）。フェーズ判定には信頼スコア（0〜100%）を表示。年月スライダーに連動して全指標が更新されます。
+          3タブ構成。<strong>フェーズ判定チャート</strong>・<strong>BUY/HOLD/SELL推奨</strong>・<strong>PBR乖離Zスコア</strong>（同フェーズ比較）・<strong>シクリカル/ディフェンシブ比率</strong>・<strong>総合シグナル</strong>・<strong>フェーズ遷移履歴</strong>（月次タイムラインバー）に加え、<strong>4象限サイクル表</strong>と<strong>波動理論</strong>を同じ画面で確認できます。フェーズ判定には信頼スコア（0〜100%）を表示。年月スライダーに連動して全指標が更新されます。
         </div>
       </div>
 
@@ -735,8 +735,8 @@
   <!-- タブ -->
   <div class="tabs">
     <div class="tab act" onclick="swTab('cycle','decision',this);renderPhaseHistory()" title="景気フェーズの判定と過去遷移をまとめて確認">判定<br><span style="font-size:9px;opacity:.65;font-weight:400">フェーズ・履歴</span></div>
-    <div class="tab" onclick="swTab('cycle','recommend',this)" title="現フェーズに基づくBUY/HOLD/SELL推奨と総合シグナルを確認">推奨<br><span style="font-size:9px;opacity:.65;font-weight:400">BUY/HOLD/SELL</span></div>
     <div class="tab" onclick="swTab('cycle','detail',this)" title="PBR乖離Zスコアとシクリカル/ディフェンシブ比率の詳細指標を確認">詳細<br><span style="font-size:9px;opacity:.65;font-weight:400">Zスコア・C/D比率</span></div>
+    <div class="tab" onclick="swTab('cycle','recommend',this)" title="景気サイクル4象限マップ・推奨業種・波動理論・セクターローテーション早見表">推奨<br><span style="font-size:9px;opacity:.65;font-weight:400">4象限・理論</span></div>
   </div>
 
   <!-- タブ①: 判定 -->
@@ -768,46 +768,7 @@
     </div>
   </div>
 
-  <!-- タブ②: 推奨 -->
-  <div class="tp" id="cycle-recommend">
-    <div class="banner banner-blue" style="margin-bottom:14px" id="recBanner">
-      フェーズ別推奨マップを適用した結果。
-      <strong id="recBannerPhase">現フェーズ</strong>に基づく BUY / HOLD / SELL 判定。
-    </div>
-    <div class="phase-why" id="cycleRecWhy" style="margin-bottom:12px"><strong>推奨の見方：</strong>カテゴリ相性、現在フェーズ、同フェーズ比の割高/割安を組み合わせて判断します。</div>
-    <div class="g2">
-      <div class="card">
-        <div class="card-hd"><span class="card-title">BUY 推奨業種<span class="ym-badge" title="年月連動">年月連動</span></span><span class="card-meta" style="color:var(--green)">G / V カテゴリ</span></div>
-        <div id="recBuyList"></div>
-      </div>
-      <div class="card">
-        <div class="card-hd"><span class="card-title">SELL 寄り業種</span><span class="card-meta" style="color:var(--red)">C カテゴリ中心</span></div>
-        <div id="recSellList"></div>
-      </div>
-    </div>
-    <div class="banner banner-green" style="margin-bottom:14px">
-      <strong>総合スコア</strong> = フェーズ推奨（±2）＋ PBR乖離Zスコア逆符号（±1）＋ C/D相対強度ボーナス（±1）<br>
-      ≥ +2 → Strong BUY　+1 → BUY　0 → HOLD　−1 → SELL　≤ −2 → Strong SELL
-    </div>
-    <div class="card">
-        <div class="card-hd"><span class="card-title">全業種 フェーズ推奨一覧<span class="ym-badge" title="年月連動">年月連動</span><span class="info-icon" tabindex="0" data-tip="各業種のカテゴリ特性と現在フェーズの相性で BUY / HOLD / SELL を判定します。カテゴリが同じでも、現在の PBR 水準は別途確認してください。" data-tip-pos="bottom">i</span></span></div>
-        <div style="overflow-x:auto"><table class="sig-table" id="recTable">
-          <thead><tr>
-            <th>業種</th><th>カテゴリ</th><th>加重PBR</th><th>フェーズ推奨</th><th>根拠</th>
-          </tr></thead>
-        <tbody id="recBody"></tbody>
-      </table></div>
-    </div>
-    <div class="card">
-      <div class="card-hd">
-        <span class="card-title">業種別 総合スコアランキング<span class="ym-badge" title="年月連動">年月連動</span></span>
-        <span class="card-meta" id="finalPhaseMeta">現フェーズ: –</span>
-      </div>
-      <div id="finalSignalList"></div>
-    </div>
-  </div>
-
-  <!-- タブ③: 詳細 -->
+  <!-- タブ②: 詳細 -->
   <div class="tp" id="cycle-detail">
     <div class="banner banner-blue" style="margin-bottom:14px">
       <strong>詳細</strong>：推奨判定を補強するための Zスコアと C/D比率を確認します。
@@ -848,6 +809,237 @@
         <div class="card-hd"><span class="card-title">フェーズシグナル判定</span></div>
         <div id="cdSignalList" style="padding:4px 0"></div>
       </div>
+    </div>
+  </div>
+
+  <!-- タブ③: 推奨 -->
+  <div class="tp" id="cycle-recommend">
+    <div class="banner banner-blue" style="margin-bottom:14px">
+      <strong>推奨</strong>：景気サイクルの4象限マップ・BUY/HOLD/SELL推奨・波動理論・セクターローテーション早見表をまとめて確認します。
+    </div>
+    <div class="banner banner-blue" style="margin-bottom:14px" id="recBanner">
+      フェーズ別推奨マップを適用した結果。
+      <strong id="recBannerPhase">現フェーズ</strong>に基づく BUY / HOLD / SELL 判定。
+    </div>
+    <div class="phase-why" id="cycleRecWhy" style="margin-bottom:10px"><strong>推奨の見方：</strong>カテゴリ相性、現在フェーズ、同フェーズ比の割高/割安を組み合わせて判断します。</div>
+    <div id="recPhaseEnv" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:14px;padding:9px 14px;border-radius:8px;background:rgba(107,116,145,.08)"></div>
+    <div class="g2">
+      <div class="card">
+        <div class="card-hd"><span class="card-title">BUY 推奨業種<span class="ym-badge" title="年月連動">年月連動</span></span><span class="card-meta" id="recBuyMeta" style="color:var(--green)">–</span></div>
+        <div id="recBuyList"></div>
+      </div>
+      <div class="card">
+        <div class="card-hd"><span class="card-title">SELL 寄り業種<span class="ym-badge" title="年月連動">年月連動</span></span><span class="card-meta" id="recSellMeta" style="color:var(--red)">–</span></div>
+        <div id="recSellList"></div>
+      </div>
+    </div>
+    <div class="banner banner-green" style="margin-bottom:14px">
+      <strong>総合スコア</strong> = フェーズ推奨（±2）＋ PBR乖離Zスコア逆符号（±1）＋ C/D相対強度ボーナス（±1）<br>
+      <span style="display:inline-flex;gap:6px;flex-wrap:wrap;margin-top:6px;align-items:center">
+        <span class="chip" style="background:rgba(41,201,154,.2);color:var(--green);font-size:10px">≥ +2　Strong BUY</span>
+        <span class="chip" style="background:rgba(41,201,154,.12);color:var(--green);font-size:10px">+1　BUY</span>
+        <span class="chip" style="background:rgba(107,116,145,.12);color:var(--muted);font-size:10px">0　HOLD</span>
+        <span class="chip" style="background:rgba(224,84,84,.12);color:var(--red);font-size:10px">−1　SELL</span>
+        <span class="chip" style="background:rgba(224,84,84,.2);color:var(--red);font-size:10px">≤ −2　Strong SELL</span>
+      </span>
+    </div>
+    <div class="card">
+        <div class="card-hd"><span class="card-title">全業種 フェーズ推奨一覧<span class="ym-badge" title="年月連動">年月連動</span><span class="info-icon" tabindex="0" data-tip="各業種のカテゴリ特性と現在フェーズの相性で BUY / HOLD / SELL を判定します。カテゴリが同じでも、現在の PBR 水準は別途確認してください。" data-tip-pos="bottom">i</span></span></div>
+        <div style="overflow-x:auto"><table class="sig-table" id="recTable">
+          <thead><tr>
+            <th>業種</th><th>カテゴリ</th><th>加重PBR</th><th>フェーズ推奨</th><th>根拠</th>
+          </tr></thead>
+        <tbody id="recBody"></tbody>
+      </table></div>
+    </div>
+    <div class="card">
+      <div class="card-hd">
+        <span class="card-title">業種別 総合スコアランキング<span class="ym-badge" title="年月連動">年月連動</span></span>
+        <span class="card-meta" id="finalPhaseMeta">現フェーズ: –</span>
+      </div>
+      <div id="finalSignalList"></div>
+    </div>
+
+    <!-- 4象限グリッド -->
+    <div class="card" style="margin-bottom:16px">
+      <div class="card-hd">
+        <span class="card-title">景気サイクル × セクターローテーション<span class="ym-badge">年月連動</span><span class="info-icon" data-tip="出典: 2022businesscycle.jpg&#10;株式市場は景気に3〜6ヶ月先行して動きます。&#10;現在フェーズはハイライト（枠線）表示されます。&#10;&#10;各象限のBUY/HOLD表示は選択年月のフェーズ判定とPBR乖離Zスコアに連動します。">i</span></span>
+        <span class="card-meta" id="theoryCurPhase">–</span>
+      </div>
+      <div style="padding:8px 4px 12px">
+        <div style="text-align:center;font-size:10px;color:var(--muted);margin-bottom:6px">↑ 景気が強い</div>
+        <div style="display:flex;gap:6px;align-items:stretch">
+          <div style="writing-mode:vertical-rl;transform:rotate(180deg);font-size:9px;color:var(--muted);text-align:center;padding:0 2px;flex-shrink:0">成長率 低 ←→ 成長率 高</div>
+          <div style="flex:1;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:8px">
+            <!-- 上段左: 回復期 -->
+            <div class="cycle-quad" id="cquad-recovery">
+              <div class="cquad-stage">金融相場</div>
+              <div class="cquad-phase">回復期</div>
+              <div class="cquad-env">金利低 · インフレ低</div>
+              <div class="cquad-cat"><span class="chip" style="background:rgba(91,141,246,.15);color:var(--accent)">G</span> <span class="chip" style="background:rgba(245,166,35,.15);color:var(--amber)">V</span></div>
+              <div class="cquad-sec-list" id="cqsec-recovery"></div>
+            </div>
+            <!-- 上段右: 拡張期（好況期） -->
+            <div class="cycle-quad" id="cquad-expansion">
+              <div class="cquad-stage">業績相場</div>
+              <div class="cquad-phase">好況期（拡張期）</div>
+              <div class="cquad-env">金利↑ · インフレ↑</div>
+              <div class="cquad-cat"><span class="chip" style="background:rgba(224,84,84,.15);color:var(--red)">C</span> <span class="chip" style="background:rgba(245,166,35,.15);color:var(--amber)">V</span></div>
+              <div class="cquad-sec-list" id="cqsec-expansion"></div>
+            </div>
+            <!-- 下段左: 不況期（後退期） -->
+            <div class="cycle-quad" id="cquad-recession">
+              <div class="cquad-stage">逆業績相場</div>
+              <div class="cquad-phase">不況期（後退期）</div>
+              <div class="cquad-env">金融緩和 · 金利引下げ</div>
+              <div class="cquad-cat"><span class="chip" style="background:rgba(41,201,154,.15);color:var(--green)">D</span></div>
+              <div class="cquad-sec-list" id="cqsec-recession"></div>
+            </div>
+            <!-- 下段右: 後退期（後退前期） -->
+            <div class="cycle-quad" id="cquad-slowdown">
+              <div class="cquad-stage">逆金融相場</div>
+              <div class="cquad-phase">後退期（後退前期）</div>
+              <div class="cquad-env">金利高 · インフレ低下</div>
+              <div class="cquad-cat"><span class="chip" style="background:rgba(245,166,35,.15);color:var(--amber)">V</span></div>
+              <div class="cquad-sec-list" id="cqsec-slowdown"></div>
+            </div>
+          </div>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px;padding:0 24px">
+          <span style="font-size:10px;color:var(--muted)">← 成長率 低</span>
+          <span style="font-size:10px;color:var(--hint)">↓ 景気が弱い</span>
+          <span style="font-size:10px;color:var(--muted)">成長率 高 →</span>
+        </div>
+        <div style="text-align:center;font-size:10px;color:var(--hint);margin-top:6px">↻ 時計回りで循環：回復期 → 好況期 → 後退期 → 不況期 → 新サイクル回復期</div>
+      </div>
+    </div>
+
+    <!-- 相場ステージ × セクター対応 -->
+    <div class="card" style="margin-bottom:16px">
+      <div class="card-hd"><span class="card-title">相場ステージ × セクター対応（株式市場先行）</span><span class="card-meta">景気に3〜6ヶ月先行</span></div>
+      <div style="overflow-x:auto">
+        <table class="sig-table" style="min-width:560px">
+          <thead><tr>
+            <th>相場ステージ</th>
+            <th>景気フェーズ</th>
+            <th>金利・インフレ</th>
+            <th>有利カテゴリ</th>
+            <th>代表セクター</th>
+          </tr></thead>
+          <tbody>
+            <tr>
+              <td><span class="chip" style="background:rgba(41,201,154,.2);color:var(--green);font-size:11px">金融相場</span></td>
+              <td>回復期・新サイクル回復期</td>
+              <td style="color:var(--muted);font-size:10px">金利低・インフレ低</td>
+              <td><span class="chip" style="background:rgba(91,141,246,.15);color:var(--accent)">G</span> <span class="chip" style="background:rgba(245,166,35,.15);color:var(--amber)">V</span></td>
+              <td style="font-size:11px">情報技術・不動産・金融</td>
+            </tr>
+            <tr>
+              <td><span class="chip" style="background:rgba(91,141,246,.2);color:var(--accent);font-size:11px">業績相場</span></td>
+              <td>拡張期（好況期）</td>
+              <td style="color:var(--muted);font-size:10px">金利↑・インフレ↑</td>
+              <td><span class="chip" style="background:rgba(224,84,84,.15);color:var(--red)">C</span> <span class="chip" style="background:rgba(245,166,35,.15);color:var(--amber)">V</span></td>
+              <td style="font-size:11px">資本財・素材・一般消費財</td>
+            </tr>
+            <tr>
+              <td><span class="chip" style="background:rgba(245,166,35,.2);color:var(--amber);font-size:11px">逆金融相場</span></td>
+              <td>後退前期</td>
+              <td style="color:var(--muted);font-size:10px">金利高・インフレ低下</td>
+              <td><span class="chip" style="background:rgba(245,166,35,.15);color:var(--amber)">V</span></td>
+              <td style="font-size:11px">エネルギー・ヘルスケア</td>
+            </tr>
+            <tr>
+              <td><span class="chip" style="background:rgba(224,84,84,.2);color:var(--red);font-size:11px">逆業績相場</span></td>
+              <td>後退期（不況期）</td>
+              <td style="color:var(--muted);font-size:10px">金融緩和・金利引下げ</td>
+              <td><span class="chip" style="background:rgba(41,201,154,.15);color:var(--green)">D</span></td>
+              <td style="font-size:11px">通信・ヘルスケア・生活必需品・公益</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 景気循環の波動理論 -->
+    <div class="card" style="margin-bottom:16px">
+      <div class="card-hd"><span class="card-title">景気循環の波動理論</span><span class="card-meta">出典: フィデリティ投信 / 政経講義28</span></div>
+      <div style="overflow-x:auto">
+        <table class="sig-table" style="min-width:440px">
+          <thead><tr>
+            <th>波動名</th><th>周期</th><th>主な要因</th><th>特徴</th>
+          </tr></thead>
+          <tbody>
+            <tr>
+              <td class="bold">キチン波</td>
+              <td style="font-family:var(--mono)">3〜4年</td>
+              <td>在庫循環</td>
+              <td style="font-size:10px;color:var(--muted)">最短サイクル。在庫調整で繰り返す</td>
+            </tr>
+            <tr>
+              <td class="bold">ジュグラー波</td>
+              <td style="font-family:var(--mono)">約10年</td>
+              <td>設備投資循環</td>
+              <td style="font-size:10px;color:var(--muted)">設備投資サイクル。景気の主要サイクル</td>
+            </tr>
+            <tr>
+              <td class="bold">クズネッツ波</td>
+              <td style="font-family:var(--mono)">約20年</td>
+              <td>建設・不動産循環</td>
+              <td style="font-size:10px;color:var(--muted)">建設投資サイクル。REIT に影響大</td>
+            </tr>
+            <tr>
+              <td class="bold">コンドラチェフ波</td>
+              <td style="font-family:var(--mono)">50〜60年</td>
+              <td>技術革新・産業構造変化</td>
+              <td style="font-size:10px;color:var(--muted)">最長サイクル。現在はAI/DXが牽引</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div style="font-size:10px;color:var(--hint);margin-top:8px;padding:0 4px">短期波動（キチン）→ 中期（ジュグラー）→ 長期（クズネッツ）→ 超長期（コンドラチェフ）の入れ子構造で景気は循環します。</div>
+    </div>
+
+    <!-- 資産クラス別フェーズ対応 -->
+    <div class="card">
+      <div class="card-hd"><span class="card-title">資産クラス別 フェーズ対応</span><span class="card-meta">出典: フィデリティ投信</span></div>
+      <div style="overflow-x:auto">
+        <table class="sig-table" style="min-width:400px">
+          <thead><tr>
+            <th>フェーズ</th><th>株式</th><th>REIT</th><th>債券</th><th>コメント</th>
+          </tr></thead>
+          <tbody>
+            <tr>
+              <td><span class="chip" style="background:rgba(41,201,154,.2);color:var(--green)">回復期</span></td>
+              <td style="color:var(--green)">↑ 上昇</td>
+              <td style="color:var(--green)">↑ 上昇</td>
+              <td style="color:var(--muted)">→ 横ばい</td>
+              <td style="font-size:10px;color:var(--muted)">IT・グロース株が先行上昇</td>
+            </tr>
+            <tr>
+              <td><span class="chip" style="background:rgba(91,141,246,.2);color:var(--accent)">拡張期</span></td>
+              <td style="color:var(--green)">↑ 継続</td>
+              <td style="color:var(--amber)">→ 鈍化</td>
+              <td style="color:var(--amber)">↓ 低下</td>
+              <td style="font-size:10px;color:var(--muted)">素材・工業・バリュー株が主役</td>
+            </tr>
+            <tr>
+              <td><span class="chip" style="background:rgba(245,166,35,.2);color:var(--amber)">後退前期</span></td>
+              <td style="color:var(--amber)">→ 天井圏</td>
+              <td style="color:var(--red)">↓ 下落</td>
+              <td style="color:var(--amber)">→ 低位</td>
+              <td style="font-size:10px;color:var(--muted)">電力・食品・ディフェンシブへ</td>
+            </tr>
+            <tr>
+              <td><span class="chip" style="background:rgba(224,84,84,.2);color:var(--red)">後退期</span></td>
+              <td style="color:var(--red)">↓ 下落</td>
+              <td style="color:var(--red)">↓ 下落</td>
+              <td style="color:var(--green)">↑ 上昇</td>
+              <td style="font-size:10px;color:var(--muted)">安全資産（債券・現金）へ</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div style="font-size:10px;color:var(--hint);margin-top:8px;padding:0 4px">REIT は金利低下局面（回復期〜拡張期初期）で有利。景気後退期は債券・現金への分散が有効。</div>
     </div>
   </div>
 

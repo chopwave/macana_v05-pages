@@ -172,7 +172,9 @@ function _onYmVline(ym){
 function _onYmCycle(yyyymm){
   if(!_cycleInited) return;
   _updateMacroCards(yyyymm);
-  renderCycleSectors(_zScoresFor(yyyymm));
+  const zs=_zScoresFor(yyyymm);
+  renderCycleSectors(zs);
+  renderCycleTheory(zs);
 }
 function _updateMacroCards(yyyymm){
   // yyyymm = "YYYYMM"、CYCLE_MONTHS は "YYYY/MM"

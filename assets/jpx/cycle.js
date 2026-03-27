@@ -33,6 +33,22 @@ const PHASE_REC={
   '後退期':          {BUY:['D'],    HOLD:['V'],SELL:['C','G']},
   '新サイクル回復期':{BUY:['G','V'],HOLD:['D'],SELL:['C']},
 };
+// 相場ステージ（金融相場/業績相場/逆金融相場/逆業績相場）
+const PHASE_STAGE={
+  '回復期':          {label:'金融相場',  col:'var(--green)'},
+  '拡張期':          {label:'業績相場',  col:'var(--accent)'},
+  '後退前期':        {label:'逆金融相場',col:'var(--amber)'},
+  '後退期':          {label:'逆業績相場',col:'var(--red)'},
+  '新サイクル回復期':{label:'金融相場',  col:'var(--green)'},
+};
+// フェーズ別マクロ環境チップ
+const PHASE_ENV={
+  '回復期':          ['金利低','インフレ低','景気↑'],
+  '拡張期':          ['金利↑','インフレ↑','景気↑'],
+  '後退前期':        ['金利高','インフレ高','景気↓'],
+  '後退期':          ['金利高','インフレ低下','景気↓'],
+  '新サイクル回復期':['金利正常化','インフレ安定','景気↑'],
+};
 const CURRENT_PHASE=_CYCLE_RAW.current_phase||'新サイクル回復期';
 // 年月選択に連動して変わるアクティブフェーズ（phaseRec() が参照する）
 let _activePhase=CURRENT_PHASE;
@@ -101,6 +117,13 @@ function _initCycleDom(){
   if(recBP) recBP.textContent='現フェーズ（'+CURRENT_PHASE+'）';
   const finalMeta=document.getElementById('finalPhaseMeta');
   if(finalMeta) finalMeta.textContent='現フェーズ: '+CURRENT_PHASE;
+  // 推奨タブ: 相場ステージ + 環境チップ
+  const recPhaseEnv=document.getElementById('recPhaseEnv');
+  if(recPhaseEnv){
+    const st=PHASE_STAGE[CURRENT_PHASE]||{label:'–',col:'var(--muted)'};
+    const envChips=(PHASE_ENV[CURRENT_PHASE]||[]).map(t=>`<span class="chip" style="background:rgba(107,116,145,.12);color:var(--muted);font-size:10px">${t}</span>`).join('');
+    recPhaseEnv.innerHTML=`<span style="font-size:11px;color:var(--muted);flex-shrink:0">相場ステージ</span><span class="chip" style="background:${st.col}22;color:${st.col};font-size:11px;padding:3px 12px;font-weight:600">${st.label}</span>${envChips}<span style="font-size:10px;color:var(--hint);margin-left:auto;flex-shrink:0">※株式は景気に3〜6ヶ月先行</span>`;
+  }
 
   // マクロカード（実データ）
   const lm=_CYCLE_RAW.latest_macro||{};
@@ -230,12 +253,17 @@ function renderCycleSectors(zScores){
   const src=_curSectors();
   const zMap=new Map((zScores||[]).map(s=>[s.n,s]));
   const recWhy=document.getElementById('cycleRecWhy');
+  const phaseMap=PHASE_REC[_activePhase]||PHASE_REC[CURRENT_PHASE];
   if(recWhy){
-    const phaseMap=PHASE_REC[_activePhase]||PHASE_REC[CURRENT_PHASE];
     const buyCats=(phaseMap?.BUY||[]).map(c=>CAT_LBL[c]||c).join('・')||'–';
     const sellCats=(phaseMap?.SELL||[]).map(c=>CAT_LBL[c]||c).join('・')||'–';
     recWhy.innerHTML=`<strong>推奨の見方：</strong>${_activePhase} では <strong style="color:var(--green)">${buyCats}</strong> が追い風、<strong style="color:var(--red)">${sellCats}</strong> が逆風です。各行ではさらに同フェーズ比の Z スコアも加味しています。`;
   }
+  // カード副題をフェーズ連動で更新
+  const buyMeta=document.getElementById('recBuyMeta');
+  const sellMeta=document.getElementById('recSellMeta');
+  if(buyMeta) buyMeta.textContent=(phaseMap?.BUY||[]).map(c=>CAT_LBL[c]||c).join(' / ')+' カテゴリ';
+  if(sellMeta) sellMeta.textContent=(phaseMap?.SELL||[]).map(c=>CAT_LBL[c]||c).join(' / ')+' カテゴリ';
   // ② BUY/HOLD/SELL推奨リスト
   const byRec={BUY:[],HOLD:[],SELL:[]};
   src.forEach(s=>{byRec[phaseRec(s.cat)].push(s);});
@@ -411,6 +439,60 @@ function initCycleCharts(){
   // ②③⑤ セクター依存レンダリング（年月連動対応）
   const initYm=document.getElementById('ymSel')?.value;
   renderCycleSectors(initYm?_zScoresFor(initYm):Z_SCORES);
+  // ④ サイクル表タブ
+  renderCycleTheory(initYm?_zScoresFor(initYm):Z_SCORES);
+}
+
+// ── サイクル表タブ: 4象限ハイライト + 業種BUY/HOLD表示（年月連動）──
+function renderCycleTheory(zScores){
+  const QUAD_MAP={
+    '回復期':          'recovery',
+    '拡張期':          'expansion',
+    '後退前期':        'slowdown',
+    '後退期':          'recession',
+    '新サイクル回復期':'recovery',
+  };
+  const QUAD_PHASES={recovery:'回復期',expansion:'拡張期',slowdown:'後退前期',recession:'後退期'};
+  const QUAD_COL={recovery:'var(--green)',expansion:'var(--accent)',slowdown:'var(--amber)',recession:'var(--red)'};
+  const phase=_activePhase||CURRENT_PHASE;
+  const activeId=QUAD_MAP[phase];
+
+  // 象限ハイライト
+  const bgColors={recovery:'rgba(41,201,154,.06)',expansion:'rgba(91,141,246,.06)',slowdown:'rgba(245,166,35,.06)',recession:'rgba(224,84,84,.06)'};
+  ['recovery','expansion','slowdown','recession'].forEach(id=>{
+    const el=document.getElementById('cquad-'+id);
+    if(!el) return;
+    el.classList.toggle('cq-active',id===activeId);
+    el.style.background=id===activeId?'':bgColors[id];
+  });
+  const st=PHASE_STAGE[phase]||{label:'–',col:'var(--muted)'};
+  const meta=document.getElementById('theoryCurPhase');
+  if(meta) meta.innerHTML=`現在: <span style="color:${st.col};font-weight:600">${phase}</span>（${st.label}）`;
+
+  // 業種リスト（年月連動）
+  const sectors=_curSectors();
+  const zMap=new Map((zScores||Z_SCORES).map(s=>[s.n,s]));
+  Object.entries(QUAD_PHASES).forEach(([quadId,qPhase])=>{
+    const el=document.getElementById('cqsec-'+quadId);
+    if(!el) return;
+    const rec=PHASE_REC[qPhase]||{BUY:[],HOLD:[],SELL:[]};
+    // BUYカテゴリ業種のみ表示（最大8件、Zスコア昇順）
+    const items=sectors.map(s=>{
+      const z=zMap.get(s.n)?.z??null;
+      if(!rec.BUY.includes(s.cat)) return null;
+      let sig,col;
+      if(z!=null&&z<=-1.0){sig='強BUY';col='var(--green)';}
+      else if(z!=null&&z>=1.0){sig='HOLD'; col='var(--muted)';}
+      else{sig='BUY';col=QUAD_COL[quadId]||'var(--accent)';}
+      return{n:s.n,pbr:s.pbr,z,sig,col};
+    }).filter(Boolean).sort((a,b)=>(a.z??99)-(b.z??99)).slice(0,8);
+    if(!items.length){el.innerHTML='<span style="font-size:10px;color:var(--hint)">データなし</span>';return;}
+    el.innerHTML=items.map(s=>`<div class="cquad-sec-row">
+      <span class="cquad-sec-sig" style="background:${s.col}22;color:${s.col}">${s.sig}</span>
+      <span class="cquad-sec-name">${s.n}</span>
+      <span class="cquad-sec-pbr">${s.pbr!=null?s.pbr.toFixed(1)+'x':'–'}</span>
+    </div>`).join('');
+  });
 }
 
 window.addEventListener('load',()=>{
