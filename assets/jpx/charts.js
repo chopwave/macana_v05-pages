@@ -218,6 +218,54 @@ function updateGeneratedAt(){
     el.title='データ生成日時: '+ga;
   }catch(_e){}
 }
+function updateReadmeDataFreshness(){
+  const wrap=document.getElementById('readmeDataFreshness');
+  const badge=document.getElementById('readmeDataGeneratedAt');
+  if(!wrap) return;
+  const ga=DASHBOARD_DATA?.generated_at||null;
+  let gaText='–';
+  if(badge){
+    if(ga){
+      gaText=ga.replace('T',' ');
+      badge.textContent=gaText;
+      badge.title='データ生成日時: '+ga;
+    }else{
+      badge.textContent=_forceSample?'sample mode':'N/A';
+    }
+  }
+  if(!DASHBOARD_DATA){
+    wrap.innerHTML='sample モードでは固定の参考データを表示します。real モードでは、業種月次・銘柄評価・マクロ系列の最新取得状況がここに表示されます。';
+    return;
+  }
+  const latestYyyymm=DASHBOARD_DATA.latest_yyyymm||null;
+  const latestMonth=latestYyyymm?`${latestYyyymm.slice(0,4)}/${latestYyyymm.slice(4,6)}`:'–';
+  const stocksAsOf=DASHBOARD_DATA?.stocks?.as_of||'–';
+  const stockListAsOf=DASHBOARD_DATA?.stock_list?.as_of||'–';
+  const macroAsOf=DASHBOARD_DATA?.cycle?.latest_macro?.as_of_by_series||{};
+  wrap.innerHTML=`
+    <div style="margin-bottom:10px;padding:8px 12px;background:var(--bg3);border-radius:6px;font-size:10px;color:var(--hint);line-height:1.7">
+      最終データ反映タイミング: <span style="font-family:var(--mono);color:var(--text)">${gaText}</span>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div>
+        <div style="font-weight:500;color:var(--text);margin-bottom:4px">主要データ</div>
+        <div>JPX 月次業種データ: <span style="font-family:var(--mono);color:var(--text)">${latestMonth}</span></div>
+        <div>銘柄別評価: <span style="font-family:var(--mono);color:var(--text)">${stocksAsOf}</span></div>
+        <div>銘柄一覧マスタ: <span style="font-family:var(--mono);color:var(--text)">${stockListAsOf}</span></div>
+      </div>
+      <div>
+        <div style="font-weight:500;color:var(--text);margin-bottom:4px">マクロ系列</div>
+        <div>CI一致指数: <span style="font-family:var(--mono);color:var(--text)">${macroAsOf.ci_coin||'–'}</span></div>
+        <div>CI先行指数: <span style="font-family:var(--mono);color:var(--text)">${macroAsOf.ci_leading||'–'}</span></div>
+        <div>PMI: <span style="font-family:var(--mono);color:var(--text)">${macroAsOf.pmi||'–'}</span></div>
+        <div>10年国債利回り: <span style="font-family:var(--mono);color:var(--text)">${macroAsOf.jgb_10y||'–'}</span></div>
+        <div>政策金利: <span style="font-family:var(--mono);color:var(--text)">${macroAsOf.pol_rate||'–'}</span></div>
+      </div>
+    </div>
+    <div style="margin-top:10px;padding:8px 12px;background:var(--bg3);border-radius:6px;font-size:10px;color:var(--hint);line-height:1.7">
+      系列ごとに公開タイミングが異なるため、マクロ指標は同じ月で揃わないことがあります。景気循環分析では系列別の最新月を表示します。
+    </div>`;
+}
 // A-6: テーマピル
 function toggleTheme(){
   setTheme(themeMode==='dark'?'light':'dark');

@@ -1,7 +1,10 @@
 // ────── 景気循環データ（実データ優先、フォールバックはサンプル値）──────
 const _CYCLE_RAW_BASE=DASHBOARD_DATA?.cycle||{};
 const _CYCLE_RAW=(!_CYCLE_RAW_BASE.latest_macro&&_forceSample)?{
-  latest_macro:{ci_coin:109.0,ci_coin_mom:0.9,ci_leading:112.0,ci_leading_mom:1.0,pol_rate:0.50,jgb_10y:1.35,as_of:'2025/07'},
+  latest_macro:{
+    ci_coin:109.0,ci_coin_mom:0.9,ci_leading:112.0,ci_leading_mom:1.0,pol_rate:0.50,jgb_10y:1.35,pmi:51.2,as_of:'2025/07',
+    as_of_by_series:{ci_coin:'2025/07',ci_leading:'2025/07',pol_rate:'2025/07',jgb_10y:'2025/07',pmi:'2025/07'}
+  },
   cd_share:{c_pct:24.1,d_pct:23.7,as_of:'2025/07'},
   current_phase:'新サイクル回復期',
   ..._CYCLE_RAW_BASE
@@ -127,25 +130,31 @@ function _initCycleDom(){
 
   // マクロカード（実データ）
   const lm=_CYCLE_RAW.latest_macro||{};
+  const lmAsOf=lm.as_of_by_series||{};
   const _setEl=(id,html)=>{const e=document.getElementById(id);if(e)e.innerHTML=html;};
   const _mom=(v)=>v==null?'–':((v>=0?'+':'')+v.toFixed(1)+' pt');
   const _dir=(v)=>v==null?'':v>0?'<span class="up">▲ 上昇</span>':'<span class="dn">▼ 低下</span>';
+  const _latestSeriesAsOf=Object.values(lmAsOf).filter(Boolean).sort().slice(-1)[0]||null;
+  const _ciAsOf=lmAsOf.ci_coin||lm.as_of||null;
+  if(phaseWhy && _latestSeriesAsOf && _ciAsOf && _latestSeriesAsOf!==_ciAsOf){
+    phaseWhy.innerHTML+=`<br><span style="color:var(--hint)">注: CI系の最新公表月は ${_ciAsOf}、一方で PMI・金利系は ${_latestSeriesAsOf} まで反映しています。</span>`;
+  }
   if(lm.ci_coin!=null){
     _setEl('mcCiCoin',(lm.ci_coin_mom!=null?(lm.ci_coin_mom>=0?'+':'')+lm.ci_coin_mom.toFixed(1):lm.ci_coin.toFixed(1))+'<span style="font-size:11px;color:var(--muted)"> pt</span>');
-    _setEl('mcCiCoinSub',_dir(lm.ci_coin_mom)+(lm.as_of?' '+lm.as_of+'時点':''));
+    _setEl('mcCiCoinSub',_dir(lm.ci_coin_mom)+((lmAsOf.ci_coin||lm.as_of)?' '+(lmAsOf.ci_coin||lm.as_of)+'時点':''));
   }
   if(lm.ci_leading!=null){
     _setEl('mcCiLead',(lm.ci_leading_mom!=null?(lm.ci_leading_mom>=0?'+':'')+lm.ci_leading_mom.toFixed(1):lm.ci_leading.toFixed(1))+'<span style="font-size:11px;color:var(--muted)"> pt</span>');
-    _setEl('mcCiLeadSub',_dir(lm.ci_leading_mom)+(lm.as_of?' '+lm.as_of+'時点':''));
+    _setEl('mcCiLeadSub',_dir(lm.ci_leading_mom)+((lmAsOf.ci_leading||lm.as_of)?' '+(lmAsOf.ci_leading||lm.as_of)+'時点':''));
   }
   if(lm.pol_rate!=null){
     _setEl('mcPolRate',lm.pol_rate.toFixed(2)+'<span style="font-size:11px;color:var(--muted)"> %</span>');
-    _setEl('mcPolRateSub','<span class="up">▲ 段階的利上げ継続</span>');
+    _setEl('mcPolRateSub','<span class="up">▲ 段階的利上げ継続</span>'+((lmAsOf.pol_rate||lm.as_of)?' '+(lmAsOf.pol_rate||lm.as_of)+'時点':''));
   }
   if(lm.jgb_10y!=null){
     const per=(1/lm.jgb_10y*100).toFixed(1);
     _setEl('mcJgb',lm.jgb_10y.toFixed(2)+'<span style="font-size:11px;color:var(--muted)"> %</span>');
-    _setEl('mcJgbSub','<span class="up">▲ PER理論値 '+per+'倍相当</span>');
+    _setEl('mcJgbSub','<span class="up">▲ PER理論値 '+per+'倍相当</span>'+((lmAsOf.jgb_10y||lm.as_of)?' '+(lmAsOf.jgb_10y||lm.as_of)+'時点':''));
   }
 
   // C/D シェアバー（初期表示は最新月）
@@ -512,6 +521,7 @@ window.addEventListener('load',()=>{
   populateYmOptions();
   updateDataModePill();
   updateGeneratedAt();
+  updateReadmeDataFreshness();
   loadNotes();
   initCharts();
   const chartParam=getUrlParam('chart');
