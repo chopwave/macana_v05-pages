@@ -220,18 +220,11 @@ function updateGeneratedAt(){
 }
 function updateReadmeDataFreshness(){
   const wrap=document.getElementById('readmeDataFreshness');
-  const badge=document.getElementById('readmeDataGeneratedAt');
   if(!wrap) return;
   const ga=DASHBOARD_DATA?.generated_at||null;
   let gaText='–';
-  if(badge){
-    if(ga){
-      gaText=ga.replace('T',' ');
-      badge.textContent=gaText;
-      badge.title='データ生成日時: '+ga;
-    }else{
-      badge.textContent=_forceSample?'sample mode':'N/A';
-    }
+  if(ga){
+    gaText=ga.replace('T',' ');
   }
   if(!DASHBOARD_DATA){
     wrap.innerHTML='sample モードでは固定の参考データを表示します。real モードでは、業種月次・銘柄評価・マクロ系列の最新取得状況がここに表示されます。';
