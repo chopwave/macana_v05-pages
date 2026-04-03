@@ -235,6 +235,14 @@ function updateReadmeDataFreshness(){
   const stocksAsOf=DASHBOARD_DATA?.stocks?.as_of||'–';
   const stockListAsOf=DASHBOARD_DATA?.stock_list?.as_of||'–';
   const macroAsOf=DASHBOARD_DATA?.cycle?.latest_macro?.as_of_by_series||{};
+  const releaseSchedule=DASHBOARD_DATA?.cycle?.release_schedule||{};
+  const scheduleLine=(label,key)=>{
+    const item=releaseSchedule[key];
+    if(!item) return `<div>${label}: <span style="font-family:var(--mono);color:var(--text)">–</span></div>`;
+    const tone=item.basis==='official'?'var(--accent)':'var(--muted)';
+    const suffix=item.note?` <span style="color:${tone}">(${item.note})</span>`:'';
+    return `<div>${label}: <span style="font-family:var(--mono);color:var(--text)">${item.display||'–'}</span>${suffix}</div>`;
+  };
   wrap.innerHTML=`
     <div style="margin-bottom:10px;padding:8px 12px;background:var(--bg3);border-radius:6px;font-size:10px;color:var(--hint);line-height:1.7">
       最終データ反映タイミング: <span style="font-family:var(--mono);color:var(--text)">${gaText}</span>
@@ -255,8 +263,24 @@ function updateReadmeDataFreshness(){
         <div>政策金利: <span style="font-family:var(--mono);color:var(--text)">${macroAsOf.pol_rate||'–'}</span></div>
       </div>
     </div>
+    <div style="margin-top:10px;display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div style="padding:8px 12px;background:var(--bg3);border-radius:6px">
+        <div style="font-weight:500;color:var(--text);margin-bottom:4px">次回公表予定</div>
+        <div style="font-size:10px;color:var(--hint);line-height:1.8">
+          ${scheduleLine('CI', 'ci')}
+          ${scheduleLine('政策金利', 'pol_rate')}
+        </div>
+      </div>
+      <div style="padding:8px 12px;background:var(--bg3);border-radius:6px">
+        <div style="font-weight:500;color:var(--text);margin-bottom:4px">更新目安</div>
+        <div style="font-size:10px;color:var(--hint);line-height:1.8">
+          ${scheduleLine('PMI', 'pmi')}
+          ${scheduleLine('10年国債利回り', 'jgb_10y')}
+        </div>
+      </div>
+    </div>
     <div style="margin-top:10px;padding:8px 12px;background:var(--bg3);border-radius:6px;font-size:10px;color:var(--hint);line-height:1.7">
-      系列ごとに公開タイミングが異なるため、マクロ指標は同じ月で揃わないことがあります。景気循環分析では系列別の最新月を表示します。
+      系列ごとに公開タイミングが異なるため、マクロ指標は同じ月で揃わないことがあります。景気循環分析では系列別の最新月を表示し、固定日を持たない系列は更新目安として表示します。
     </div>`;
 }
 // A-6: テーマピル

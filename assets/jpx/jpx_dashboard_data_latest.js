@@ -1,5 +1,5 @@
 window.JPX_DASHBOARD_DATA = {
-  "generated_at": "2026-04-04T08:11:08",
+  "generated_at": "2026-04-04T08:40:54",
   "latest_yyyymm": "202603",
   "months": [
     "2020/01",
@@ -47990,6 +47990,32 @@ window.JPX_DASHBOARD_DATA = {
         "pol_rate": "2026/03",
         "jgb_10y": "2026/03",
         "pmi": "2026/03"
+      }
+    },
+    "release_schedule": {
+      "ci": {
+        "display": "2026/04/07 14:00",
+        "basis": "official",
+        "note": "2026年2月分 速報",
+        "source": "内閣府 景気統計公表予定一覧"
+      },
+      "pmi": {
+        "display": "2026/05/01 09:30",
+        "basis": "estimated",
+        "note": "次月 final の更新目安",
+        "source": "月初の営業日ベース推定"
+      },
+      "jgb_10y": {
+        "display": "2026/04/06 17:00",
+        "basis": "estimated",
+        "note": "次営業日の更新目安",
+        "source": "財務省 CSV の平日更新前提"
+      },
+      "pol_rate": {
+        "display": "2026/04/28",
+        "basis": "official",
+        "note": "2026年4月会合（4/27-28） 終了後",
+        "source": "日銀 金融政策決定会合の運営"
       }
     }
   },
