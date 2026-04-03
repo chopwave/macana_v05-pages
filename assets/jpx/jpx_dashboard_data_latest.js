@@ -1,5 +1,5 @@
 window.JPX_DASHBOARD_DATA = {
-  "generated_at": "2026-04-04T07:25:45",
+  "generated_at": "2026-04-04T08:11:08",
   "latest_yyyymm": "202603",
   "months": [
     "2020/01",
@@ -47286,7 +47286,7 @@ window.JPX_DASHBOARD_DATA = {
       49.9,
       51.5,
       52.8,
-      null
+      51.6
     ],
     "current_phase": "回復期",
     "phase_history": [
@@ -47982,14 +47982,14 @@ window.JPX_DASHBOARD_DATA = {
       "ci_leading_mom": 2.1,
       "pol_rate": 0.728,
       "jgb_10y": 2.366,
-      "pmi": 52.8,
+      "pmi": 51.6,
       "as_of": "2026/01",
       "as_of_by_series": {
         "ci_coin": "2026/01",
         "ci_leading": "2026/01",
         "pol_rate": "2026/03",
         "jgb_10y": "2026/03",
-        "pmi": "2026/02"
+        "pmi": "2026/03"
       }
     }
   },
