@@ -1,5 +1,5 @@
 window.JPX_DASHBOARD_DATA = {
-  "generated_at": "2026-04-04T09:26:15",
+  "generated_at": "2026-04-04T23:31:39",
   "latest_yyyymm": "202603",
   "months": [
     "2020/01",
@@ -680,7 +680,7 @@ window.JPX_DASHBOARD_DATA = {
     },
     {
       "n": "パルプ・紙",
-      "code": 3100,
+      "code": 3150,
       "cat": "V",
       "pbr": 0.6,
       "per": 18.4,
@@ -17049,7 +17049,7 @@ window.JPX_DASHBOARD_DATA = {
       },
       {
         "n": "パルプ・紙",
-        "code": 3100,
+        "code": 3150,
         "cat": "V",
         "pbr": 0.7,
         "per": 25.7,
@@ -17447,7 +17447,7 @@ window.JPX_DASHBOARD_DATA = {
       },
       {
         "n": "パルプ・紙",
-        "code": 3100,
+        "code": 3150,
         "cat": "V",
         "pbr": 0.6,
         "per": 23.4,
@@ -17845,7 +17845,7 @@ window.JPX_DASHBOARD_DATA = {
       },
       {
         "n": "パルプ・紙",
-        "code": 3100,
+        "code": 3150,
         "cat": "V",
         "pbr": 0.7,
         "per": 25.2,
@@ -18243,7 +18243,7 @@ window.JPX_DASHBOARD_DATA = {
       },
       {
         "n": "パルプ・紙",
-        "code": 3100,
+        "code": 3150,
         "cat": "V",
         "pbr": 0.7,
         "per": 24.7,
@@ -18641,7 +18641,7 @@ window.JPX_DASHBOARD_DATA = {
       },
       {
         "n": "パルプ・紙",
-        "code": 3100,
+        "code": 3150,
         "cat": "V",
         "pbr": 0.7,
         "per": 24.6,
@@ -19039,7 +19039,7 @@ window.JPX_DASHBOARD_DATA = {
       },
       {
         "n": "パルプ・紙",
-        "code": 3100,
+        "code": 3150,
         "cat": "V",
         "pbr": 0.6,
         "per": 10.1,
@@ -19437,7 +19437,7 @@ window.JPX_DASHBOARD_DATA = {
       },
       {
         "n": "パルプ・紙",
-        "code": 3100,
+        "code": 3150,
         "cat": "V",
         "pbr": 0.6,
         "per": 9.1,
@@ -19835,7 +19835,7 @@ window.JPX_DASHBOARD_DATA = {
       },
       {
         "n": "パルプ・紙",
-        "code": 3100,
+        "code": 3150,
         "cat": "V",
         "pbr": 0.6,
         "per": 9.4,
@@ -20233,7 +20233,7 @@ window.JPX_DASHBOARD_DATA = {
       },
       {
         "n": "パルプ・紙",
-        "code": 3100,
+        "code": 3150,
         "cat": "V",
         "pbr": 0.6,
         "per": 9.7,
@@ -20631,7 +20631,7 @@ window.JPX_DASHBOARD_DATA = {
       },
       {
         "n": "パルプ・紙",
-        "code": 3100,
+        "code": 3150,
         "cat": "V",
         "pbr": 0.6,
         "per": 9.2,
@@ -21029,7 +21029,7 @@ window.JPX_DASHBOARD_DATA = {
       },
       {
         "n": "パルプ・紙",
-        "code": 3100,
+        "code": 3150,
         "cat": "V",
         "pbr": 0.6,
         "per": 9.9,
@@ -21427,7 +21427,7 @@ window.JPX_DASHBOARD_DATA = {
       },
       {
         "n": "パルプ・紙",
-        "code": 3100,
+        "code": 3150,
         "cat": "V",
         "pbr": 0.7,
         "per": 11.2,
@@ -21825,7 +21825,7 @@ window.JPX_DASHBOARD_DATA = {
       },
       {
         "n": "パルプ・紙",
-        "code": 3100,
+        "code": 3150,
         "cat": "V",
         "pbr": 0.7,
         "per": 11.4,
@@ -22223,7 +22223,7 @@ window.JPX_DASHBOARD_DATA = {
       },
       {
         "n": "パルプ・紙",
-        "code": 3100,
+        "code": 3150,
         "cat": "V",
         "pbr": 0.8,
         "per": 12.0,
@@ -22621,7 +22621,7 @@ window.JPX_DASHBOARD_DATA = {
       },
       {
         "n": "パルプ・紙",
-        "code": 3100,
+        "code": 3150,
         "cat": "V",
         "pbr": 0.8,
         "per": 12.7,
@@ -23019,7 +23019,7 @@ window.JPX_DASHBOARD_DATA = {
       },
       {
         "n": "パルプ・紙",
-        "code": 3100,
+        "code": 3150,
         "cat": "V",
         "pbr": 0.8,
         "per": 12.2,
@@ -23417,7 +23417,7 @@ window.JPX_DASHBOARD_DATA = {
       },
       {
         "n": "パルプ・紙",
-        "code": 3100,
+        "code": 3150,
         "cat": "V",
         "pbr": 0.7,
         "per": 11.8,
@@ -23815,7 +23815,7 @@ window.JPX_DASHBOARD_DATA = {
       },
       {
         "n": "パルプ・紙",
-        "code": 3100,
+        "code": 3150,
         "cat": "V",
         "pbr": 0.7,
         "per": 13.3,
@@ -24213,7 +24213,7 @@ window.JPX_DASHBOARD_DATA = {
       },
       {
         "n": "パルプ・紙",
-        "code": 3100,
+        "code": 3150,
         "cat": "V",
         "pbr": 0.7,
         "per": 13.4,
@@ -24611,7 +24611,7 @@ window.JPX_DASHBOARD_DATA = {
       },
       {
         "n": "パルプ・紙",
-        "code": 3100,
+        "code": 3150,
         "cat": "V",
         "pbr": 0.7,
         "per": 13.1,
@@ -25009,7 +25009,7 @@ window.JPX_DASHBOARD_DATA = {
       },
       {
         "n": "パルプ・紙",
-        "code": 3100,
+        "code": 3150,
         "cat": "V",
         "pbr": 0.7,
         "per": 13.1,
@@ -25407,7 +25407,7 @@ window.JPX_DASHBOARD_DATA = {
       },
       {
         "n": "パルプ・紙",
-        "code": 3100,
+        "code": 3150,
         "cat": "V",
         "pbr": 0.7,
         "per": 13.0,
@@ -25805,7 +25805,7 @@ window.JPX_DASHBOARD_DATA = {
       },
       {
         "n": "パルプ・紙",
-        "code": 3100,
+        "code": 3150,
         "cat": "V",
         "pbr": 0.6,
         "per": 12.0,
@@ -26203,7 +26203,7 @@ window.JPX_DASHBOARD_DATA = {
       },
       {
         "n": "パルプ・紙",
-        "code": 3100,
+        "code": 3150,
         "cat": "V",
         "pbr": 0.7,
         "per": 12.6,
@@ -26601,7 +26601,7 @@ window.JPX_DASHBOARD_DATA = {
       },
       {
         "n": "パルプ・紙",
-        "code": 3100,
+        "code": 3150,
         "cat": "V",
         "pbr": 0.7,
         "per": 13.0,
@@ -26999,7 +26999,7 @@ window.JPX_DASHBOARD_DATA = {
       },
       {
         "n": "パルプ・紙",
-        "code": 3100,
+        "code": 3150,
         "cat": "V",
         "pbr": 0.6,
         "per": 12.4,
@@ -27397,7 +27397,7 @@ window.JPX_DASHBOARD_DATA = {
       },
       {
         "n": "パルプ・紙",
-        "code": 3100,
+        "code": 3150,
         "cat": "V",
         "pbr": 0.6,
         "per": 12.0,
@@ -27795,7 +27795,7 @@ window.JPX_DASHBOARD_DATA = {
       },
       {
         "n": "パルプ・紙",
-        "code": 3100,
+        "code": 3150,
         "cat": "V",
         "pbr": 0.6,
         "per": 11.7,
@@ -28193,7 +28193,7 @@ window.JPX_DASHBOARD_DATA = {
       },
       {
         "n": "パルプ・紙",
-        "code": 3100,
+        "code": 3150,
         "cat": "V",
         "pbr": 0.6,
         "per": 10.8,
@@ -28591,7 +28591,7 @@ window.JPX_DASHBOARD_DATA = {
       },
       {
         "n": "パルプ・紙",
-        "code": 3100,
+        "code": 3150,
         "cat": "V",
         "pbr": 0.6,
         "per": 8.0,
@@ -28989,7 +28989,7 @@ window.JPX_DASHBOARD_DATA = {
       },
       {
         "n": "パルプ・紙",
-        "code": 3100,
+        "code": 3150,
         "cat": "V",
         "pbr": 0.6,
         "per": 7.9,
@@ -29387,7 +29387,7 @@ window.JPX_DASHBOARD_DATA = {
       },
       {
         "n": "パルプ・紙",
-        "code": 3100,
+        "code": 3150,
         "cat": "V",
         "pbr": 0.6,
         "per": 7.8,
@@ -29785,7 +29785,7 @@ window.JPX_DASHBOARD_DATA = {
       },
       {
         "n": "パルプ・紙",
-        "code": 3100,
+        "code": 3150,
         "cat": "V",
         "pbr": 0.5,
         "per": 7.6,
@@ -30183,7 +30183,7 @@ window.JPX_DASHBOARD_DATA = {
       },
       {
         "n": "パルプ・紙",
-        "code": 3100,
+        "code": 3150,
         "cat": "V",
         "pbr": 0.5,
         "per": 7.4,
@@ -30581,7 +30581,7 @@ window.JPX_DASHBOARD_DATA = {
       },
       {
         "n": "パルプ・紙",
-        "code": 3100,
+        "code": 3150,
         "cat": "V",
         "pbr": 0.5,
         "per": 7.6,
@@ -30979,7 +30979,7 @@ window.JPX_DASHBOARD_DATA = {
       },
       {
         "n": "パルプ・紙",
-        "code": 3100,
+        "code": 3150,
         "cat": "V",
         "pbr": 0.5,
         "per": 7.6,
@@ -31377,7 +31377,7 @@ window.JPX_DASHBOARD_DATA = {
       },
       {
         "n": "パルプ・紙",
-        "code": 3100,
+        "code": 3150,
         "cat": "V",
         "pbr": 0.6,
         "per": 7.7,
@@ -31775,7 +31775,7 @@ window.JPX_DASHBOARD_DATA = {
       },
       {
         "n": "パルプ・紙",
-        "code": 3100,
+        "code": 3150,
         "cat": "V",
         "pbr": 0.6,
         "per": 8.0,
@@ -32173,7 +32173,7 @@ window.JPX_DASHBOARD_DATA = {
       },
       {
         "n": "パルプ・紙",
-        "code": 3100,
+        "code": 3150,
         "cat": "V",
         "pbr": 0.6,
         "per": 7.7,
@@ -32571,7 +32571,7 @@ window.JPX_DASHBOARD_DATA = {
       },
       {
         "n": "パルプ・紙",
-        "code": 3100,
+        "code": 3150,
         "cat": "V",
         "pbr": 0.6,
         "per": 7.9,
@@ -32969,7 +32969,7 @@ window.JPX_DASHBOARD_DATA = {
       },
       {
         "n": "パルプ・紙",
-        "code": 3100,
+        "code": 3150,
         "cat": "V",
         "pbr": 0.6,
         "per": 7.8,
@@ -33367,7 +33367,7 @@ window.JPX_DASHBOARD_DATA = {
       },
       {
         "n": "パルプ・紙",
-        "code": 3100,
+        "code": 3150,
         "cat": "V",
         "pbr": 0.6,
         "per": 91.2,
@@ -33765,7 +33765,7 @@ window.JPX_DASHBOARD_DATA = {
       },
       {
         "n": "パルプ・紙",
-        "code": 3100,
+        "code": 3150,
         "cat": "V",
         "pbr": 0.6,
         "per": 96.2,
@@ -34163,7 +34163,7 @@ window.JPX_DASHBOARD_DATA = {
       },
       {
         "n": "パルプ・紙",
-        "code": 3100,
+        "code": 3150,
         "cat": "V",
         "pbr": 0.6,
         "per": 99.3,
@@ -34561,7 +34561,7 @@ window.JPX_DASHBOARD_DATA = {
       },
       {
         "n": "パルプ・紙",
-        "code": 3100,
+        "code": 3150,
         "cat": "V",
         "pbr": 0.7,
         "per": 105.1,
@@ -34959,7 +34959,7 @@ window.JPX_DASHBOARD_DATA = {
       },
       {
         "n": "パルプ・紙",
-        "code": 3100,
+        "code": 3150,
         "cat": "V",
         "pbr": 0.7,
         "per": 106.2,
@@ -35357,7 +35357,7 @@ window.JPX_DASHBOARD_DATA = {
       },
       {
         "n": "パルプ・紙",
-        "code": 3100,
+        "code": 3150,
         "cat": "V",
         "pbr": 0.6,
         "per": 100.4,
@@ -35755,7 +35755,7 @@ window.JPX_DASHBOARD_DATA = {
       },
       {
         "n": "パルプ・紙",
-        "code": 3100,
+        "code": 3150,
         "cat": "V",
         "pbr": 0.6,
         "per": 101.0,
@@ -36153,7 +36153,7 @@ window.JPX_DASHBOARD_DATA = {
       },
       {
         "n": "パルプ・紙",
-        "code": 3100,
+        "code": 3150,
         "cat": "V",
         "pbr": 0.7,
         "per": 104.7,
@@ -36551,7 +36551,7 @@ window.JPX_DASHBOARD_DATA = {
       },
       {
         "n": "パルプ・紙",
-        "code": 3100,
+        "code": 3150,
         "cat": "V",
         "pbr": 0.7,
         "per": 104.8,
@@ -36949,7 +36949,7 @@ window.JPX_DASHBOARD_DATA = {
       },
       {
         "n": "パルプ・紙",
-        "code": 3100,
+        "code": 3150,
         "cat": "V",
         "pbr": 0.7,
         "per": 107.4,
@@ -37347,7 +37347,7 @@ window.JPX_DASHBOARD_DATA = {
       },
       {
         "n": "パルプ・紙",
-        "code": 3100,
+        "code": 3150,
         "cat": "V",
         "pbr": 0.7,
         "per": 98.8,
@@ -37745,7 +37745,7 @@ window.JPX_DASHBOARD_DATA = {
       },
       {
         "n": "パルプ・紙",
-        "code": 3100,
+        "code": 3150,
         "cat": "V",
         "pbr": 0.6,
         "per": 94.0,
@@ -38143,7 +38143,7 @@ window.JPX_DASHBOARD_DATA = {
       },
       {
         "n": "パルプ・紙",
-        "code": 3100,
+        "code": 3150,
         "cat": "V",
         "pbr": 0.6,
         "per": 11.4,
@@ -38529,7 +38529,7 @@ window.JPX_DASHBOARD_DATA = {
       },
       {
         "n": "パルプ・紙",
-        "code": 3100,
+        "code": 3150,
         "cat": "V",
         "pbr": 0.6,
         "per": 11.5,
@@ -38927,7 +38927,7 @@ window.JPX_DASHBOARD_DATA = {
       },
       {
         "n": "パルプ・紙",
-        "code": 3100,
+        "code": 3150,
         "cat": "V",
         "pbr": 0.6,
         "per": 11.4,
@@ -39325,7 +39325,7 @@ window.JPX_DASHBOARD_DATA = {
       },
       {
         "n": "パルプ・紙",
-        "code": 3100,
+        "code": 3150,
         "cat": "V",
         "pbr": 0.6,
         "per": 11.4,
@@ -39723,7 +39723,7 @@ window.JPX_DASHBOARD_DATA = {
       },
       {
         "n": "パルプ・紙",
-        "code": 3100,
+        "code": 3150,
         "cat": "V",
         "pbr": 0.5,
         "per": 11.0,
@@ -40121,7 +40121,7 @@ window.JPX_DASHBOARD_DATA = {
       },
       {
         "n": "パルプ・紙",
-        "code": 3100,
+        "code": 3150,
         "cat": "V",
         "pbr": 0.5,
         "per": 10.7,
@@ -40519,7 +40519,7 @@ window.JPX_DASHBOARD_DATA = {
       },
       {
         "n": "パルプ・紙",
-        "code": 3100,
+        "code": 3150,
         "cat": "V",
         "pbr": 0.5,
         "per": 11.1,
@@ -40917,7 +40917,7 @@ window.JPX_DASHBOARD_DATA = {
       },
       {
         "n": "パルプ・紙",
-        "code": 3100,
+        "code": 3150,
         "cat": "V",
         "pbr": 0.5,
         "per": 11.3,
@@ -41315,7 +41315,7 @@ window.JPX_DASHBOARD_DATA = {
       },
       {
         "n": "パルプ・紙",
-        "code": 3100,
+        "code": 3150,
         "cat": "V",
         "pbr": 0.5,
         "per": 10.9,
@@ -41713,7 +41713,7 @@ window.JPX_DASHBOARD_DATA = {
       },
       {
         "n": "パルプ・紙",
-        "code": 3100,
+        "code": 3150,
         "cat": "V",
         "pbr": 0.5,
         "per": 10.8,
@@ -42111,7 +42111,7 @@ window.JPX_DASHBOARD_DATA = {
       },
       {
         "n": "パルプ・紙",
-        "code": 3100,
+        "code": 3150,
         "cat": "V",
         "pbr": 0.5,
         "per": 11.2,
@@ -42509,7 +42509,7 @@ window.JPX_DASHBOARD_DATA = {
       },
       {
         "n": "パルプ・紙",
-        "code": 3100,
+        "code": 3150,
         "cat": "V",
         "pbr": 0.5,
         "per": 10.9,
@@ -42907,7 +42907,7 @@ window.JPX_DASHBOARD_DATA = {
       },
       {
         "n": "パルプ・紙",
-        "code": 3100,
+        "code": 3150,
         "cat": "V",
         "pbr": 0.5,
         "per": 15.2,
@@ -43305,7 +43305,7 @@ window.JPX_DASHBOARD_DATA = {
       },
       {
         "n": "パルプ・紙",
-        "code": 3100,
+        "code": 3150,
         "cat": "V",
         "pbr": 0.6,
         "per": 15.8,
@@ -43703,7 +43703,7 @@ window.JPX_DASHBOARD_DATA = {
       },
       {
         "n": "パルプ・紙",
-        "code": 3100,
+        "code": 3150,
         "cat": "V",
         "pbr": 0.6,
         "per": 16.9,
@@ -44101,7 +44101,7 @@ window.JPX_DASHBOARD_DATA = {
       },
       {
         "n": "パルプ・紙",
-        "code": 3100,
+        "code": 3150,
         "cat": "V",
         "pbr": 0.6,
         "per": 16.9,
@@ -44499,7 +44499,7 @@ window.JPX_DASHBOARD_DATA = {
       },
       {
         "n": "パルプ・紙",
-        "code": 3100,
+        "code": 3150,
         "cat": "V",
         "pbr": 0.6,
         "per": 16.1,
@@ -44897,7 +44897,7 @@ window.JPX_DASHBOARD_DATA = {
       },
       {
         "n": "パルプ・紙",
-        "code": 3100,
+        "code": 3150,
         "cat": "V",
         "pbr": 0.6,
         "per": 17.4,
@@ -45295,7 +45295,7 @@ window.JPX_DASHBOARD_DATA = {
       },
       {
         "n": "パルプ・紙",
-        "code": 3100,
+        "code": 3150,
         "cat": "V",
         "pbr": 0.6,
         "per": 18.1,
@@ -45693,7 +45693,7 @@ window.JPX_DASHBOARD_DATA = {
       },
       {
         "n": "パルプ・紙",
-        "code": 3100,
+        "code": 3150,
         "cat": "V",
         "pbr": 0.7,
         "per": 19.0,
@@ -46091,7 +46091,7 @@ window.JPX_DASHBOARD_DATA = {
       },
       {
         "n": "パルプ・紙",
-        "code": 3100,
+        "code": 3150,
         "cat": "V",
         "pbr": 0.7,
         "per": 21.1,
@@ -46489,7 +46489,7 @@ window.JPX_DASHBOARD_DATA = {
       },
       {
         "n": "パルプ・紙",
-        "code": 3100,
+        "code": 3150,
         "cat": "V",
         "pbr": 0.6,
         "per": 18.4,
@@ -48284,26 +48284,6 @@ window.JPX_DASHBOARD_DATA = {
           ]
         },
         {
-          "code": "7923",
-          "name": "トーイン",
-          "score": 59.3,
-          "rank": "B",
-          "dy": 0.42,
-          "pbr": 0.54,
-          "per": 9.3,
-          "price": 1181.0,
-          "cap": 75.3,
-          "steps": [
-            0,
-            0,
-            1,
-            1,
-            0,
-            1,
-            1
-          ]
-        },
-        {
           "code": "7936",
           "name": "アシックス",
           "score": 59.1,
@@ -50064,26 +50044,6 @@ window.JPX_DASHBOARD_DATA = {
           ]
         },
         {
-          "code": "7817",
-          "name": "パラマウントベッドホールディングス",
-          "score": 4.0,
-          "rank": "D",
-          "dy": 0.0,
-          "pbr": null,
-          "per": 83.1,
-          "price": 3515.0,
-          "cap": 2024.6,
-          "steps": [
-            1,
-            0,
-            1,
-            0,
-            1,
-            0,
-            1
-          ]
-        },
-        {
           "code": "7810",
           "name": "クロスフォー",
           "score": 2.7,
@@ -50786,26 +50746,6 @@ window.JPX_DASHBOARD_DATA = {
           ]
         },
         {
-          "code": "8515",
-          "name": "アイフル",
-          "score": 24.8,
-          "rank": "D",
-          "dy": 2.65,
-          "pbr": 1.14,
-          "per": 9.5,
-          "price": 453.0,
-          "cap": 2195.3,
-          "steps": [
-            1,
-            1,
-            1,
-            0,
-            0,
-            1,
-            1
-          ]
-        },
-        {
           "code": "8511",
           "name": "日本証券金融",
           "score": 24.6,
@@ -51168,26 +51108,6 @@ window.JPX_DASHBOARD_DATA = {
           ]
         },
         {
-          "code": "5352",
-          "name": "黒崎播磨",
-          "score": 56.4,
-          "rank": "B",
-          "dy": 0.0,
-          "pbr": 1.38,
-          "per": 9.1,
-          "price": 4180.0,
-          "cap": 1523.9,
-          "steps": [
-            1,
-            0,
-            1,
-            1,
-            0,
-            1,
-            1
-          ]
-        },
-        {
           "code": "5388",
           "name": "クニミネ工業",
           "score": 55.3,
@@ -51282,26 +51202,6 @@ window.JPX_DASHBOARD_DATA = {
             1,
             0,
             1,
-            0,
-            1,
-            1
-          ]
-        },
-        {
-          "code": "5386",
-          "name": "鶴弥",
-          "score": 54.0,
-          "rank": "C",
-          "dy": 2.88,
-          "pbr": 0.25,
-          "per": 7.2,
-          "price": 365.0,
-          "cap": 28.4,
-          "steps": [
-            0,
-            1,
-            1,
-            0,
             0,
             1,
             1
@@ -52150,26 +52050,6 @@ window.JPX_DASHBOARD_DATA = {
           ]
         },
         {
-          "code": "5191",
-          "name": "住友理工",
-          "score": 51.6,
-          "rank": "C",
-          "dy": 2.32,
-          "pbr": 1.21,
-          "per": 12.7,
-          "price": 2591.0,
-          "cap": 2695.7,
-          "steps": [
-            1,
-            1,
-            1,
-            1,
-            1,
-            0,
-            1
-          ]
-        },
-        {
           "code": "5101",
           "name": "横浜ゴム",
           "score": 49.9,
@@ -53008,26 +52888,6 @@ window.JPX_DASHBOARD_DATA = {
             0,
             0,
             1,
-            1
-          ]
-        },
-        {
-          "code": "2389",
-          "name": "デジタルホールディングス",
-          "score": 63.6,
-          "rank": "B",
-          "dy": 1.15,
-          "pbr": 1.27,
-          "per": 16.0,
-          "price": 2000.0,
-          "cap": 349.2,
-          "steps": [
-            1,
-            0,
-            0,
-            1,
-            1,
-            0,
             1
           ]
         },
@@ -54048,26 +53908,6 @@ window.JPX_DASHBOARD_DATA = {
             1,
             0,
             0,
-            1
-          ]
-        },
-        {
-          "code": "9776",
-          "name": "札幌臨床検査センター",
-          "score": 56.9,
-          "rank": "B",
-          "dy": 1.17,
-          "pbr": 0.54,
-          "per": 12.1,
-          "price": 1960.0,
-          "cap": 82.6,
-          "steps": [
-            0,
-            0,
-            0,
-            0,
-            1,
-            1,
             1
           ]
         },
@@ -56452,26 +56292,6 @@ window.JPX_DASHBOARD_DATA = {
           ]
         },
         {
-          "code": "2374",
-          "name": "セントケア・ホールディング",
-          "score": 46.1,
-          "rank": "C",
-          "dy": 0.0,
-          "pbr": 1.74,
-          "per": 22.3,
-          "price": 1212.0,
-          "cap": 303.0,
-          "steps": [
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            1
-          ]
-        },
-        {
           "code": "2425",
           "name": "ケアサービス",
           "score": 46.1,
@@ -58007,26 +57827,6 @@ window.JPX_DASHBOARD_DATA = {
             0,
             1,
             0,
-            0,
-            1
-          ]
-        },
-        {
-          "code": "9257",
-          "name": "ＹＣＰホールディングス（グローバル）リミテッド",
-          "score": 39.8,
-          "rank": "D",
-          "dy": 1.66,
-          "pbr": 1.24,
-          "per": 28.6,
-          "price": 805.0,
-          "cap": 179.9,
-          "steps": [
-            0,
-            0,
-            1,
-            1,
-            1,
             0,
             1
           ]
@@ -61452,26 +61252,6 @@ window.JPX_DASHBOARD_DATA = {
           ]
         },
         {
-          "code": "6060",
-          "name": "こころネット",
-          "score": 19.0,
-          "rank": "D",
-          "dy": 0.0,
-          "pbr": 0.52,
-          "per": 7.0,
-          "price": 1372.0,
-          "cap": 52.7,
-          "steps": [
-            0,
-            0,
-            1,
-            0,
-            1,
-            1,
-            1
-          ]
-        },
-        {
           "code": "9158",
           "name": "シーユーシー",
           "score": 19.0,
@@ -62381,26 +62161,6 @@ window.JPX_DASHBOARD_DATA = {
           "per": 23.5,
           "price": 492.0,
           "cap": 155.0,
-          "steps": [
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            1
-          ]
-        },
-        {
-          "code": "2196",
-          "name": "エスクリ",
-          "score": 10.1,
-          "rank": "D",
-          "dy": 0.0,
-          "pbr": 0.41,
-          "per": -22.0,
-          "price": 166.0,
-          "cap": 22.9,
           "steps": [
             0,
             0,
@@ -63796,6 +63556,26 @@ window.JPX_DASHBOARD_DATA = {
           ]
         },
         {
+          "code": "3280",
+          "name": "エストラスト",
+          "score": 62.8,
+          "rank": "B",
+          "dy": 2.75,
+          "pbr": 0.64,
+          "per": 5.3,
+          "price": 1089.0,
+          "cap": 67.2,
+          "steps": [
+            0,
+            1,
+            0,
+            0,
+            1,
+            1,
+            1
+          ]
+        },
+        {
           "code": "3236",
           "name": "プロパスト",
           "score": 62.5,
@@ -63891,6 +63671,26 @@ window.JPX_DASHBOARD_DATA = {
             1,
             0,
             1,
+            1,
+            1
+          ]
+        },
+        {
+          "code": "3297",
+          "name": "東武住販",
+          "score": 57.9,
+          "rank": "B",
+          "dy": 3.14,
+          "pbr": 0.77,
+          "per": 13.7,
+          "price": 1273.0,
+          "cap": 34.5,
+          "steps": [
+            0,
+            1,
+            1,
+            1,
+            0,
             1,
             1
           ]
@@ -64036,6 +63836,26 @@ window.JPX_DASHBOARD_DATA = {
           ]
         },
         {
+          "code": "3299",
+          "name": "ムゲンエステート",
+          "score": 50.9,
+          "rank": "C",
+          "dy": 5.03,
+          "pbr": 1.48,
+          "per": 7.3,
+          "price": 2267.0,
+          "cap": 552.3,
+          "steps": [
+            1,
+            1,
+            0,
+            0,
+            1,
+            1,
+            1
+          ]
+        },
+        {
           "code": "5533",
           "name": "エリッツホールディングス",
           "score": 50.7,
@@ -64112,6 +63932,26 @@ window.JPX_DASHBOARD_DATA = {
             1,
             1,
             0,
+            1
+          ]
+        },
+        {
+          "code": "3291",
+          "name": "飯田グループホールディングス",
+          "score": 48.6,
+          "rank": "C",
+          "dy": 4.11,
+          "pbr": 0.71,
+          "per": 12.1,
+          "price": 2434.0,
+          "cap": 6825.8,
+          "steps": [
+            1,
+            1,
+            1,
+            1,
+            0,
+            1,
             1
           ]
         },
@@ -64376,6 +64216,26 @@ window.JPX_DASHBOARD_DATA = {
           ]
         },
         {
+          "code": "3289",
+          "name": "東急不動産ホールディングス",
+          "score": 42.7,
+          "rank": "C",
+          "dy": 3.27,
+          "pbr": 1.2,
+          "per": 11.3,
+          "price": 1362.0,
+          "cap": 9804.1,
+          "steps": [
+            1,
+            1,
+            0,
+            0,
+            0,
+            0,
+            1
+          ]
+        },
+        {
           "code": "8934",
           "name": "サンフロンティア不動産",
           "score": 41.7,
@@ -64409,6 +64269,26 @@ window.JPX_DASHBOARD_DATA = {
             0,
             1,
             1,
+            0,
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "code": "3294",
+          "name": "イーグランド",
+          "score": 40.7,
+          "rank": "C",
+          "dy": 2.26,
+          "pbr": 1.08,
+          "per": 7.0,
+          "price": 2033.0,
+          "cap": 129.7,
+          "steps": [
+            0,
+            1,
+            0,
             0,
             1,
             1,
@@ -64551,6 +64431,26 @@ window.JPX_DASHBOARD_DATA = {
             0,
             1,
             1,
+            1,
+            1
+          ]
+        },
+        {
+          "code": "3293",
+          "name": "アズマハウス",
+          "score": 38.0,
+          "rank": "D",
+          "dy": 4.41,
+          "pbr": 0.37,
+          "per": 8.1,
+          "price": 793.0,
+          "cap": 63.9,
+          "steps": [
+            0,
+            1,
+            0,
+            1,
+            0,
             1,
             1
           ]
@@ -64796,6 +64696,26 @@ window.JPX_DASHBOARD_DATA = {
           ]
         },
         {
+          "code": "3288",
+          "name": "オープンハウスグループ",
+          "score": 33.8,
+          "rank": "D",
+          "dy": 1.94,
+          "pbr": 1.9,
+          "per": 9.1,
+          "price": 10300.0,
+          "cap": 12433.1,
+          "steps": [
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            1
+          ]
+        },
+        {
           "code": "3241",
           "name": "ウィル",
           "score": 33.6,
@@ -64927,6 +64847,26 @@ window.JPX_DASHBOARD_DATA = {
           "cap": 114.0,
           "steps": [
             0,
+            1,
+            0,
+            0,
+            0,
+            1,
+            1
+          ]
+        },
+        {
+          "code": "3284",
+          "name": "フージャースホールディングス",
+          "score": 29.4,
+          "rank": "D",
+          "dy": 5.84,
+          "pbr": 1.17,
+          "per": 7.4,
+          "price": 1268.0,
+          "cap": 529.6,
+          "steps": [
+            1,
             1,
             0,
             0,
@@ -66151,6 +66091,26 @@ window.JPX_DASHBOARD_DATA = {
             1,
             0,
             1,
+            0,
+            1
+          ]
+        },
+        {
+          "code": "3286",
+          "name": "トラストホールディングス",
+          "score": 0.0,
+          "rank": "D",
+          "dy": 1.77,
+          "pbr": 3.41,
+          "per": 19.3,
+          "price": 1019.0,
+          "cap": 53.0,
+          "steps": [
+            0,
+            0,
+            0,
+            0,
+            0,
             0,
             1
           ]
@@ -67416,26 +67376,6 @@ window.JPX_DASHBOARD_DATA = {
             0,
             0,
             0,
-            0,
-            1,
-            1
-          ]
-        },
-        {
-          "code": "4957",
-          "name": "ヤスハラケミカル",
-          "score": 63.0,
-          "rank": "B",
-          "dy": 0.44,
-          "pbr": 0.57,
-          "per": 12.2,
-          "price": 1370.0,
-          "cap": 148.5,
-          "steps": [
-            0,
-            0,
-            0,
-            1,
             0,
             1,
             1
@@ -71162,26 +71102,6 @@ window.JPX_DASHBOARD_DATA = {
           ]
         },
         {
-          "code": "4080",
-          "name": "田中化学研究所",
-          "score": 0.0,
-          "rank": "D",
-          "dy": 0.0,
-          "pbr": 0.79,
-          "per": 436.0,
-          "price": 436.0,
-          "cap": 141.8,
-          "steps": [
-            0,
-            0,
-            0,
-            0,
-            1,
-            0,
-            1
-          ]
-        },
-        {
           "code": "4228",
           "name": "積水化成品工業",
           "score": 0.0,
@@ -72493,26 +72413,6 @@ window.JPX_DASHBOARD_DATA = {
           "per": -9.6,
           "price": 102.0,
           "cap": 117.7,
-          "steps": [
-            0,
-            0,
-            1,
-            0,
-            1,
-            0,
-            1
-          ]
-        },
-        {
-          "code": "4875",
-          "name": "メディシノバ・インク",
-          "score": 5.0,
-          "rank": "D",
-          "dy": 0.0,
-          "pbr": null,
-          "per": null,
-          "price": 225.0,
-          "cap": 110.7,
           "steps": [
             0,
             0,
@@ -74206,26 +74106,6 @@ window.JPX_DASHBOARD_DATA = {
           ]
         },
         {
-          "code": "7699",
-          "name": "オムニ・プラス・システム・リミテッド",
-          "score": 54.0,
-          "rank": "C",
-          "dy": 5.2,
-          "pbr": 1.13,
-          "per": 11.1,
-          "price": 777.0,
-          "cap": 163.6,
-          "steps": [
-            0,
-            1,
-            1,
-            0,
-            0,
-            0,
-            1
-          ]
-        },
-        {
           "code": "8130",
           "name": "サンゲツ",
           "score": 53.7,
@@ -75866,26 +75746,6 @@ window.JPX_DASHBOARD_DATA = {
           ]
         },
         {
-          "code": "7467",
-          "name": "萩原電気ホールディングス",
-          "score": 42.2,
-          "rank": "C",
-          "dy": 5.02,
-          "pbr": 0.73,
-          "per": 10.2,
-          "price": 3685.0,
-          "cap": 372.8,
-          "steps": [
-            0,
-            1,
-            0,
-            0,
-            0,
-            1,
-            1
-          ]
-        },
-        {
           "code": "3173",
           "name": "Ｃｏｍｉｎｉｘ",
           "score": 42.1,
@@ -76539,26 +76399,6 @@ window.JPX_DASHBOARD_DATA = {
             0,
             0,
             0,
-            0,
-            0,
-            1,
-            1
-          ]
-        },
-        {
-          "code": "7420",
-          "name": "佐鳥電機",
-          "score": 37.9,
-          "rank": "D",
-          "dy": 4.77,
-          "pbr": 0.76,
-          "per": 10.4,
-          "price": 1886.0,
-          "cap": 281.9,
-          "steps": [
-            0,
-            1,
-            1,
             0,
             0,
             1,
@@ -77666,26 +77506,6 @@ window.JPX_DASHBOARD_DATA = {
           ]
         },
         {
-          "code": "7635",
-          "name": "杉田エース",
-          "score": 28.5,
-          "rank": "D",
-          "dy": 0.0,
-          "pbr": 0.8,
-          "per": 13.8,
-          "price": 1709.0,
-          "cap": 91.8,
-          "steps": [
-            0,
-            0,
-            0,
-            0,
-            0,
-            1,
-            1
-          ]
-        },
-        {
           "code": "9930",
           "name": "北沢産業",
           "score": 28.5,
@@ -77842,26 +77662,6 @@ window.JPX_DASHBOARD_DATA = {
             0,
             0,
             1,
-            1
-          ]
-        },
-        {
-          "code": "7116",
-          "name": "ダイワ通信",
-          "score": 24.4,
-          "rank": "D",
-          "dy": 0.0,
-          "pbr": 1.38,
-          "per": 18.0,
-          "price": 1165.0,
-          "cap": 31.5,
-          "steps": [
-            0,
-            0,
-            1,
-            1,
-            0,
-            0,
             1
           ]
         },
@@ -80828,26 +80628,6 @@ window.JPX_DASHBOARD_DATA = {
           ]
         },
         {
-          "code": "3548",
-          "name": "バロックジャパンリミテッド",
-          "score": 42.9,
-          "rank": "C",
-          "dy": 5.08,
-          "pbr": 1.93,
-          "per": 56.2,
-          "price": 748.0,
-          "cap": 274.3,
-          "steps": [
-            0,
-            1,
-            0,
-            0,
-            0,
-            0,
-            1
-          ]
-        },
-        {
           "code": "3549",
           "name": "クスリのアオキホールディングス",
           "score": 42.9,
@@ -81828,26 +81608,6 @@ window.JPX_DASHBOARD_DATA = {
           ]
         },
         {
-          "code": "7455",
-          "name": "パリミキホールディングス",
-          "score": 36.4,
-          "rank": "D",
-          "dy": 0.69,
-          "pbr": 0.98,
-          "per": 32.2,
-          "price": 578.0,
-          "cap": 327.1,
-          "steps": [
-            0,
-            0,
-            1,
-            0,
-            1,
-            0,
-            1
-          ]
-        },
-        {
           "code": "3138",
           "name": "富士山マガジンサービス",
           "score": 36.3,
@@ -82761,26 +82521,6 @@ window.JPX_DASHBOARD_DATA = {
             1,
             0,
             0,
-            0,
-            0,
-            0,
-            1
-          ]
-        },
-        {
-          "code": "7445",
-          "name": "ライトオン",
-          "score": 29.0,
-          "rank": "D",
-          "dy": 0.0,
-          "pbr": -45.08,
-          "per": 364.7,
-          "price": 325.0,
-          "cap": 115.5,
-          "steps": [
-            0,
-            0,
-            1,
             0,
             0,
             0,
@@ -84148,26 +83888,6 @@ window.JPX_DASHBOARD_DATA = {
           ]
         },
         {
-          "code": "7450",
-          "name": "サンデー",
-          "score": 15.7,
-          "rank": "D",
-          "dy": 0.0,
-          "pbr": 1.51,
-          "per": 1372.0,
-          "price": 1270.0,
-          "cap": 136.8,
-          "steps": [
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            1
-          ]
-        },
-        {
           "code": "3418",
           "name": "バルニバービ",
           "score": 15.6,
@@ -84843,26 +84563,6 @@ window.JPX_DASHBOARD_DATA = {
             1,
             0,
             0,
-            0,
-            1
-          ]
-        },
-        {
-          "code": "75505",
-          "name": "ゼンショーホールディングス（優先株式）",
-          "score": 4.0,
-          "rank": "D",
-          "dy": 0.0,
-          "pbr": null,
-          "per": null,
-          "price": 5060.0,
-          "cap": 0.0,
-          "steps": [
-            0,
-            0,
-            1,
-            0,
-            1,
             0,
             1
           ]
@@ -87010,26 +86710,6 @@ window.JPX_DASHBOARD_DATA = {
           ]
         },
         {
-          "code": "1949",
-          "name": "住友電設",
-          "score": 38.6,
-          "rank": "D",
-          "dy": 0.0,
-          "pbr": 2.86,
-          "per": 22.8,
-          "price": 10172525568.0,
-          "cap": 3625068902.7,
-          "steps": [
-            0,
-            0,
-            0,
-            1,
-            0,
-            0,
-            1
-          ]
-        },
-        {
           "code": "6379",
           "name": "レイズネクスト",
           "score": 38.6,
@@ -87405,26 +87085,6 @@ window.JPX_DASHBOARD_DATA = {
             0,
             0,
             1,
-            1,
-            1
-          ]
-        },
-        {
-          "code": "1841",
-          "name": "サンユー建設",
-          "score": 32.7,
-          "rank": "D",
-          "dy": 0.63,
-          "pbr": 0.43,
-          "per": 19.1,
-          "price": 1585.0,
-          "cap": 63.4,
-          "steps": [
-            0,
-            0,
-            0,
-            1,
-            0,
             1,
             1
           ]
@@ -88190,46 +87850,6 @@ window.JPX_DASHBOARD_DATA = {
           ]
         },
         {
-          "code": "1773",
-          "name": "ワイ・ティー・エル・コーポレーション・バーハッド",
-          "score": 7.5,
-          "rank": "D",
-          "dy": 0.0,
-          "pbr": null,
-          "per": null,
-          "price": 71.0,
-          "cap": 0.0,
-          "steps": [
-            0,
-            0,
-            1,
-            0,
-            1,
-            0,
-            1
-          ]
-        },
-        {
-          "code": "50765",
-          "name": "インフロニア・ホールディングス（優先株式）",
-          "score": 5.0,
-          "rank": "D",
-          "dy": 0.0,
-          "pbr": null,
-          "per": null,
-          "price": 4669.0,
-          "cap": 0.0,
-          "steps": [
-            0,
-            0,
-            1,
-            0,
-            1,
-            0,
-            1
-          ]
-        },
-        {
           "code": "6330",
           "name": "東洋エンジニアリング",
           "score": 0.0,
@@ -88947,26 +88567,6 @@ window.JPX_DASHBOARD_DATA = {
             1,
             1,
             1,
-            0,
-            1
-          ]
-        },
-        {
-          "code": "5596",
-          "name": "アウトルックコンサルティング",
-          "score": 61.6,
-          "rank": "B",
-          "dy": 0.95,
-          "pbr": 4.98,
-          "per": 14.0,
-          "price": 1788.0,
-          "cap": 64.0,
-          "steps": [
-            0,
-            0,
-            1,
-            1,
-            0,
             0,
             1
           ]
@@ -91652,46 +91252,6 @@ window.JPX_DASHBOARD_DATA = {
           ]
         },
         {
-          "code": "9719",
-          "name": "ＳＣＳＫ",
-          "score": 49.8,
-          "rank": "C",
-          "dy": 0.83,
-          "pbr": 5.61,
-          "per": 27.9,
-          "price": 5680.0,
-          "cap": 17785.5,
-          "steps": [
-            1,
-            0,
-            1,
-            0,
-            0,
-            0,
-            1
-          ]
-        },
-        {
-          "code": "3924",
-          "name": "ランドコンピュータ",
-          "score": 49.6,
-          "rank": "C",
-          "dy": 4.15,
-          "pbr": 2.86,
-          "per": 14.0,
-          "price": 915.0,
-          "cap": 164.4,
-          "steps": [
-            0,
-            1,
-            0,
-            1,
-            0,
-            0,
-            1
-          ]
-        },
-        {
           "code": "4072",
           "name": "電算システムホールディングス",
           "score": 49.6,
@@ -92052,26 +91612,6 @@ window.JPX_DASHBOARD_DATA = {
           ]
         },
         {
-          "code": "9600",
-          "name": "アイネット",
-          "score": 48.7,
-          "rank": "C",
-          "dy": 1.15,
-          "pbr": 1.92,
-          "per": 20.7,
-          "price": 2514.0,
-          "cap": 389.1,
-          "steps": [
-            0,
-            0,
-            0,
-            1,
-            0,
-            0,
-            1
-          ]
-        },
-        {
           "code": "4498",
           "name": "サイバートラスト",
           "score": 48.5,
@@ -92421,26 +91961,6 @@ window.JPX_DASHBOARD_DATA = {
           "per": 17.4,
           "price": 1700.0,
           "cap": 60.7,
-          "steps": [
-            0,
-            1,
-            0,
-            1,
-            0,
-            0,
-            1
-          ]
-        },
-        {
-          "code": "4333",
-          "name": "東邦システムサイエンス",
-          "score": 46.9,
-          "rank": "C",
-          "dy": 3.93,
-          "pbr": 2.19,
-          "per": 16.7,
-          "price": 1144.0,
-          "cap": 237.9,
           "steps": [
             0,
             1,
@@ -95212,26 +94732,6 @@ window.JPX_DASHBOARD_DATA = {
           ]
         },
         {
-          "code": "3961",
-          "name": "シルバーエッグ・テクノロジー",
-          "score": 32.9,
-          "rank": "D",
-          "dy": 0.0,
-          "pbr": 1.64,
-          "per": -42.9,
-          "price": 763.0,
-          "cap": 22.6,
-          "steps": [
-            0,
-            0,
-            0,
-            0,
-            1,
-            0,
-            1
-          ]
-        },
-        {
           "code": "2330",
           "name": "フォーサイド",
           "score": 32.7,
@@ -95526,26 +95026,6 @@ window.JPX_DASHBOARD_DATA = {
             0,
             0,
             0,
-            0,
-            0,
-            1
-          ]
-        },
-        {
-          "code": "3655",
-          "name": "ブレインパッド",
-          "score": 31.2,
-          "rank": "D",
-          "dy": 0.0,
-          "pbr": 10.01,
-          "per": 112.7,
-          "price": 2691.0,
-          "cap": 600.1,
-          "steps": [
-            1,
-            0,
-            0,
-            1,
             0,
             0,
             1
@@ -99232,26 +98712,6 @@ window.JPX_DASHBOARD_DATA = {
           ]
         },
         {
-          "code": "9399",
-          "name": "ビート・ホールディングス・リミテッド（貝徳控股有限公司）",
-          "score": 12.0,
-          "rank": "D",
-          "dy": 0.0,
-          "pbr": null,
-          "per": -0.3,
-          "price": 29.0,
-          "cap": 52.8,
-          "steps": [
-            0,
-            0,
-            1,
-            0,
-            1,
-            0,
-            1
-          ]
-        },
-        {
           "code": "3851",
           "name": "日本一ソフトウェア",
           "score": 11.7,
@@ -99663,46 +99123,6 @@ window.JPX_DASHBOARD_DATA = {
           "cap": null,
           "steps": [
             1,
-            0,
-            1,
-            0,
-            1,
-            0,
-            1
-          ]
-        },
-        {
-          "code": "94345",
-          "name": "ソフトバンク（優先株式）",
-          "score": 4.0,
-          "rank": "D",
-          "dy": 0.0,
-          "pbr": null,
-          "per": null,
-          "price": 3834.0,
-          "cap": 0.0,
-          "steps": [
-            0,
-            0,
-            1,
-            0,
-            1,
-            0,
-            1
-          ]
-        },
-        {
-          "code": "94346",
-          "name": "ソフトバンク（優先株式）",
-          "score": 4.0,
-          "rank": "D",
-          "dy": 0.0,
-          "pbr": null,
-          "per": null,
-          "price": 7672.0,
-          "cap": 0.0,
-          "steps": [
-            0,
             0,
             1,
             0,
@@ -101534,26 +100954,6 @@ window.JPX_DASHBOARD_DATA = {
           ]
         },
         {
-          "code": "7718",
-          "name": "スター精密",
-          "score": 55.4,
-          "rank": "B",
-          "dy": 1.59,
-          "pbr": 1.07,
-          "per": 28.8,
-          "price": 2202.0,
-          "cap": 1067.6,
-          "steps": [
-            1,
-            0,
-            1,
-            1,
-            1,
-            0,
-            1
-          ]
-        },
-        {
           "code": "6465",
           "name": "ホシザキ",
           "score": 55.0,
@@ -102766,26 +102166,6 @@ window.JPX_DASHBOARD_DATA = {
           "steps": [
             1,
             1,
-            1,
-            1,
-            0,
-            0,
-            1
-          ]
-        },
-        {
-          "code": "6406",
-          "name": "フジテック",
-          "score": 45.7,
-          "rank": "C",
-          "dy": 0.0,
-          "pbr": 2.89,
-          "per": 26.0,
-          "price": 5680.0,
-          "cap": 4481.5,
-          "steps": [
-            1,
-            0,
             1,
             1,
             0,
@@ -104234,26 +103614,6 @@ window.JPX_DASHBOARD_DATA = {
           ]
         },
         {
-          "code": "6210",
-          "name": "ＴＯＹＯイノベックス",
-          "score": 28.1,
-          "rank": "D",
-          "dy": 5.34,
-          "pbr": 0.83,
-          "per": 92.8,
-          "price": 655.0,
-          "cap": 135.6,
-          "steps": [
-            0,
-            1,
-            0,
-            0,
-            0,
-            0,
-            1
-          ]
-        },
-        {
           "code": "6472",
           "name": "ＮＴＮ",
           "score": 27.0,
@@ -104350,26 +103710,6 @@ window.JPX_DASHBOARD_DATA = {
             0,
             0,
             0,
-            1
-          ]
-        },
-        {
-          "code": "6293",
-          "name": "日精樹脂工業",
-          "score": 23.4,
-          "rank": "D",
-          "dy": 4.24,
-          "pbr": 0.43,
-          "per": 30.5,
-          "price": 873.0,
-          "cap": 194.4,
-          "steps": [
-            0,
-            1,
-            0,
-            0,
-            0,
-            1,
             1
           ]
         },
@@ -104509,26 +103849,6 @@ window.JPX_DASHBOARD_DATA = {
             1,
             0,
             0,
-            0,
-            1
-          ]
-        },
-        {
-          "code": "6312",
-          "name": "フロイント産業",
-          "score": 14.0,
-          "rank": "D",
-          "dy": 0.0,
-          "pbr": 1.09,
-          "per": 12.4,
-          "price": 1077.0,
-          "cap": 198.2,
-          "steps": [
-            0,
-            0,
-            1,
-            0,
-            1,
             0,
             1
           ]
@@ -105557,26 +104877,6 @@ window.JPX_DASHBOARD_DATA = {
             0,
             0,
             0,
-            0,
-            1
-          ]
-        },
-        {
-          "code": "92025",
-          "name": "ＡＮＡホールディングス（優先株式）",
-          "score": 2.0,
-          "rank": "D",
-          "dy": 0.0,
-          "pbr": null,
-          "per": null,
-          "price": 4940.0,
-          "cap": 0.0,
-          "steps": [
-            0,
-            0,
-            1,
-            0,
-            1,
             0,
             1
           ]
@@ -107486,26 +106786,6 @@ window.JPX_DASHBOARD_DATA = {
           ]
         },
         {
-          "code": "3205",
-          "name": "ダイドーリミテッド",
-          "score": 14.2,
-          "rank": "D",
-          "dy": 5.96,
-          "pbr": 4.12,
-          "per": -39.4,
-          "price": 839.0,
-          "cap": 257.5,
-          "steps": [
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            1
-          ]
-        },
-        {
           "code": "3409",
           "name": "北紡",
           "score": 12.8,
@@ -109250,26 +108530,6 @@ window.JPX_DASHBOARD_DATA = {
           ]
         },
         {
-          "code": "3526",
-          "name": "芦森工業",
-          "score": 48.4,
-          "rank": "C",
-          "dy": 0.0,
-          "pbr": 1.0,
-          "per": 13.8,
-          "price": 4110.0,
-          "cap": 248.9,
-          "steps": [
-            0,
-            0,
-            0,
-            0,
-            0,
-            1,
-            1
-          ]
-        },
-        {
           "code": "7309",
           "name": "シマノ",
           "score": 47.6,
@@ -109666,26 +108926,6 @@ window.JPX_DASHBOARD_DATA = {
             0,
             1,
             1,
-            1
-          ]
-        },
-        {
-          "code": "7205",
-          "name": "日野自動車",
-          "score": 31.0,
-          "rank": "D",
-          "dy": 0.0,
-          "pbr": 1.11,
-          "per": 3.2,
-          "price": 387.0,
-          "cap": 2223.6,
-          "steps": [
-            1,
-            0,
-            1,
-            0,
-            1,
-            0,
             1
           ]
         },
@@ -112590,26 +111830,6 @@ window.JPX_DASHBOARD_DATA = {
             0,
             0,
             1,
-            1
-          ]
-        },
-        {
-          "code": "5476",
-          "name": "日本高周波鋼業",
-          "score": 8.1,
-          "rank": "D",
-          "dy": 0.0,
-          "pbr": 0.61,
-          "per": 131.1,
-          "price": 594.0,
-          "cap": 87.2,
-          "steps": [
-            0,
-            0,
-            1,
-            0,
-            1,
-            0,
             1
           ]
         },
@@ -117854,26 +117074,6 @@ window.JPX_DASHBOARD_DATA = {
           "steps": [
             1,
             1,
-            1,
-            1,
-            0,
-            0,
-            1
-          ]
-        },
-        {
-          "code": "6734",
-          "name": "ニューテック",
-          "score": 42.8,
-          "rank": "C",
-          "dy": 0.0,
-          "pbr": 1.8,
-          "per": 64.1,
-          "price": 2626.0,
-          "cap": 54.6,
-          "steps": [
-            0,
-            0,
             1,
             1,
             0,
@@ -123701,26 +122901,6 @@ window.JPX_DASHBOARD_DATA = {
             1,
             0,
             0,
-            0,
-            1,
-            0,
-            1
-          ]
-        },
-        {
-          "code": "25935",
-          "name": "伊藤園（優先株式）",
-          "score": 2.0,
-          "rank": "D",
-          "dy": 0.0,
-          "pbr": null,
-          "per": null,
-          "price": 1810.0,
-          "cap": 0.0,
-          "steps": [
-            0,
-            0,
-            1,
             0,
             1,
             0,
@@ -131054,17 +130234,6 @@ window.JPX_DASHBOARD_DATA = {
           "mktcap": 29
         },
         {
-          "code": "9257",
-          "name": "ＹＣＰホールディングス（グローバル）リミテッド",
-          "s17": 10,
-          "s17nm": "情報通信・サービスその他",
-          "s33": "9050",
-          "s33nm": "サービス業",
-          "mkt": "グロース",
-          "scale": "-",
-          "mktcap": 166
-        },
-        {
           "code": "9258",
           "name": "ＣＳ−Ｃ",
           "s17": 10,
@@ -132031,6 +131200,272 @@ window.JPX_DASHBOARD_DATA = {
           "mkt": "プライム",
           "scale": "TOPIX Small 2",
           "mktcap": 403
+        }
+      ],
+      "パルプ・紙": [
+        {
+          "code": "3708",
+          "name": "特種東海製紙",
+          "s17": 4,
+          "s17nm": "素材・化学",
+          "s33": "3150",
+          "s33nm": "パルプ・紙",
+          "mkt": "プライム",
+          "scale": "TOPIX Small 2",
+          "mktcap": 630
+        },
+        {
+          "code": "3861",
+          "name": "王子ホールディングス",
+          "s17": 4,
+          "s17nm": "素材・化学",
+          "s33": "3150",
+          "s33nm": "パルプ・紙",
+          "mkt": "プライム",
+          "scale": "TOPIX Mid400",
+          "mktcap": 8648
+        },
+        {
+          "code": "3863",
+          "name": "日本製紙",
+          "s17": 4,
+          "s17nm": "素材・化学",
+          "s33": "3150",
+          "s33nm": "パルプ・紙",
+          "mkt": "プライム",
+          "scale": "TOPIX Small 1",
+          "mktcap": 1500
+        },
+        {
+          "code": "3864",
+          "name": "三菱製紙",
+          "s17": 4,
+          "s17nm": "素材・化学",
+          "s33": "3150",
+          "s33nm": "パルプ・紙",
+          "mkt": "プライム",
+          "scale": "-",
+          "mktcap": 380
+        },
+        {
+          "code": "3865",
+          "name": "北越コーポレーション",
+          "s17": 4,
+          "s17nm": "素材・化学",
+          "s33": "3150",
+          "s33nm": "パルプ・紙",
+          "mkt": "プライム",
+          "scale": "TOPIX Small 1",
+          "mktcap": 1781
+        },
+        {
+          "code": "3877",
+          "name": "中越パルプ工業",
+          "s17": 4,
+          "s17nm": "素材・化学",
+          "s33": "3150",
+          "s33nm": "パルプ・紙",
+          "mkt": "プライム",
+          "scale": "-",
+          "mktcap": 249
+        },
+        {
+          "code": "3880",
+          "name": "大王製紙",
+          "s17": 4,
+          "s17nm": "素材・化学",
+          "s33": "3150",
+          "s33nm": "パルプ・紙",
+          "mkt": "プライム",
+          "scale": "TOPIX Small 1",
+          "mktcap": 1705
+        },
+        {
+          "code": "3891",
+          "name": "ニッポン高度紙工業",
+          "s17": 4,
+          "s17nm": "素材・化学",
+          "s33": "3150",
+          "s33nm": "パルプ・紙",
+          "mkt": "スタンダード",
+          "scale": "-",
+          "mktcap": 397
+        },
+        {
+          "code": "3892",
+          "name": "岡山製紙",
+          "s17": 4,
+          "s17nm": "素材・化学",
+          "s33": "3150",
+          "s33nm": "パルプ・紙",
+          "mkt": "スタンダード",
+          "scale": "-",
+          "mktcap": 93
+        },
+        {
+          "code": "3895",
+          "name": "ハビックス",
+          "s17": 4,
+          "s17nm": "素材・化学",
+          "s33": "3150",
+          "s33nm": "パルプ・紙",
+          "mkt": "スタンダード",
+          "scale": "-",
+          "mktcap": 34
+        },
+        {
+          "code": "3896",
+          "name": "阿波製紙",
+          "s17": 4,
+          "s17nm": "素材・化学",
+          "s33": "3150",
+          "s33nm": "パルプ・紙",
+          "mkt": "スタンダード",
+          "scale": "-",
+          "mktcap": 41
+        },
+        {
+          "code": "3941",
+          "name": "レンゴー",
+          "s17": 4,
+          "s17nm": "素材・化学",
+          "s33": "3150",
+          "s33nm": "パルプ・紙",
+          "mkt": "プライム",
+          "scale": "TOPIX Mid400",
+          "mktcap": 3396
+        },
+        {
+          "code": "3943",
+          "name": "大石産業",
+          "s17": 4,
+          "s17nm": "素材・化学",
+          "s33": "3150",
+          "s33nm": "パルプ・紙",
+          "mkt": "スタンダード",
+          "scale": "-",
+          "mktcap": 130
+        },
+        {
+          "code": "3944",
+          "name": "古林紙工",
+          "s17": 4,
+          "s17nm": "素材・化学",
+          "s33": "3150",
+          "s33nm": "パルプ・紙",
+          "mkt": "スタンダード",
+          "scale": "-",
+          "mktcap": 42
+        },
+        {
+          "code": "3945",
+          "name": "スーパーバッグ",
+          "s17": 4,
+          "s17nm": "素材・化学",
+          "s33": "3150",
+          "s33nm": "パルプ・紙",
+          "mkt": "スタンダード",
+          "scale": "-",
+          "mktcap": 38
+        },
+        {
+          "code": "3946",
+          "name": "トーモク",
+          "s17": 4,
+          "s17nm": "素材・化学",
+          "s33": "3150",
+          "s33nm": "パルプ・紙",
+          "mkt": "プライム",
+          "scale": "TOPIX Small 2",
+          "mktcap": 659
+        },
+        {
+          "code": "3947",
+          "name": "ダイナパック",
+          "s17": 4,
+          "s17nm": "素材・化学",
+          "s33": "3150",
+          "s33nm": "パルプ・紙",
+          "mkt": "スタンダード",
+          "scale": "-",
+          "mktcap": 241
+        },
+        {
+          "code": "3948",
+          "name": "光ビジネスフォーム",
+          "s17": 4,
+          "s17nm": "素材・化学",
+          "s33": "3150",
+          "s33nm": "パルプ・紙",
+          "mkt": "スタンダード",
+          "scale": "-",
+          "mktcap": 68
+        },
+        {
+          "code": "3950",
+          "name": "ザ・パック",
+          "s17": 4,
+          "s17nm": "素材・化学",
+          "s33": "3150",
+          "s33nm": "パルプ・紙",
+          "mkt": "プライム",
+          "scale": "TOPIX Small 2",
+          "mktcap": 807
+        },
+        {
+          "code": "3951",
+          "name": "朝日印刷",
+          "s17": 4,
+          "s17nm": "素材・化学",
+          "s33": "3150",
+          "s33nm": "パルプ・紙",
+          "mkt": "スタンダード",
+          "scale": "-",
+          "mktcap": 201
+        },
+        {
+          "code": "3953",
+          "name": "大村紙業",
+          "s17": 4,
+          "s17nm": "素材・化学",
+          "s33": "3150",
+          "s33nm": "パルプ・紙",
+          "mkt": "スタンダード",
+          "scale": "-",
+          "mktcap": 28
+        },
+        {
+          "code": "3954",
+          "name": "昭和パックス",
+          "s17": 4,
+          "s17nm": "素材・化学",
+          "s33": "3150",
+          "s33nm": "パルプ・紙",
+          "mkt": "スタンダード",
+          "scale": "-",
+          "mktcap": 129
+        },
+        {
+          "code": "3955",
+          "name": "イムラ",
+          "s17": 4,
+          "s17nm": "素材・化学",
+          "s33": "3150",
+          "s33nm": "パルプ・紙",
+          "mkt": "スタンダード",
+          "scale": "-",
+          "mktcap": 96
+        },
+        {
+          "code": "3958",
+          "name": "笹徳印刷",
+          "s17": 4,
+          "s17nm": "素材・化学",
+          "s33": "3150",
+          "s33nm": "パルプ・紙",
+          "mkt": "スタンダード",
+          "scale": "-",
+          "mktcap": 34
         }
       ],
       "不動産業": [
@@ -136949,17 +136384,6 @@ window.JPX_DASHBOARD_DATA = {
           "mktcap": 187
         },
         {
-          "code": "4875",
-          "name": "メディシノバ・インク",
-          "s17": 5,
-          "s17nm": "医薬品",
-          "s33": "3250",
-          "s33nm": "医薬品",
-          "mkt": "スタンダード",
-          "scale": "-",
-          "mktcap": 110
-        },
-        {
           "code": "4880",
           "name": "セルソース",
           "s17": 5,
@@ -138929,17 +138353,6 @@ window.JPX_DASHBOARD_DATA = {
           "mkt": "スタンダード",
           "scale": "-",
           "mktcap": 98
-        },
-        {
-          "code": "7699",
-          "name": "オムニ・プラス・システム・リミテッド",
-          "s17": 13,
-          "s17nm": "商社・卸売",
-          "s33": "6050",
-          "s33nm": "卸売業",
-          "mkt": "グロース",
-          "scale": "-",
-          "mktcap": 166
         },
         {
           "code": "8001",
@@ -141881,17 +141294,6 @@ window.JPX_DASHBOARD_DATA = {
           "mktcap": 214
         },
         {
-          "code": "3548",
-          "name": "バロックジャパンリミテッド",
-          "s17": 14,
-          "s17nm": "小売",
-          "s33": "6100",
-          "s33nm": "小売業",
-          "mkt": "プライム",
-          "scale": "TOPIX Small 2",
-          "mktcap": 279
-        },
-        {
           "code": "3549",
           "name": "クスリのアオキホールディングス",
           "s17": 14,
@@ -142550,17 +141952,6 @@ window.JPX_DASHBOARD_DATA = {
           "mkt": "プライム",
           "scale": "TOPIX Mid400",
           "mktcap": 15329
-        },
-        {
-          "code": "75505",
-          "name": "ゼンショーホールディングス（優先株式）",
-          "s17": 14,
-          "s17nm": "小売",
-          "s33": "6100",
-          "s33nm": "小売業",
-          "mkt": "プライム",
-          "scale": "-",
-          "mktcap": null
         },
         {
           "code": "7554",
@@ -144325,17 +143716,6 @@ window.JPX_DASHBOARD_DATA = {
           "mktcap": 169
         },
         {
-          "code": "1773",
-          "name": "ワイ・ティー・エル・コーポレーション・バーハッド",
-          "s17": 3,
-          "s17nm": "建設・資材",
-          "s33": "2050",
-          "s33nm": "建設業",
-          "mkt": "プライム",
-          "scale": "-",
-          "mktcap": 0
-        },
-        {
           "code": "1776",
           "name": "三井住建道路",
           "s17": 3,
@@ -145445,17 +144825,6 @@ window.JPX_DASHBOARD_DATA = {
           "mkt": "プライム",
           "scale": "TOPIX Mid400",
           "mktcap": 6198
-        },
-        {
-          "code": "50765",
-          "name": "インフロニア・ホールディングス（優先株式）",
-          "s17": 3,
-          "s17nm": "建設・資材",
-          "s33": "2050",
-          "s33nm": "建設業",
-          "mkt": "プライム",
-          "scale": "-",
-          "mktcap": 0
         },
         {
           "code": "5078",
@@ -151433,17 +150802,6 @@ window.JPX_DASHBOARD_DATA = {
           "mktcap": 87
         },
         {
-          "code": "9399",
-          "name": "ビート・ホールディングス・リミテッド（貝徳控股有限公司）",
-          "s17": 10,
-          "s17nm": "情報通信・サービスその他",
-          "s33": "5250",
-          "s33nm": "情報･通信業",
-          "mkt": "スタンダード",
-          "scale": "-",
-          "mktcap": 47
-        },
-        {
           "code": "9401",
           "name": "ＴＢＳホールディングス",
           "s17": 10,
@@ -151662,28 +151020,6 @@ window.JPX_DASHBOARD_DATA = {
           "mkt": "プライム",
           "scale": "TOPIX Core30",
           "mktcap": 104881
-        },
-        {
-          "code": "94345",
-          "name": "ソフトバンク（優先株式）",
-          "s17": 10,
-          "s17nm": "情報通信・サービスその他",
-          "s33": "5250",
-          "s33nm": "情報･通信業",
-          "mkt": "プライム",
-          "scale": "-",
-          "mktcap": 0
-        },
-        {
-          "code": "94346",
-          "name": "ソフトバンク（優先株式）",
-          "s17": 10,
-          "s17nm": "情報通信・サービスその他",
-          "s33": "5250",
-          "s33nm": "情報･通信業",
-          "mkt": "プライム",
-          "scale": "-",
-          "mktcap": 0
         },
         {
           "code": "9435",
@@ -154875,17 +154211,6 @@ window.JPX_DASHBOARD_DATA = {
           "mktcap": 14253
         },
         {
-          "code": "92025",
-          "name": "ＡＮＡホールディングス（優先株式）",
-          "s17": 12,
-          "s17nm": "運輸・物流",
-          "s33": "5150",
-          "s33nm": "空運業",
-          "mkt": "プライム",
-          "scale": "-",
-          "mktcap": 0
-        },
-        {
           "code": "9204",
           "name": "スカイマーク",
           "s17": 12,
@@ -155614,17 +154939,6 @@ window.JPX_DASHBOARD_DATA = {
           "mkt": "スタンダード",
           "scale": "-",
           "mktcap": 44
-        },
-        {
-          "code": "3205",
-          "name": "ダイドーリミテッド",
-          "s17": 4,
-          "s17nm": "素材・化学",
-          "s33": "3100",
-          "s33nm": "繊維製品",
-          "mkt": "スタンダード",
-          "scale": "-",
-          "mktcap": 212
         },
         {
           "code": "325A",
@@ -164183,17 +163497,6 @@ window.JPX_DASHBOARD_DATA = {
           "mkt": "プライム",
           "scale": "TOPIX Mid400",
           "mktcap": 2601
-        },
-        {
-          "code": "25935",
-          "name": "伊藤園（優先株式）",
-          "s17": 1,
-          "s17nm": "食品",
-          "s33": "3050",
-          "s33nm": "食料品",
-          "mkt": "プライム",
-          "scale": "-",
-          "mktcap": 0
         },
         {
           "code": "2594",
