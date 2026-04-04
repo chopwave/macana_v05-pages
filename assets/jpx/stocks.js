@@ -5,6 +5,7 @@ let _stocksSortState = { key: 'score', asc: false };
 let _stocksSearchVal = '';
 let _stocksRankFilter = 'all';
 let _stocksStepMin = 0;
+let _stocksCarryover = '';
 
 // ── 会員認証 ──────────────────────────────────────────
 function _isMember() {
@@ -126,7 +127,64 @@ function initStocks() {
   _setAsOfLabel(STOCKS.as_of);
   _buildSectorPills(STOCKS);
   _updateMemberUI();
+  _updateCarryoverHint();
   _renderStocksTable();
+}
+function _findEvalSectorFromStockList(sector) {
+  if (!sector) return null;
+  const sectors = Object.keys(STOCKS.by_sector || {});
+  return sectors.includes(sector) ? sector : null;
+}
+function _updateCarryoverHint() {
+  const el = document.getElementById('stocksCarryoverHint');
+  if (!el) return;
+  if (!_stocksCarryover) {
+    el.style.display = 'none';
+    el.textContent = '';
+    return;
+  }
+  el.style.display = '';
+  el.textContent = _stocksCarryover;
+}
+function _applyEvalFilters({ sector = null, search = '', carryover = '' } = {}) {
+  _selectedSector = _findEvalSectorFromStockList(sector);
+  _stocksSearchVal = search || '';
+  _stocksRankFilter = 'all';
+  _stocksStepMin = 0;
+  _stocksCarryover = carryover || '';
+
+  const searchEl = document.getElementById('stocksSearch');
+  const rankEl = document.getElementById('stocksRankSel');
+  const stepEl = document.getElementById('stocksStepSel');
+  if (searchEl) searchEl.value = _stocksSearchVal;
+  if (rankEl) rankEl.value = 'all';
+  if (stepEl) stepEl.value = '0';
+
+  document.querySelectorAll('#stocksSectorPills span').forEach(p => {
+    const active = _selectedSector ? p.dataset.sector === _selectedSector : p.dataset.sector === '';
+    _setPillActive(p, active);
+  });
+  _updateCarryoverHint();
+  _renderStocksTable();
+}
+function applyStockListToEval() {
+  goto('eval', null, true);
+  const parts = [];
+  if (_slSector) parts.push(`業種: ${_slSector}`);
+  if (_slSearchVal) parts.push(`検索: ${_slSearchVal}`);
+  _applyEvalFilters({
+    sector: _slSector,
+    search: _slSearchVal,
+    carryover: parts.length ? `銘柄一覧から反映: ${parts.join(' / ')}` : '銘柄一覧から反映: 現在の絞り込み'
+  });
+}
+function openEvalForStock(code, sector, name) {
+  goto('eval', null, true);
+  _applyEvalFilters({
+    sector,
+    search: code,
+    carryover: `銘柄一覧から反映: ${name}（${code}）`
+  });
 }
 
 function _setAsOfLabel(asOf) {
@@ -153,9 +211,11 @@ function _makePill(label, sector) {
   _setPillActive(pill, sector === _selectedSector || (sector === null && _selectedSector === null));
   pill.addEventListener('click', () => {
     _selectedSector = sector;
+    _stocksCarryover = '';
     document.querySelectorAll('#stocksSectorPills span').forEach(p => {
       _setPillActive(p, p.dataset.sector === (sector || ''));
     });
+    _updateCarryoverHint();
     _renderStocksTable();
   });
   return pill;
@@ -172,6 +232,8 @@ function filterStocksTable() {
   _stocksSearchVal = (document.getElementById('stocksSearch')?.value || '').toLowerCase();
   _stocksRankFilter = document.getElementById('stocksRankSel')?.value || 'all';
   _stocksStepMin = parseInt(document.getElementById('stocksStepSel')?.value || '0', 10);
+  _stocksCarryover = '';
+  _updateCarryoverHint();
   _renderStocksTable();
 }
 
@@ -428,6 +490,8 @@ function _slRow(r) {
     ? r.mktcap.toLocaleString()
     : '<span style="color:var(--border2)">–</span>';
   const yfUrl = `https://finance.yahoo.co.jp/quote/${r.code}.T`;
+  const safeSector = (r.sector || '').replace(/'/g, "\\'");
+  const safeName = (r.name || '').replace(/'/g, "\\'");
 
   return `<tr style="border-bottom:1px solid var(--border);line-height:2">
     <td style="padding:4px 8px;font-family:var(--mono);color:var(--muted);white-space:nowrap">${r.code}</td>
@@ -443,6 +507,10 @@ function _slRow(r) {
     <td style="padding:4px 8px;text-align:center">
       <a href="${yfUrl}" target="_blank" rel="noopener"
          style="font-size:10px;padding:1px 6px;border-radius:3px;background:var(--bg3);color:var(--accent);text-decoration:none;border:1px solid var(--border2)">↗</a>
+    </td>
+    <td style="padding:4px 8px;text-align:center">
+      <button onclick="openEvalForStock('${r.code}','${safeSector}','${safeName}')"
+        style="font-size:10px;padding:1px 6px;border-radius:3px;background:var(--bg3);color:var(--green);border:1px solid var(--border2);cursor:pointer">評価</button>
     </td>
   </tr>`;
 }

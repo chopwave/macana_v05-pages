@@ -70,6 +70,64 @@ function signal(s){
   if(s.pbr>=1.0 && s.pbr<1.5)return _SIG_MAP.hold;
   return _SIG_MAP.neutral;
 }
+function _setPresetTagActive(preset){
+  document.querySelectorAll('#fg-preset .ftag').forEach(t=>{
+    t.classList.toggle('on',t.dataset.preset===preset);
+  });
+}
+function _setScreenTagGroup(groupId, attr, value){
+  document.querySelectorAll(`#${groupId} .ftag`).forEach(t=>{
+    t.classList.toggle('on', t.dataset[attr]===value);
+  });
+}
+function _applyScreenState(state){
+  fCat=state.cat ?? 'all';
+  fPbr=state.pbr ?? 'all';
+  fChgMin=state.chg ?? -1;
+  fSearch=state.search ?? '';
+  _setPresetTagActive(state.preset ?? 'all');
+  _setScreenTagGroup('fg-cat','cat',fCat);
+  _setScreenTagGroup('fg-pbr','pbr',fPbr);
+  const slider=document.getElementById('sl-chg');
+  const sliderVal=document.getElementById('sl-val');
+  if(slider) slider.value=fChgMin;
+  if(sliderVal) sliderVal.textContent=fChgMin>=0?'+'+fChgMin.toFixed(1):fChgMin===-1?'｜':fChgMin.toFixed(1);
+  const searchEl=document.getElementById('screenSearch');
+  if(searchEl) searchEl.value=fSearch;
+  _syncFilterUrl();
+  renderScreen();
+}
+function applyScreenPreset(name){
+  const presets={
+    all:       {preset:'all',cat:'all',pbr:'all',chg:-1,search:''},
+    value:     {preset:'value',cat:'V',pbr:'below1',chg:-1,search:''},
+    improving: {preset:'improving',cat:'all',pbr:'all',chg:0.3,search:''},
+    cyclical:  {preset:'cyclical',cat:'C',pbr:'all',chg:-1,search:''},
+    defensive: {preset:'defensive',cat:'D',pbr:'all',chg:-1,search:''},
+  };
+  _applyScreenState(presets[name] || presets.all);
+}
+function openGuidePath(mode){
+  if(mode==='find-sectors'){
+    goto('overview');
+    applyScreenPreset('improving');
+    goto('screen');
+    return;
+  }
+  if(mode==='find-value'){
+    applyScreenPreset('value');
+    goto('pbr1');
+    return;
+  }
+  if(mode==='macro-first'){
+    goto('cycle');
+    return;
+  }
+  if(mode==='pick-stocks'){
+    goto('stocks');
+    return;
+  }
+}
 function _sortScreen(key){
   if(_screenSort.key===key) _screenSort.asc=!_screenSort.asc;
   else{_screenSort.key=key;_screenSort.asc=key==='code'||key==='n'||key==='cat';}
@@ -128,6 +186,7 @@ function fToggle(el,grp){
   const val=el.dataset[grp];
   if(grp==='cat') fCat=val;
   if(grp==='pbr') fPbr=val;
+  _setPresetTagActive('all');
   document.querySelectorAll(`#fg-${grp} .ftag`).forEach(t=>t.classList.remove('on'));
   el.classList.add('on');
   _syncFilterUrl();
@@ -135,12 +194,14 @@ function fToggle(el,grp){
 }
 function updateSl(){
   fChgMin=parseFloat(document.getElementById('sl-chg').value);
-  document.getElementById('sl-val').textContent=fChgMin>=0?'+'+fChgMin.toFixed(1):fChgMin.toFixed(1);
+  document.getElementById('sl-val').textContent=fChgMin>=0?'+'+fChgMin.toFixed(1):fChgMin===-1?'｜':fChgMin.toFixed(1);
+  _setPresetTagActive('all');
   _syncFilterUrl();
   renderScreen();
 }
 function setSearch(v){
   fSearch=v.trim();
+  _setPresetTagActive('all');
   renderScreen();
 }
 

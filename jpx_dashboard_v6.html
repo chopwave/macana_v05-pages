@@ -163,6 +163,32 @@
     </div>
   </div>
 
+  <div class="card" style="margin-bottom:14px">
+    <div class="card-hd"><span class="card-title">目的別の入口</span></div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;font-size:11px">
+      <div style="padding:10px 12px;border:1px solid var(--border);border-radius:8px;background:var(--bg2)">
+        <div style="font-weight:600;color:var(--text);margin-bottom:4px">いま注目の業種を探したい</div>
+        <div style="color:var(--muted);line-height:1.7;margin-bottom:8px">市場全体を見たあと、改善中の業種をスクリーニングで絞り込みます。</div>
+        <button class="page-link" onclick="openGuidePath('find-sectors')">全体サマリー → スクリーニング</button>
+      </div>
+      <div style="padding:10px 12px;border:1px solid var(--border);border-radius:8px;background:var(--bg2)">
+        <div style="font-weight:600;color:var(--text);margin-bottom:4px">割安な業種を確認したい</div>
+        <div style="color:var(--muted);line-height:1.7;margin-bottom:8px">PBR 1倍割れや改善トレンドから、東証改革の対象を見つけます。</div>
+        <button class="page-link" onclick="openGuidePath('find-value')">1倍割れ候補を見る</button>
+      </div>
+      <div style="padding:10px 12px;border:1px solid var(--border);border-radius:8px;background:var(--bg2)">
+        <div style="font-weight:600;color:var(--text);margin-bottom:4px">景気局面から確認したい</div>
+        <div style="color:var(--muted);line-height:1.7;margin-bottom:8px">マクロ指標の最新月と景気フェーズを先に見て、追い風の有無を判断します。</div>
+        <button class="page-link" onclick="openGuidePath('macro-first')">景気循環分析へ</button>
+      </div>
+      <div style="padding:10px 12px;border:1px solid var(--border);border-radius:8px;background:var(--bg2)">
+        <div style="font-weight:600;color:var(--text);margin-bottom:4px">個別銘柄まで落としたい</div>
+        <div style="color:var(--muted);line-height:1.7;margin-bottom:8px">業種を決めたあと、銘柄一覧から評価テーブルへ進んで候補を絞ります。</div>
+        <button class="page-link" onclick="openGuidePath('pick-stocks')">銘柄一覧 → 銘柄別評価</button>
+      </div>
+    </div>
+  </div>
+
   <!-- 操作の基本 -->
   <div class="card" style="margin-bottom:14px">
     <div class="card-hd"><span class="card-title">基本操作</span></div>
@@ -361,9 +387,16 @@
     </div>
   </div>
   <div class="filter-bar">
+    <span class="filter-label">プリセット</span>
+    <div class="filter-group" id="fg-preset">
+      <div class="ftag on" data-preset="all" onclick="applyScreenPreset('all')">標準</div>
+      <div class="ftag" data-preset="value" onclick="applyScreenPreset('value')">低PBR</div>
+      <div class="ftag" data-preset="improving" onclick="applyScreenPreset('improving')">PBR改善</div>
+    </div>
+    <div class="sep-v"></div>
     <span class="filter-label">カテゴリ</span>
     <div class="filter-group" id="fg-cat">
-      <div class="ftag on"   data-cat="all" onclick="fToggle(this,'cat')">すべて</div>
+      <div class="ftag on"   data-cat="all" onclick="fToggle(this,'cat')">全て</div>
       <div class="ftag"      data-cat="G"   onclick="fToggle(this,'cat')" style="--ac:var(--accent)">グロース</div>
       <div class="ftag"      data-cat="V"   onclick="fToggle(this,'cat')" style="--ac:var(--purple)">バリュー</div>
       <div class="ftag"      data-cat="C"   onclick="fToggle(this,'cat')" style="--ac:var(--amber)">シクリカル</div>
@@ -372,20 +405,19 @@
     <div class="sep-v"></div>
     <span class="filter-label">PBR</span>
     <div class="filter-group" id="fg-pbr">
-      <div class="ftag on" data-pbr="all" onclick="fToggle(this,'pbr')">すべて</div>
-      <div class="ftag" data-pbr="below1" onclick="fToggle(this,'pbr')">1倍割れ</div>
+      <div class="ftag on" data-pbr="all" onclick="fToggle(this,'pbr')">全て</div>
+      <div class="ftag" data-pbr="below1" onclick="fToggle(this,'pbr')">～1倍</div>
       <div class="ftag" data-pbr="1to2"   onclick="fToggle(this,'pbr')">1〜2倍</div>
-      <div class="ftag" data-pbr="above2" onclick="fToggle(this,'pbr')">2倍超</div>
+      <div class="ftag" data-pbr="above2" onclick="fToggle(this,'pbr')">2倍～</div>
     </div>
     <div class="sep-v"></div>
     <div class="slider-wrap">
       <span class="filter-label">PBR変化 ≥</span>
       <input type="range" min="-1" max="2" step="0.1" value="-1" id="sl-chg" oninput="updateSl()">
-      <span id="sl-val" style="font-family:var(--mono);font-size:11px;color:var(--accent);min-width:30px">−</span>
+      <span id="sl-val" style="font-family:var(--mono);font-size:11px;color:var(--accent);min-width:30px">｜</span>
     </div>
-    <div class="sep-v"></div>
     <input type="search" id="screenSearch" placeholder="業種名検索…" oninput="setSearch(this.value)"
-      style="background:var(--bg3);border:1px solid var(--border2);color:var(--text);padding:3px 9px;border-radius:5px;font-size:11px;outline:none;width:120px" autocomplete="off">
+      style="background:var(--bg3);border:1px solid var(--border2);color:var(--text);padding:3px 9px;border-radius:5px;font-size:11px;outline:none;width:100px" autocomplete="off">
   </div>
 
   <div class="card">
@@ -1227,7 +1259,7 @@
     <div class="page-summary"><strong>概要：</strong>業種内の代表銘柄を、市場区分や規模で絞り込んで確認します。</div>
     <div class="page-links">
       <button class="page-link" onclick="goto('scatter')">関連: 散布図へ戻る</button>
-      <button class="page-link" onclick="goto('eval',null,true)">関連: 銘柄別評価へ</button>
+      <button class="page-link" onclick="applyStockListToEval()">関連: 絞り込みを評価へ反映</button>
     </div>
   </div>
   <div class="card" style="margin-bottom:12px">
@@ -1280,6 +1312,7 @@
           <th onclick="slSort('mktcap')" style="cursor:pointer;padding:5px 8px;white-space:nowrap;text-align:right">
             時価総額(億) <span class="info-icon" data-tip="時価総額（億円）。&#10;Yahoo JapanのQuoteデータに基づく概算値。" data-tip-pos="bottom">i</span> ↕</th>
           <th style="padding:5px 8px;white-space:nowrap;text-align:center">YF</th>
+          <th style="padding:5px 8px;white-space:nowrap;text-align:center">評価</th>
         </tr>
       </thead>
       <tbody id="slTbody"></tbody>
@@ -1303,6 +1336,7 @@
       <span class="card-title">銘柄別評価</span>
       <span id="stocksAsOf" style="font-size:10px;padding:2px 8px;border-radius:4px;background:var(--bg3);color:var(--hint);font-family:var(--mono)"></span>
       <span id="stocksMemberBadge" style="display:none;font-size:10px;padding:2px 8px;border-radius:4px;background:#29c99a22;color:#29c99a;border:1px solid #29c99a44">🔓 会員ログイン中</span>
+      <span id="stocksCarryoverHint" style="display:none;font-size:10px;padding:2px 8px;border-radius:4px;background:#5b8df622;color:#5b8df6;border:1px solid #5b8df644"></span>
       <div style="margin-left:auto;display:flex;gap:6px;align-items:center;flex-wrap:wrap">
         <input id="stocksSearch" type="text" placeholder="銘柄名・コード検索…" oninput="filterStocksTable()"
           style="padding:3px 8px;font-size:11px;border:1px solid var(--border2);border-radius:4px;background:var(--bg3);color:var(--text);outline:none;width:160px">
