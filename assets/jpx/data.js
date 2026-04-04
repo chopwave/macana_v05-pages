@@ -202,8 +202,6 @@ const SAMPLE_STOCKS={
     ],
   }
 };
-const STOCKS=DASHBOARD_DATA?.stocks || SAMPLE_STOCKS;
-
 // ─── サンプル: 銘柄一覧（J-Quants master ベース）───
 const SAMPLE_STOCK_LIST={
   as_of:'2025-07-31',
@@ -385,6 +383,30 @@ const SAMPLE_STOCK_LIST={
   }
 };
 const STOCK_LIST=DASHBOARD_DATA?.stock_list || SAMPLE_STOCK_LIST;
+function _sampleStocksFromStockList(stockList){
+  const bySector=Object.fromEntries(
+    Object.entries(stockList?.by_sector||{}).map(([sector, rows])=>[
+      sector,
+      rows.map(r=>({
+        code:r.code,
+        name:r.name,
+        score:null,
+        rank:null,
+        dy:null,
+        pbr:null,
+        per:null,
+        price:null,
+        cap:r.mktcap ?? null,
+        steps:[0,0,0,0,0,0,0],
+      }))
+    ])
+  );
+  return {
+    as_of: stockList?.as_of || SAMPLE_STOCKS.as_of,
+    by_sector: bySector,
+  };
+}
+const STOCKS=DASHBOARD_DATA?.stocks || _sampleStocksFromStockList(SAMPLE_STOCK_LIST);
 // 有償会員アクセス制御
 // static site のため完全秘匿はできないが、bundle には平文キーを持たせず
 // PBKDF2 ハッシュ比較 + sessionStorage 保存に寄せる。
