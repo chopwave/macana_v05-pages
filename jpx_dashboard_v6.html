@@ -159,7 +159,7 @@
       </div>
     </div>
     <div style="margin-top:10px;padding:8px 12px;background:var(--bg3);border-radius:6px;font-size:10px;color:var(--hint);line-height:1.7">
-      ⓘ パスキーはブラウザのlocalStorageに保存されます。認証情報はサーバーに送信されません。ブラウザのデータを削除すると再ログインが必要です。
+      ⓘ 認証状態はブラウザの sessionStorage に保存されます。タブやブラウザを閉じると再ログインが必要です。
     </div>
   </div>
 
@@ -1263,7 +1263,7 @@
         <tr style="color:var(--hint);text-align:left;border-bottom:1px solid var(--border2)">
           <th onclick="slSort('code')" style="cursor:pointer;padding:5px 8px;white-space:nowrap">
             コード <span class="info-icon" data-tip="東証証券コード（4桁）。" data-tip-pos="bottom">i</span> ↕</th>
-          <th onclick="slSort('name')" style="cursor:pointer;padding:5px 8px;white-space:nowrap">
+          <th onclick="slSort('name')" style="cursor:pointer;padding:5px 8px;white-space:nowrap;width:220px;max-width:220px">
             銘柄名 <span class="info-icon" data-tip="正式会社名（日本語）。" data-tip-pos="bottom">i</span> ↕</th>
           <th onclick="slSort('s17')" style="cursor:pointer;padding:5px 8px;white-space:nowrap;text-align:right">
             17C <span class="info-icon" data-tip="J-Quants 17業種コード。&#10;TOPIXの17業種分類に対応する数値コード。" data-tip-pos="bottom">i</span> ↕</th>

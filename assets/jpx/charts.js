@@ -164,7 +164,7 @@ function updateDataModePill(){
   if(!el) return;
   el.classList.remove('pill-amber','pill-green');
   let member=false;
-  try{ member=localStorage.getItem('jpxMemberAuth')===MEMBER_KEY; }catch(_e){}
+  try{ member=isMemberAuthorized(); }catch(_e){}
   if(DASHBOARD_DATA){
     el.textContent='実データ ⇌';
     el.classList.add('pill-green');

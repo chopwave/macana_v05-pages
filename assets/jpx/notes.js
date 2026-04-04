@@ -39,7 +39,7 @@ let _noteFilterTeam='all', _noteFilterTag='all';
 
 function _noteKey(n){return `${n.ts}|${n.author}|${n.text}`;}
 function _notesMember(){
-  try{return localStorage.getItem('jpxMemberAuth')===MEMBER_KEY;}catch(_e){return false;}
+  try{return isMemberAuthorized();}catch(_e){return false;}
 }
 function _requireMemberNotes(action){
   if(_notesMember()) return true;

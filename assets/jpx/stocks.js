@@ -7,10 +7,8 @@ let _stocksRankFilter = 'all';
 let _stocksStepMin = 0;
 
 // ── 会員認証 ──────────────────────────────────────────
-const _MEMBER_LS_KEY = 'jpxMemberAuth';
-
 function _isMember() {
-  return localStorage.getItem(_MEMBER_LS_KEY) === MEMBER_KEY;
+  return isMemberAuthorized();
 }
 
 function showMemberLogin() {
@@ -68,11 +66,23 @@ function showMemberLogin() {
   if (!_isMember()) setTimeout(() => inputArea.focus(), 80);
 }
 
-function _doMemberLogin() {
+async function _doMemberLogin() {
   const input = document.getElementById('memberKeyInput')?.value || '';
   const msgEl = document.getElementById('memberLoginMsg');
-  if (input === MEMBER_KEY) {
-    localStorage.setItem(_MEMBER_LS_KEY, MEMBER_KEY);
+  let matched = false;
+  if (MEMBER_KEY_HASH) {
+    const derived = await _deriveMemberKeyHash(input);
+    matched = derived === MEMBER_KEY_HASH;
+    if (matched) {
+      _memberStorage().setItem(MEMBER_AUTH_STORAGE_KEY, derived);
+    }
+  } else {
+    matched = !!MEMBER_KEY && input === MEMBER_KEY;
+    if (matched) {
+      _memberStorage().setItem(MEMBER_AUTH_STORAGE_KEY, MEMBER_KEY);
+    }
+  }
+  if (matched) {
     document.getElementById('memberLoginDlg')?.close();
     _updateMemberUI();
     if(typeof loadNotes==='function') loadNotes();
@@ -84,7 +94,8 @@ function _doMemberLogin() {
 }
 
 function _doMemberLogout() {
-  localStorage.removeItem(_MEMBER_LS_KEY);
+  try{ _memberStorage().removeItem(MEMBER_AUTH_STORAGE_KEY); }catch(_e){}
+  try{ _legacyMemberStorage().removeItem('jpxMemberAuth'); }catch(_e){}
   document.getElementById('memberLoginDlg')?.close();
   _updateMemberUI();
   if(typeof loadNotes==='function') loadNotes();
@@ -420,7 +431,7 @@ function _slRow(r) {
 
   return `<tr style="border-bottom:1px solid var(--border);line-height:2">
     <td style="padding:4px 8px;font-family:var(--mono);color:var(--muted);white-space:nowrap">${r.code}</td>
-    <td style="padding:4px 8px;color:var(--text);white-space:nowrap">${r.name}</td>
+    <td style="padding:4px 8px;color:var(--text);white-space:nowrap;width:220px;max-width:220px;overflow:hidden;text-overflow:ellipsis">${r.name}</td>
     <td style="padding:4px 8px;text-align:right;font-family:var(--mono);color:var(--hint)">${r.s17 || '–'}</td>
     <td style="padding:4px 8px;color:var(--muted);white-space:nowrap;font-size:10px">${r.s17nm || '–'}</td>
     <td style="padding:4px 8px;text-align:right;font-family:var(--mono);color:var(--hint)">${r.s33 || '–'}</td>
