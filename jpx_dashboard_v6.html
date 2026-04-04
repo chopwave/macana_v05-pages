@@ -148,7 +148,7 @@
       <div>
         <div style="font-weight:500;color:var(--green);margin-bottom:4px">✓ 無料で利用できる機能</div>
         <div style="color:var(--muted)">
-          業種別PBRヒートマップ・PER・時価総額・純資産グラフ（サンプルデータ）、銘柄一覧（J-Quants masterベース、代表銘柄）、景気循環分析、スクリーニング（業種ベース）、全グラフ・チャートの閲覧。
+          業種別PBRヒートマップ・PER・時価総額・純資産グラフ（サンプルデータ）、銘柄一覧（代表銘柄）、景気循環分析、スクリーニング（業種ベース）、全グラフ・チャートの閲覧。
         </div>
       </div>
       <div>
@@ -282,10 +282,10 @@
       <div style="display:flex;gap:14px;padding:10px 0;border-bottom:1px solid var(--border)">
         <div style="width:140px;flex-shrink:0">
           <div style="font-weight:500;font-size:12px;color:var(--text)">銘柄一覧</div>
-          <div style="font-size:10px;color:var(--muted);margin-top:2px">銘柄 › J-Quantsマスター</div>
+          <div style="font-size:10px;color:var(--muted);margin-top:2px">銘柄 › 上場銘柄マスター</div>
         </div>
         <div style="font-size:11px;color:var(--muted);line-height:1.7">
-          J-Quantsの上場銘柄マスターをベースに、東証33業種の全上場銘柄を一覧表示します。業種ピル（33種）・市場区分フィルター・規模区分フィルター・テキスト検索で絞り込み可能。コード・銘柄名・17業種コード/名・33業種コード/名・市場・規模区分・<strong>時価総額（億円）</strong>を表示し、<strong>↗ ボタンでYahoo Finance Japanを新しいタブで開く</strong>ことができます。サンプルモードでは代表銘柄のみ表示、実データは有償会員で確認できます。
+          上場銘柄マスターをベースに、東証33業種の全上場銘柄を一覧表示します。業種ピル（33種）・市場区分フィルター・規模区分フィルター・テキスト検索で絞り込み可能。コード・銘柄名・17業種コード/名・33業種コード/名・市場・規模区分・<strong>時価総額（億円）</strong>を表示し、<strong>↗ ボタンでYahoo Finance Japanを新しいタブで開く</strong>ことができます。サンプルモードでは代表銘柄のみ表示、実データは有償会員で確認できます。
         </div>
       </div>
 
@@ -326,7 +326,7 @@
       </div>
       <div>
         <div style="font-weight:500;color:var(--text);margin-bottom:4px">対象業種・指標</div>
-        <div style="color:var(--muted)">東証33業種の加重PBR・加重PER・時価総額・上場社数・配当利回りを月次で管理します。銘柄一覧はJ-Quantsマスターキャッシュから取得、銘柄の時価総額はJ-Quants daily barsの最新終値 × Yahoo JP発行済み株式数から算出します。</div>
+        <div style="color:var(--muted)">東証33業種の加重PBR・加重PER・時価総額・上場社数・配当利回りを月次で管理します。銘柄一覧は上場銘柄マスターのキャッシュから取得し、銘柄の時価総額は最新終値 × Yahoo JP発行済み株式数から算出します。</div>
       </div>
       <div>
         <div style="font-weight:500;color:var(--text);margin-bottom:4px">景気指標（分析④）</div>
@@ -1266,13 +1266,13 @@
           <th onclick="slSort('name')" style="cursor:pointer;padding:5px 8px;white-space:nowrap;width:220px;max-width:220px">
             銘柄名 <span class="info-icon" data-tip="正式会社名（日本語）。" data-tip-pos="bottom">i</span> ↕</th>
           <th onclick="slSort('s17')" style="cursor:pointer;padding:5px 8px;white-space:nowrap;text-align:right">
-            17C <span class="info-icon" data-tip="J-Quants 17業種コード。&#10;TOPIXの17業種分類に対応する数値コード。" data-tip-pos="bottom">i</span> ↕</th>
+            17C <span class="info-icon" data-tip="17業種コード。&#10;TOPIXの17業種分類に対応する数値コード。" data-tip-pos="bottom">i</span> ↕</th>
           <th onclick="slSort('s17nm')" style="cursor:pointer;padding:5px 8px;white-space:nowrap">
-            17業種名 <span class="info-icon" data-tip="J-Quants 17業種分類名。&#10;33業種より粗い大分類（例：電機・精密、IT・サービス他）。" data-tip-pos="bottom">i</span> ↕</th>
+            17業種名 <span class="info-icon" data-tip="17業種分類名。&#10;33業種より粗い大分類（例：電機・精密、IT・サービス他）。" data-tip-pos="bottom">i</span> ↕</th>
           <th onclick="slSort('s33')" style="cursor:pointer;padding:5px 8px;white-space:nowrap;text-align:right">
-            33C <span class="info-icon" data-tip="J-Quants 33業種コード。&#10;東証33業種分類に対応する数値コード。" data-tip-pos="bottom">i</span> ↕</th>
+            33C <span class="info-icon" data-tip="33業種コード。&#10;東証33業種分類に対応する数値コード。" data-tip-pos="bottom">i</span> ↕</th>
           <th onclick="slSort('s33nm')" style="cursor:pointer;padding:5px 8px;white-space:nowrap">
-            33業種名 <span class="info-icon" data-tip="J-Quants 33業種分類名。&#10;東証の業種大分類（例：電気機器、情報・通信業）。" data-tip-pos="bottom">i</span> ↕</th>
+            33業種名 <span class="info-icon" data-tip="33業種分類名。&#10;東証の業種大分類（例：電気機器、情報・通信業）。" data-tip-pos="bottom">i</span> ↕</th>
           <th onclick="slSort('mkt')" style="cursor:pointer;padding:5px 8px;white-space:nowrap">
             市場 <span class="info-icon" data-tip="上場市場区分。&#10;プライム / スタンダード / グロース" data-tip-pos="bottom">i</span> ↕</th>
           <th onclick="slSort('scale')" style="cursor:pointer;padding:5px 8px;white-space:nowrap">

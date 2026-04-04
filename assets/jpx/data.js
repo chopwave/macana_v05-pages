@@ -202,7 +202,7 @@ const SAMPLE_STOCKS={
     ],
   }
 };
-// ─── サンプル: 銘柄一覧（J-Quants master ベース）───
+// ─── サンプル: 銘柄一覧（上場銘柄マスター ベース）───
 const SAMPLE_STOCK_LIST={
   as_of:'2025-07-31',
   by_sector:{
