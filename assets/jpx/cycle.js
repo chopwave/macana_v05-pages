@@ -373,6 +373,9 @@ function initCycleCharts(){
       });
     }
   };
+  const _y2DataMax=Math.max(...JGB10Y.filter(v=>v!=null),...POL_RATE.filter(v=>v!=null));
+  const _y2Max=Math.max(2.0,Math.ceil((_y2DataMax+0.3)*10)/10);
+  const _y2Min=Math.min(-0.3,...POL_RATE.filter(v=>v!=null));
   charts.cyclePhase=new Chart(document.getElementById('cyclePhaseC'),{
     type:'line',
     plugins:[phasePlugin],
@@ -396,7 +399,7 @@ function initCycleCharts(){
         y:{position:'left',ticks:{color:themeMode==='light' ? '#0f9f6e' : '#29c99a',font:{size:10}},
           grid:{color:chartGridColor()},title:{display:true,text:'CI一致指数',color:chartTickColor(),font:{size:10}}},
         y2:{position:'right',ticks:{color:accentAmber(),font:{size:10},callback:v=>v+'%'},
-          grid:{display:false},min:-0.3,max:2.0}
+          grid:{display:false},min:_y2Min,max:_y2Max}
       }
     }
   });
