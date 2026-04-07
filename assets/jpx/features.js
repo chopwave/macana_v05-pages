@@ -111,8 +111,8 @@ function renderPhaseHistory(){
 
 // ────── C-5: キーボードショートカット ──────
 (function(){
-  const PAGES=['overview','screen','val','pbr1','event','scatter','decomp','cycle','eval'];
-  const PAGE_LABELS=['1:全体サマリー','2:スクリーニング','3:バリュエーション','4:PBR1倍割れ','5:イベント','6:散布図','7:成長要因','8:景気循環','9:銘柄別評価'];
+  const PAGES=['overview','screen','val','pbr1','event','scatter','decomp','cycle','eval','stocks'];
+  const PAGE_LABELS=['1:全体サマリー','2:スクリーニング','3:バリュエーション','4:PBR1倍割れ','5:イベント','6:散布図','7:成長要因','8:景気循環','9:銘柄別評価','0:銘柄一覧'];
   function advanceYm(dir){
     const sel=document.getElementById('ymSel');
     if(!sel) return;
@@ -129,6 +129,7 @@ function renderPhaseHistory(){
       const idx=parseInt(e.key)-1;
       if(idx<PAGES.length) goto(PAGES[idx],null,false);
     }
+    else if(e.key==='0') goto(PAGES[9],null,false);
     else if(e.key==='t'||e.key==='T') toggleTheme();
     else if(e.key==='?') showShortcutHelp();
     else if(e.key==='Escape'){
